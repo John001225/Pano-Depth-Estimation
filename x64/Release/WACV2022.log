@@ -1,1 +1,126 @@
-﻿  WACV2022.vcxproj -> D:\codes\Dreamhost\github_WACV2022_\WACV2022\x64\Release\WACV2022.exe
+﻿  Main.cpp
+  Note: including lib: glut32.lib
+D:\sheng\WACV2023-High-Resolution-Depth-Estimation-for-360deg-Panoramas-Through-Perspective-and-Panoramic-Dep\Main.cpp(176,12): warning C4244: '=': 將 'double' 轉換為 'float'，由於類型不同，可能導致資料遺失
+D:\sheng\WACV2023-High-Resolution-Depth-Estimation-for-360deg-Panoramas-Through-Perspective-and-Panoramic-Dep\Main.cpp(177,16): warning C4244: '正在初始化': 將 'double' 轉換為 'float'，由於類型不同，可能導致資料遺失
+D:\sheng\WACV2023-High-Resolution-Depth-Estimation-for-360deg-Panoramas-Through-Perspective-and-Panoramic-Dep\Main.cpp(178,33): warning C4244: '=': 將 'double' 轉換為 'float'，由於類型不同，可能導致資料遺失
+D:\sheng\WACV2023-High-Resolution-Depth-Estimation-for-360deg-Panoramas-Through-Perspective-and-Panoramic-Dep\Main.cpp(339,14): warning C4244: '正在初始化': 將 'double' 轉換為 'float'，由於類型不同，可能導致資料遺失
+D:\sheng\WACV2023-High-Resolution-Depth-Estimation-for-360deg-Panoramas-Through-Perspective-and-Panoramic-Dep\Main.cpp(340,14): warning C4244: '正在初始化': 將 'double' 轉換為 'float'，由於類型不同，可能導致資料遺失
+D:\sheng\WACV2023-High-Resolution-Depth-Estimation-for-360deg-Panoramas-Through-Perspective-and-Panoramic-Dep\Main.cpp(341,16): warning C4244: '正在初始化': 將 'double' 轉換為 'float'，由於類型不同，可能導致資料遺失
+D:\sheng\WACV2023-High-Resolution-Depth-Estimation-for-360deg-Panoramas-Through-Perspective-and-Panoramic-Dep\Main.cpp(366,23): warning C4244: '正在初始化': 將 'float' 轉換為 'int'，由於類型不同，可能導致資料遺失
+D:\sheng\WACV2023-High-Resolution-Depth-Estimation-for-360deg-Panoramas-Through-Perspective-and-Panoramic-Dep\Main.cpp(375,28): warning C4244: '=': 將 'float' 轉換為 'int'，由於類型不同，可能導致資料遺失
+D:\sheng\WACV2023-High-Resolution-Depth-Estimation-for-360deg-Panoramas-Through-Perspective-and-Panoramic-Dep\Main.cpp(383,27): warning C4244: '=': 將 'float' 轉換為 'int'，由於類型不同，可能導致資料遺失
+D:\sheng\WACV2023-High-Resolution-Depth-Estimation-for-360deg-Panoramas-Through-Perspective-and-Panoramic-Dep\Main.cpp(1388,15): warning C4244: '正在初始化': 將 'double' 轉換為 'float'，由於類型不同，可能導致資料遺失
+D:\sheng\WACV2023-High-Resolution-Depth-Estimation-for-360deg-Panoramas-Through-Perspective-and-Panoramic-Dep\Main.cpp(1388,40): warning C4244: '正在初始化': 將 'double' 轉換為 'float'，由於類型不同，可能導致資料遺失
+D:\sheng\WACV2023-High-Resolution-Depth-Estimation-for-360deg-Panoramas-Through-Perspective-and-Panoramic-Dep\Main.cpp(1389,15): warning C4244: '正在初始化': 將 'double' 轉換為 'float'，由於類型不同，可能導致資料遺失
+D:\sheng\WACV2023-High-Resolution-Depth-Estimation-for-360deg-Panoramas-Through-Perspective-and-Panoramic-Dep\Main.cpp(1389,41): warning C4244: '正在初始化': 將 'double' 轉換為 'float'，由於類型不同，可能導致資料遺失
+D:\sheng\WACV2023-High-Resolution-Depth-Estimation-for-360deg-Panoramas-Through-Perspective-and-Panoramic-Dep\Main.cpp(1390,15): warning C4244: '正在初始化': 將 'double' 轉換為 'float'，由於類型不同，可能導致資料遺失
+D:\sheng\WACV2023-High-Resolution-Depth-Estimation-for-360deg-Panoramas-Through-Perspective-and-Panoramic-Dep\Main.cpp(1390,42): warning C4244: '正在初始化': 將 'double' 轉換為 'float'，由於類型不同，可能導致資料遺失
+D:\sheng\WACV2023-High-Resolution-Depth-Estimation-for-360deg-Panoramas-Through-Perspective-and-Panoramic-Dep\Main.cpp(1391,15): warning C4244: '正在初始化': 將 'double' 轉換為 'float'，由於類型不同，可能導致資料遺失
+D:\sheng\WACV2023-High-Resolution-Depth-Estimation-for-360deg-Panoramas-Through-Perspective-and-Panoramic-Dep\Main.cpp(1391,42): warning C4244: '正在初始化': 將 'double' 轉換為 'float'，由於類型不同，可能導致資料遺失
+D:\sheng\WACV2023-High-Resolution-Depth-Estimation-for-360deg-Panoramas-Through-Perspective-and-Panoramic-Dep\Main.cpp(1392,15): warning C4244: '正在初始化': 將 'double' 轉換為 'float'，由於類型不同，可能導致資料遺失
+D:\sheng\WACV2023-High-Resolution-Depth-Estimation-for-360deg-Panoramas-Through-Perspective-and-Panoramic-Dep\Main.cpp(1392,42): warning C4244: '正在初始化': 將 'double' 轉換為 'float'，由於類型不同，可能導致資料遺失
+D:\sheng\WACV2023-High-Resolution-Depth-Estimation-for-360deg-Panoramas-Through-Perspective-and-Panoramic-Dep\Main.cpp(1454,19): warning C4244: '=': 將 'double' 轉換為 'float'，由於類型不同，可能導致資料遺失
+D:\sheng\WACV2023-High-Resolution-Depth-Estimation-for-360deg-Panoramas-Through-Perspective-and-Panoramic-Dep\Main.cpp(1454,45): warning C4244: '=': 將 'double' 轉換為 'float'，由於類型不同，可能導致資料遺失
+D:\sheng\WACV2023-High-Resolution-Depth-Estimation-for-360deg-Panoramas-Through-Perspective-and-Panoramic-Dep\Main.cpp(1455,20): warning C4244: '=': 將 'double' 轉換為 'float'，由於類型不同，可能導致資料遺失
+D:\sheng\WACV2023-High-Resolution-Depth-Estimation-for-360deg-Panoramas-Through-Perspective-and-Panoramic-Dep\Main.cpp(1455,47): warning C4244: '=': 將 'double' 轉換為 'float'，由於類型不同，可能導致資料遺失
+D:\sheng\WACV2023-High-Resolution-Depth-Estimation-for-360deg-Panoramas-Through-Perspective-and-Panoramic-Dep\Main.cpp(1456,21): warning C4244: '=': 將 'double' 轉換為 'float'，由於類型不同，可能導致資料遺失
+D:\sheng\WACV2023-High-Resolution-Depth-Estimation-for-360deg-Panoramas-Through-Perspective-and-Panoramic-Dep\Main.cpp(1456,48): warning C4244: '=': 將 'double' 轉換為 'float'，由於類型不同，可能導致資料遺失
+D:\sheng\WACV2023-High-Resolution-Depth-Estimation-for-360deg-Panoramas-Through-Perspective-and-Panoramic-Dep\Main.cpp(1457,21): warning C4244: '=': 將 'double' 轉換為 'float'，由於類型不同，可能導致資料遺失
+D:\sheng\WACV2023-High-Resolution-Depth-Estimation-for-360deg-Panoramas-Through-Perspective-and-Panoramic-Dep\Main.cpp(1457,48): warning C4244: '=': 將 'double' 轉換為 'float'，由於類型不同，可能導致資料遺失
+D:\sheng\WACV2023-High-Resolution-Depth-Estimation-for-360deg-Panoramas-Through-Perspective-and-Panoramic-Dep\Main.cpp(1537,19): warning C4244: '=': 將 'double' 轉換為 'float'，由於類型不同，可能導致資料遺失
+D:\sheng\WACV2023-High-Resolution-Depth-Estimation-for-360deg-Panoramas-Through-Perspective-and-Panoramic-Dep\Main.cpp(1537,45): warning C4244: '=': 將 'double' 轉換為 'float'，由於類型不同，可能導致資料遺失
+D:\sheng\WACV2023-High-Resolution-Depth-Estimation-for-360deg-Panoramas-Through-Perspective-and-Panoramic-Dep\Main.cpp(1538,20): warning C4244: '=': 將 'double' 轉換為 'float'，由於類型不同，可能導致資料遺失
+D:\sheng\WACV2023-High-Resolution-Depth-Estimation-for-360deg-Panoramas-Through-Perspective-and-Panoramic-Dep\Main.cpp(1538,47): warning C4244: '=': 將 'double' 轉換為 'float'，由於類型不同，可能導致資料遺失
+D:\sheng\WACV2023-High-Resolution-Depth-Estimation-for-360deg-Panoramas-Through-Perspective-and-Panoramic-Dep\Main.cpp(1539,21): warning C4244: '=': 將 'double' 轉換為 'float'，由於類型不同，可能導致資料遺失
+D:\sheng\WACV2023-High-Resolution-Depth-Estimation-for-360deg-Panoramas-Through-Perspective-and-Panoramic-Dep\Main.cpp(1539,48): warning C4244: '=': 將 'double' 轉換為 'float'，由於類型不同，可能導致資料遺失
+D:\sheng\WACV2023-High-Resolution-Depth-Estimation-for-360deg-Panoramas-Through-Perspective-and-Panoramic-Dep\Main.cpp(1540,21): warning C4244: '=': 將 'double' 轉換為 'float'，由於類型不同，可能導致資料遺失
+D:\sheng\WACV2023-High-Resolution-Depth-Estimation-for-360deg-Panoramas-Through-Perspective-and-Panoramic-Dep\Main.cpp(1540,48): warning C4244: '=': 將 'double' 轉換為 'float'，由於類型不同，可能導致資料遺失
+D:\sheng\WACV2023-High-Resolution-Depth-Estimation-for-360deg-Panoramas-Through-Perspective-and-Panoramic-Dep\Main.cpp(1541,21): warning C4244: '=': 將 'double' 轉換為 'float'，由於類型不同，可能導致資料遺失
+D:\sheng\WACV2023-High-Resolution-Depth-Estimation-for-360deg-Panoramas-Through-Perspective-and-Panoramic-Dep\Main.cpp(1541,48): warning C4244: '=': 將 'double' 轉換為 'float'，由於類型不同，可能導致資料遺失
+D:\sheng\WACV2023-High-Resolution-Depth-Estimation-for-360deg-Panoramas-Through-Perspective-and-Panoramic-Dep\Main.cpp(1542,21): warning C4244: '=': 將 'double' 轉換為 'float'，由於類型不同，可能導致資料遺失
+D:\sheng\WACV2023-High-Resolution-Depth-Estimation-for-360deg-Panoramas-Through-Perspective-and-Panoramic-Dep\Main.cpp(1542,48): warning C4244: '=': 將 'double' 轉換為 'float'，由於類型不同，可能導致資料遺失
+D:\sheng\WACV2023-High-Resolution-Depth-Estimation-for-360deg-Panoramas-Through-Perspective-and-Panoramic-Dep\Main.cpp(1603,15): warning C4244: '正在初始化': 將 'double' 轉換為 'float'，由於類型不同，可能導致資料遺失
+D:\sheng\WACV2023-High-Resolution-Depth-Estimation-for-360deg-Panoramas-Through-Perspective-and-Panoramic-Dep\Main.cpp(1603,40): warning C4244: '正在初始化': 將 'double' 轉換為 'float'，由於類型不同，可能導致資料遺失
+D:\sheng\WACV2023-High-Resolution-Depth-Estimation-for-360deg-Panoramas-Through-Perspective-and-Panoramic-Dep\Main.cpp(1604,15): warning C4244: '正在初始化': 將 'double' 轉換為 'float'，由於類型不同，可能導致資料遺失
+D:\sheng\WACV2023-High-Resolution-Depth-Estimation-for-360deg-Panoramas-Through-Perspective-and-Panoramic-Dep\Main.cpp(1604,41): warning C4244: '正在初始化': 將 'double' 轉換為 'float'，由於類型不同，可能導致資料遺失
+D:\sheng\WACV2023-High-Resolution-Depth-Estimation-for-360deg-Panoramas-Through-Perspective-and-Panoramic-Dep\Main.cpp(1605,15): warning C4244: '正在初始化': 將 'double' 轉換為 'float'，由於類型不同，可能導致資料遺失
+D:\sheng\WACV2023-High-Resolution-Depth-Estimation-for-360deg-Panoramas-Through-Perspective-and-Panoramic-Dep\Main.cpp(1605,41): warning C4244: '正在初始化': 將 'double' 轉換為 'float'，由於類型不同，可能導致資料遺失
+D:\sheng\WACV2023-High-Resolution-Depth-Estimation-for-360deg-Panoramas-Through-Perspective-and-Panoramic-Dep\Main.cpp(1606,15): warning C4244: '正在初始化': 將 'double' 轉換為 'float'，由於類型不同，可能導致資料遺失
+D:\sheng\WACV2023-High-Resolution-Depth-Estimation-for-360deg-Panoramas-Through-Perspective-and-Panoramic-Dep\Main.cpp(1606,42): warning C4244: '正在初始化': 將 'double' 轉換為 'float'，由於類型不同，可能導致資料遺失
+D:\sheng\WACV2023-High-Resolution-Depth-Estimation-for-360deg-Panoramas-Through-Perspective-and-Panoramic-Dep\Main.cpp(1607,15): warning C4244: '正在初始化': 將 'double' 轉換為 'float'，由於類型不同，可能導致資料遺失
+D:\sheng\WACV2023-High-Resolution-Depth-Estimation-for-360deg-Panoramas-Through-Perspective-and-Panoramic-Dep\Main.cpp(1607,42): warning C4244: '正在初始化': 將 'double' 轉換為 'float'，由於類型不同，可能導致資料遺失
+D:\sheng\WACV2023-High-Resolution-Depth-Estimation-for-360deg-Panoramas-Through-Perspective-and-Panoramic-Dep\Main.cpp(1608,15): warning C4244: '正在初始化': 將 'double' 轉換為 'float'，由於類型不同，可能導致資料遺失
+D:\sheng\WACV2023-High-Resolution-Depth-Estimation-for-360deg-Panoramas-Through-Perspective-and-Panoramic-Dep\Main.cpp(1608,42): warning C4244: '正在初始化': 將 'double' 轉換為 'float'，由於類型不同，可能導致資料遺失
+D:\sheng\WACV2023-High-Resolution-Depth-Estimation-for-360deg-Panoramas-Through-Perspective-and-Panoramic-Dep\Main.cpp(1609,15): warning C4244: '正在初始化': 將 'double' 轉換為 'float'，由於類型不同，可能導致資料遺失
+D:\sheng\WACV2023-High-Resolution-Depth-Estimation-for-360deg-Panoramas-Through-Perspective-and-Panoramic-Dep\Main.cpp(1609,42): warning C4244: '正在初始化': 將 'double' 轉換為 'float'，由於類型不同，可能導致資料遺失
+D:\sheng\WACV2023-High-Resolution-Depth-Estimation-for-360deg-Panoramas-Through-Perspective-and-Panoramic-Dep\Main.cpp(1610,15): warning C4244: '正在初始化': 將 'double' 轉換為 'float'，由於類型不同，可能導致資料遺失
+D:\sheng\WACV2023-High-Resolution-Depth-Estimation-for-360deg-Panoramas-Through-Perspective-and-Panoramic-Dep\Main.cpp(1610,42): warning C4244: '正在初始化': 將 'double' 轉換為 'float'，由於類型不同，可能導致資料遺失
+D:\sheng\WACV2023-High-Resolution-Depth-Estimation-for-360deg-Panoramas-Through-Perspective-and-Panoramic-Dep\Main.cpp(1691,19): warning C4244: '=': 將 'double' 轉換為 'float'，由於類型不同，可能導致資料遺失
+D:\sheng\WACV2023-High-Resolution-Depth-Estimation-for-360deg-Panoramas-Through-Perspective-and-Panoramic-Dep\Main.cpp(1691,54): warning C4244: '=': 將 'double' 轉換為 'float'，由於類型不同，可能導致資料遺失
+D:\sheng\WACV2023-High-Resolution-Depth-Estimation-for-360deg-Panoramas-Through-Perspective-and-Panoramic-Dep\Main.cpp(1692,29): warning C4244: '=': 將 'double' 轉換為 'float'，由於類型不同，可能導致資料遺失
+D:\sheng\WACV2023-High-Resolution-Depth-Estimation-for-360deg-Panoramas-Through-Perspective-and-Panoramic-Dep\Main.cpp(1692,66): warning C4244: '=': 將 'double' 轉換為 'float'，由於類型不同，可能導致資料遺失
+D:\sheng\WACV2023-High-Resolution-Depth-Estimation-for-360deg-Panoramas-Through-Perspective-and-Panoramic-Dep\Main.cpp(1693,30): warning C4244: '=': 將 'double' 轉換為 'float'，由於類型不同，可能導致資料遺失
+D:\sheng\WACV2023-High-Resolution-Depth-Estimation-for-360deg-Panoramas-Through-Perspective-and-Panoramic-Dep\Main.cpp(1693,67): warning C4244: '=': 將 'double' 轉換為 'float'，由於類型不同，可能導致資料遺失
+D:\sheng\WACV2023-High-Resolution-Depth-Estimation-for-360deg-Panoramas-Through-Perspective-and-Panoramic-Dep\Main.cpp(1694,30): warning C4244: '=': 將 'double' 轉換為 'float'，由於類型不同，可能導致資料遺失
+D:\sheng\WACV2023-High-Resolution-Depth-Estimation-for-360deg-Panoramas-Through-Perspective-and-Panoramic-Dep\Main.cpp(1694,67): warning C4244: '=': 將 'double' 轉換為 'float'，由於類型不同，可能導致資料遺失
+D:\sheng\WACV2023-High-Resolution-Depth-Estimation-for-360deg-Panoramas-Through-Perspective-and-Panoramic-Dep\Main.cpp(1695,30): warning C4244: '=': 將 'double' 轉換為 'float'，由於類型不同，可能導致資料遺失
+D:\sheng\WACV2023-High-Resolution-Depth-Estimation-for-360deg-Panoramas-Through-Perspective-and-Panoramic-Dep\Main.cpp(1695,67): warning C4244: '=': 將 'double' 轉換為 'float'，由於類型不同，可能導致資料遺失
+D:\sheng\WACV2023-High-Resolution-Depth-Estimation-for-360deg-Panoramas-Through-Perspective-and-Panoramic-Dep\Main.cpp(1696,30): warning C4244: '=': 將 'double' 轉換為 'float'，由於類型不同，可能導致資料遺失
+D:\sheng\WACV2023-High-Resolution-Depth-Estimation-for-360deg-Panoramas-Through-Perspective-and-Panoramic-Dep\Main.cpp(1696,58): warning C4244: '=': 將 'double' 轉換為 'float'，由於類型不同，可能導致資料遺失
+D:\sheng\WACV2023-High-Resolution-Depth-Estimation-for-360deg-Panoramas-Through-Perspective-and-Panoramic-Dep\Main.cpp(1760,15): warning C4244: '正在初始化': 將 'double' 轉換為 'float'，由於類型不同，可能導致資料遺失
+D:\sheng\WACV2023-High-Resolution-Depth-Estimation-for-360deg-Panoramas-Through-Perspective-and-Panoramic-Dep\Main.cpp(1760,40): warning C4244: '正在初始化': 將 'double' 轉換為 'float'，由於類型不同，可能導致資料遺失
+D:\sheng\WACV2023-High-Resolution-Depth-Estimation-for-360deg-Panoramas-Through-Perspective-and-Panoramic-Dep\Main.cpp(1761,15): warning C4244: '正在初始化': 將 'double' 轉換為 'float'，由於類型不同，可能導致資料遺失
+D:\sheng\WACV2023-High-Resolution-Depth-Estimation-for-360deg-Panoramas-Through-Perspective-and-Panoramic-Dep\Main.cpp(1761,41): warning C4244: '正在初始化': 將 'double' 轉換為 'float'，由於類型不同，可能導致資料遺失
+D:\sheng\WACV2023-High-Resolution-Depth-Estimation-for-360deg-Panoramas-Through-Perspective-and-Panoramic-Dep\Main.cpp(1762,15): warning C4244: '正在初始化': 將 'double' 轉換為 'float'，由於類型不同，可能導致資料遺失
+D:\sheng\WACV2023-High-Resolution-Depth-Estimation-for-360deg-Panoramas-Through-Perspective-and-Panoramic-Dep\Main.cpp(1762,42): warning C4244: '正在初始化': 將 'double' 轉換為 'float'，由於類型不同，可能導致資料遺失
+D:\sheng\WACV2023-High-Resolution-Depth-Estimation-for-360deg-Panoramas-Through-Perspective-and-Panoramic-Dep\Main.cpp(1763,15): warning C4244: '正在初始化': 將 'double' 轉換為 'float'，由於類型不同，可能導致資料遺失
+D:\sheng\WACV2023-High-Resolution-Depth-Estimation-for-360deg-Panoramas-Through-Perspective-and-Panoramic-Dep\Main.cpp(1763,42): warning C4244: '正在初始化': 將 'double' 轉換為 'float'，由於類型不同，可能導致資料遺失
+D:\sheng\WACV2023-High-Resolution-Depth-Estimation-for-360deg-Panoramas-Through-Perspective-and-Panoramic-Dep\Main.cpp(1764,15): warning C4244: '正在初始化': 將 'double' 轉換為 'float'，由於類型不同，可能導致資料遺失
+D:\sheng\WACV2023-High-Resolution-Depth-Estimation-for-360deg-Panoramas-Through-Perspective-and-Panoramic-Dep\Main.cpp(1764,42): warning C4244: '正在初始化': 將 'double' 轉換為 'float'，由於類型不同，可能導致資料遺失
+D:\sheng\WACV2023-High-Resolution-Depth-Estimation-for-360deg-Panoramas-Through-Perspective-and-Panoramic-Dep\Main.cpp(1793,32): warning C4244: '正在初始化': 將 'double' 轉換為 'float'，由於類型不同，可能導致資料遺失
+D:\sheng\WACV2023-High-Resolution-Depth-Estimation-for-360deg-Panoramas-Through-Perspective-and-Panoramic-Dep\Main.cpp(1800,15): warning C4244: '正在初始化': 將 'double' 轉換為 'float'，由於類型不同，可能導致資料遺失
+D:\sheng\WACV2023-High-Resolution-Depth-Estimation-for-360deg-Panoramas-Through-Perspective-and-Panoramic-Dep\Main.cpp(1800,42): warning C4244: '正在初始化': 將 'double' 轉換為 'float'，由於類型不同，可能導致資料遺失
+D:\sheng\WACV2023-High-Resolution-Depth-Estimation-for-360deg-Panoramas-Through-Perspective-and-Panoramic-Dep\Main.cpp(1807,15): warning C4244: '正在初始化': 將 'double' 轉換為 'float'，由於類型不同，可能導致資料遺失
+D:\sheng\WACV2023-High-Resolution-Depth-Estimation-for-360deg-Panoramas-Through-Perspective-and-Panoramic-Dep\Main.cpp(1829,19): warning C4244: '=': 將 'double' 轉換為 'float'，由於類型不同，可能導致資料遺失
+D:\sheng\WACV2023-High-Resolution-Depth-Estimation-for-360deg-Panoramas-Through-Perspective-and-Panoramic-Dep\Main.cpp(1829,54): warning C4244: '=': 將 'double' 轉換為 'float'，由於類型不同，可能導致資料遺失
+D:\sheng\WACV2023-High-Resolution-Depth-Estimation-for-360deg-Panoramas-Through-Perspective-and-Panoramic-Dep\Main.cpp(1830,29): warning C4244: '=': 將 'double' 轉換為 'float'，由於類型不同，可能導致資料遺失
+D:\sheng\WACV2023-High-Resolution-Depth-Estimation-for-360deg-Panoramas-Through-Perspective-and-Panoramic-Dep\Main.cpp(1830,66): warning C4244: '=': 將 'double' 轉換為 'float'，由於類型不同，可能導致資料遺失
+D:\sheng\WACV2023-High-Resolution-Depth-Estimation-for-360deg-Panoramas-Through-Perspective-and-Panoramic-Dep\Main.cpp(1831,30): warning C4244: '=': 將 'double' 轉換為 'float'，由於類型不同，可能導致資料遺失
+D:\sheng\WACV2023-High-Resolution-Depth-Estimation-for-360deg-Panoramas-Through-Perspective-and-Panoramic-Dep\Main.cpp(1831,67): warning C4244: '=': 將 'double' 轉換為 'float'，由於類型不同，可能導致資料遺失
+D:\sheng\WACV2023-High-Resolution-Depth-Estimation-for-360deg-Panoramas-Through-Perspective-and-Panoramic-Dep\Main.cpp(1832,30): warning C4244: '=': 將 'double' 轉換為 'float'，由於類型不同，可能導致資料遺失
+D:\sheng\WACV2023-High-Resolution-Depth-Estimation-for-360deg-Panoramas-Through-Perspective-and-Panoramic-Dep\Main.cpp(1832,67): warning C4244: '=': 將 'double' 轉換為 'float'，由於類型不同，可能導致資料遺失
+D:\sheng\WACV2023-High-Resolution-Depth-Estimation-for-360deg-Panoramas-Through-Perspective-and-Panoramic-Dep\Main.cpp(1833,30): warning C4244: '=': 將 'double' 轉換為 'float'，由於類型不同，可能導致資料遺失
+D:\sheng\WACV2023-High-Resolution-Depth-Estimation-for-360deg-Panoramas-Through-Perspective-and-Panoramic-Dep\Main.cpp(1833,67): warning C4244: '=': 將 'double' 轉換為 'float'，由於類型不同，可能導致資料遺失
+D:\sheng\WACV2023-High-Resolution-Depth-Estimation-for-360deg-Panoramas-Through-Perspective-and-Panoramic-Dep\Main.cpp(1834,30): warning C4244: '=': 將 'double' 轉換為 'float'，由於類型不同，可能導致資料遺失
+D:\sheng\WACV2023-High-Resolution-Depth-Estimation-for-360deg-Panoramas-Through-Perspective-and-Panoramic-Dep\Main.cpp(1834,58): warning C4244: '=': 將 'double' 轉換為 'float'，由於類型不同，可能導致資料遺失
+D:\sheng\WACV2023-High-Resolution-Depth-Estimation-for-360deg-Panoramas-Through-Perspective-and-Panoramic-Dep\Main.cpp(1869,33): warning C4244: '正在初始化': 將 'double' 轉換為 'float'，由於類型不同，可能導致資料遺失
+D:\sheng\WACV2023-High-Resolution-Depth-Estimation-for-360deg-Panoramas-Through-Perspective-and-Panoramic-Dep\Main.cpp(1877,16): warning C4244: '正在初始化': 將 'double' 轉換為 'float'，由於類型不同，可能導致資料遺失
+D:\sheng\WACV2023-High-Resolution-Depth-Estimation-for-360deg-Panoramas-Through-Perspective-and-Panoramic-Dep\Main.cpp(1877,43): warning C4244: '正在初始化': 將 'double' 轉換為 'float'，由於類型不同，可能導致資料遺失
+D:\sheng\WACV2023-High-Resolution-Depth-Estimation-for-360deg-Panoramas-Through-Perspective-and-Panoramic-Dep\Main.cpp(1885,16): warning C4244: '正在初始化': 將 'double' 轉換為 'float'，由於類型不同，可能導致資料遺失
+D:\sheng\WACV2023-High-Resolution-Depth-Estimation-for-360deg-Panoramas-Through-Perspective-and-Panoramic-Dep\Main.cpp(1900,15): warning C4244: '正在初始化': 將 'double' 轉換為 'float'，由於類型不同，可能導致資料遺失
+D:\sheng\WACV2023-High-Resolution-Depth-Estimation-for-360deg-Panoramas-Through-Perspective-and-Panoramic-Dep\Main.cpp(1900,40): warning C4244: '正在初始化': 將 'double' 轉換為 'float'，由於類型不同，可能導致資料遺失
+D:\sheng\WACV2023-High-Resolution-Depth-Estimation-for-360deg-Panoramas-Through-Perspective-and-Panoramic-Dep\Main.cpp(1901,15): warning C4244: '正在初始化': 將 'double' 轉換為 'float'，由於類型不同，可能導致資料遺失
+D:\sheng\WACV2023-High-Resolution-Depth-Estimation-for-360deg-Panoramas-Through-Perspective-and-Panoramic-Dep\Main.cpp(1901,41): warning C4244: '正在初始化': 將 'double' 轉換為 'float'，由於類型不同，可能導致資料遺失
+D:\sheng\WACV2023-High-Resolution-Depth-Estimation-for-360deg-Panoramas-Through-Perspective-and-Panoramic-Dep\Main.cpp(1902,15): warning C4244: '正在初始化': 將 'double' 轉換為 'float'，由於類型不同，可能導致資料遺失
+D:\sheng\WACV2023-High-Resolution-Depth-Estimation-for-360deg-Panoramas-Through-Perspective-and-Panoramic-Dep\Main.cpp(1902,42): warning C4244: '正在初始化': 將 'double' 轉換為 'float'，由於類型不同，可能導致資料遺失
+D:\sheng\WACV2023-High-Resolution-Depth-Estimation-for-360deg-Panoramas-Through-Perspective-and-Panoramic-Dep\Main.cpp(1903,15): warning C4244: '正在初始化': 將 'double' 轉換為 'float'，由於類型不同，可能導致資料遺失
+D:\sheng\WACV2023-High-Resolution-Depth-Estimation-for-360deg-Panoramas-Through-Perspective-and-Panoramic-Dep\Main.cpp(1903,42): warning C4244: '正在初始化': 將 'double' 轉換為 'float'，由於類型不同，可能導致資料遺失
+D:\sheng\WACV2023-High-Resolution-Depth-Estimation-for-360deg-Panoramas-Through-Perspective-and-Panoramic-Dep\Main.cpp(1904,15): warning C4244: '正在初始化': 將 'double' 轉換為 'float'，由於類型不同，可能導致資料遺失
+D:\sheng\WACV2023-High-Resolution-Depth-Estimation-for-360deg-Panoramas-Through-Perspective-and-Panoramic-Dep\Main.cpp(1904,42): warning C4244: '正在初始化': 將 'double' 轉換為 'float'，由於類型不同，可能導致資料遺失
+D:\sheng\WACV2023-High-Resolution-Depth-Estimation-for-360deg-Panoramas-Through-Perspective-and-Panoramic-Dep\Main.cpp(1957,15): warning C4244: '正在初始化': 將 'double' 轉換為 'float'，由於類型不同，可能導致資料遺失
+D:\sheng\WACV2023-High-Resolution-Depth-Estimation-for-360deg-Panoramas-Through-Perspective-and-Panoramic-Dep\Main.cpp(1957,40): warning C4244: '正在初始化': 將 'double' 轉換為 'float'，由於類型不同，可能導致資料遺失
+D:\sheng\WACV2023-High-Resolution-Depth-Estimation-for-360deg-Panoramas-Through-Perspective-and-Panoramic-Dep\Main.cpp(1958,15): warning C4244: '正在初始化': 將 'double' 轉換為 'float'，由於類型不同，可能導致資料遺失
+D:\sheng\WACV2023-High-Resolution-Depth-Estimation-for-360deg-Panoramas-Through-Perspective-and-Panoramic-Dep\Main.cpp(1958,42): warning C4244: '正在初始化': 將 'double' 轉換為 'float'，由於類型不同，可能導致資料遺失
+D:\sheng\WACV2023-High-Resolution-Depth-Estimation-for-360deg-Panoramas-Through-Perspective-and-Panoramic-Dep\Main.cpp(1959,15): warning C4244: '正在初始化': 將 'double' 轉換為 'float'，由於類型不同，可能導致資料遺失
+D:\sheng\WACV2023-High-Resolution-Depth-Estimation-for-360deg-Panoramas-Through-Perspective-and-Panoramic-Dep\Main.cpp(1959,42): warning C4244: '正在初始化': 將 'double' 轉換為 'float'，由於類型不同，可能導致資料遺失
+D:\sheng\WACV2023-High-Resolution-Depth-Estimation-for-360deg-Panoramas-Through-Perspective-and-Panoramic-Dep\Main.cpp(1449,9): warning C4101: 'azi40': 未參考的區域變數
+D:\sheng\WACV2023-High-Resolution-Depth-Estimation-for-360deg-Panoramas-Through-Perspective-and-Panoramic-Dep\Main.cpp(1450,9): warning C4101: 'azi50': 未參考的區域變數
+D:\sheng\WACV2023-High-Resolution-Depth-Estimation-for-360deg-Panoramas-Through-Perspective-and-Panoramic-Dep\Main.cpp(1450,16): warning C4101: 'azi51': 未參考的區域變數
+D:\sheng\WACV2023-High-Resolution-Depth-Estimation-for-360deg-Panoramas-Through-Perspective-and-Panoramic-Dep\Main.cpp(1449,16): warning C4101: 'azi41': 未參考的區域變數
+     正在建立程式庫 D:\sheng\WACV2023-High-Resolution-Depth-Estimation-for-360deg-Panoramas-Through-Perspective-and-Panoramic-Dep\x64\Release\WACV2022.lib 和物件 D:\sheng\WACV2023-High-Resolution-Depth-Estimation-for-360deg-Panoramas-Through-Perspective-and-Panoramic-Dep\x64\Release\WACV2022.exp
+  正在產生程式碼
+  2 of 2701 functions (<0.1%) were compiled, the rest were copied from previous compilation.
+    0 functions were new in current compilation
+    17 functions had inline decision re-evaluated but remain unchanged
+  已完成程式碼產生
+  WACV2022.vcxproj -> D:\sheng\WACV2023-High-Resolution-Depth-Estimation-for-360deg-Panoramas-Through-Perspective-and-Panoramic-Dep\x64\Release\WACV2022.exe

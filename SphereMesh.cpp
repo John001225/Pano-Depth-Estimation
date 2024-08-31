@@ -3,6 +3,7 @@
 #include "Basic.h"
 #include "ILMBase.h"
 #include "SphereMesh.h"
+#include <typeinfo>
 
 //for loading textures
 //#define STB_IMAGE_IMPLEMENTATION
@@ -33,26 +34,82 @@ void Texture::Reset()
 
 void LiteMesh::DrawArray()
 {
-	glEnable(GL_LIGHTING);
+	/*float vertices[] = {
+		-0.5f, -0.5f, 0.0f,
+		 0.5f, -0.5f, 0.0f,
+		 0.0f,  0.5f, 0.0f
+	};
+	GLuint vao, vbo;
+	glGenBuffers(1, &vbo);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-	glEnableClientState(GL_NORMAL_ARRAY);
+	glGenVertexArrays(1, &vao);
+	glBindVertexArray(vao);
+
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+
+	glDrawArrays(GL_TRIANGLES, 0, 3);
+
+	glBindVertexArray(0);*/
+
+	GLuint vao, posVbo;
+
+	//create pos vbo
+	glGenBuffers(1, &posVbo);
+	glBindBuffer(GL_ARRAY_BUFFER, posVbo);
+	glBufferData(GL_ARRAY_BUFFER, m_vertices.size() * 3 * sizeof(float), m_varray, GL_STATIC_DRAW);
+
+	glGenVertexArrays(1, &vao);
+	glBindVertexArray(vao);
+
+	//bind the pos attribute to 0
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+
+	//create uv vbo
+	GLuint uvVbo;
+	if (m_tarray) {
+		glGenBuffers(1, &uvVbo);
+		glBindBuffer(GL_ARRAY_BUFFER, uvVbo);
+		glBufferData(GL_ARRAY_BUFFER, m_texcoords.size() * 2 * sizeof(float), m_tarray, GL_STATIC_DRAW);
+		//cout << "here" << m_tarray[10] << endl;
+		//bind the uv attribute to 1
+		glEnableVertexAttribArray(1);
+		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
+	}
+	//cout << "m_texcoords " << m_texcoords.size()*2 << ", m_vertices " << m_vertices.size()*3 << ", m_tri_array_size " << m_tri_array_size << endl;
+
+	// create ebo (the indices of the vertex)
+	GLuint ebo;
+	glGenBuffers(1, &ebo);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_tri_array_size * sizeof(float), m_tri_array, GL_STATIC_DRAW);
+
+	//glEnable(GL_LIGHTING);
+	//glDrawArrays(GL_TRIANGLES, 0, 3);
+	glDrawElements(GL_TRIANGLES, m_tri_array_size, GL_UNSIGNED_INT, 0);
+
+	// disable the attribute array and unbind the vao
+	glDisableVertexAttribArray(0);
 	if (m_tarray)
-		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-	glEnableClientState(GL_VERTEX_ARRAY);
+		glDisableVertexAttribArray(1);
+		glDeleteBuffers(1, &uvVbo);
 
-	glVertexPointer(3, GL_FLOAT, 0, m_varray);
+	glBindVertexArray(0);
+	//glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	glDeleteBuffers(1, &posVbo);
+	glDeleteBuffers(1, &ebo);
+	glDeleteVertexArrays(1, &vao);
+
+	//glDisable(GL_LIGHTING);
 	
-	if (m_tarray)
-		glTexCoordPointer(2, GL_FLOAT, 0, m_tarray);
+
 	
-	glDrawElements(GL_TRIANGLES, m_tri_array_size, GL_UNSIGNED_INT, m_tri_array);
 
-	glDisableClientState(GL_VERTEX_ARRAY);
-	if (m_tarray)
-		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-	glDisableClientState(GL_NORMAL_ARRAY);
-
-	glDisable(GL_LIGHTING);
+	
 }
 
 bool LiteMesh::LoadTexture(const char* filename)
@@ -70,18 +127,20 @@ bool LiteMesh::LoadTexture(const char* filename)
 
 	//generate GL texture
 	glGenTextures(1, &m_texture.id);
+	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, m_texture.id);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	//cout << "channels " << channels << endl;
 	if (channels == 3)
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, m_texture.width, m_texture.height, 0, GL_RGB, GL_UNSIGNED_BYTE, m_texture.data);
 	else if (channels == 4)
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_texture.width, m_texture.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, m_texture.data);
 	else if (channels == 1)
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE, m_texture.width, m_texture.height, 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, m_texture.data);
-	glBindTexture(GL_TEXTURE_2D, 0);
+	//glBindTexture(GL_TEXTURE_2D, 0);
 
 	cout << "[LoadTexture] ok! m_tex_id:" << m_texture.id << endl;
 	return true;
@@ -112,19 +171,24 @@ void LiteMesh::CreateArrays()
 		m_varray[i * 3] = m_vertices[i].x;
 		m_varray[i * 3 + 1] = m_vertices[i].y;
 		m_varray[i * 3 + 2] = m_vertices[i].z;
+		//cout << i << endl;
 	}
+	//cout << typeid(m_varray).name() << endl;
+	//cout << m_vertices.size() << endl;
 
 	//per-vertex texcoords array?
 	if (m_texcoords.size() > 0)
 	{
 		m_tarray = new float[m_texcoords.size() * 2];  //u and v
 
-
 		for (int i = 0; i < m_texcoords.size(); i++)
 		{
 			m_tarray[i * 2] = m_texcoords[i].x;
 			m_tarray[i * 2 + 1] = m_texcoords[i].y;
+			//cout << m_tarray[i * 2] << "," << m_tarray[i * 2 + 1] << endl;
 		}
+		//cout << m_texcoords.size() * 2 << endl;
+		//cout << sizeof(m_tarray) << endl;
 	}
 
 	//setup face indices array
@@ -147,8 +211,10 @@ void LiteMesh::CreateArrays()
 		m_tri_array[i * 3] = tris[i][0];
 		m_tri_array[i * 3 + 1] = tris[i][1];
 		m_tri_array[i * 3 + 2] = tris[i][2];
+		//cout << tris[i][0] << "," << tris[i][1] << "," << tris[i][2] << ",";
 	}
 	m_tri_array_size = tris.size() * 3;
+	//cout << m_tri_array_size << endl;
 }
 
 bool LiteMesh::InitSphere(int latitudes, int longitudes)
@@ -176,6 +242,7 @@ bool LiteMesh::InitSphere(int latitudes, int longitudes)
 			float x = sin(zenith) * cos(azimuth) * radius;
 			float y = sin(zenith) * sin(azimuth) * radius;
 			float z = cos(zenith) * radius;
+			//cout << "X " << x << ", Y " << y << ", Z " << z << ",";
 
 			//texcoord of this vertex (using equirectangular formula):
 			Vec2f texcoord;
@@ -186,6 +253,7 @@ bool LiteMesh::InitSphere(int latitudes, int longitudes)
 			m_texcoords.push_back(texcoord);
 		}
 	}
+	//cout << &m_vertices << endl;
 
 	cout << "[InitSphere] depth_min:" << depth_all_min << " depth_max:" << depth_all_max << endl;
 

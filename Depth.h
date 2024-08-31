@@ -284,9 +284,12 @@ namespace DepthNamespace
 	//mae: mean absolute error
 	//time_total: total time (ms) spent (not including the statistics times)
 	bool MergeDepthMaps(std::string& equirectangular_map_filename, std::vector<std::string>& perspective_map_filenames, std::string& out_filename,
-		std::vector<Vec4f>& perspective_map_FOVs, std::vector<Vec4f>& perspective_map_ranges,
+		std::string& result_folder, std::string& rawname, std::vector<Vec4f>& perspective_map_FOVs, std::vector<Vec4f>& perspective_map_ranges,
 		int out_width, Vec2f& zenith_range, std::string* equirectangular_map_groundtruth = NULL,
 		Metrics* metrics = NULL, int* time_Reg = NULL, int* time_Laplacian = NULL);
+
+	bool CalculateAlignedMetrics(std::string& equirectangular_map_filename, std::string& out_filename, std::string& result_folder, 
+		std::string& rawname, std::string* equirectangular_map_groundtruth = NULL,	Metrics* metrics = NULL);
 	
 	//solve disparity-to-depth transform: y = c * (1 / (ax+b)) + d.  x is disparity, y is depth
 	//pmaps_actives: active-or-not for every given pmaps

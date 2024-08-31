@@ -1,0 +1,63 @@
+[CreateDepthPanormas] argc=6 RGB_folder:.\\rgb\\ gt_folder:.\\gt\\baseline_folder:.\\baseline\\ result_folder:.\\result\\
+[CreateDepthPanormas] #RGB_filenames:1
+OpenGL Vendor: Intel
+OpenGL Renderer: Intel(R) UHD Graphics 630
+OpenGL Version: 4.6.0 - Build 26.20.100.6911
+
+OpenGL 2.0 (or higher) is available!
+[OK] OpenGL Shading Language is available!
+
+***GLSL Compiler Log (Vertex Shader):
+[e06] Compiler log is not available!
+***GLSL Compiler Log (Fragment Shader):
+[e06] Compiler log is not available!
+***GLSL Linker Log:
+[e05] Linker log is not available!
+[InitSphere] depth_min:3.40282e+38 depth_max:0
+[LoadTexture] ok! m_tex_id:1
+[SaveCubeMap] face#0 azi_center:36 fovx:78 fovy:76 aspect:1.03648 dir:(0.670705 0.487296 0.559193) w:1024 h:988
+test_images/panorama.-3_75_18_94.jpg
+[SaveCubeMap] face#1 azi_center:108 fovx:78 fovy:76 aspect:1.03648 dir:(-0.256187 0.788462 0.559193) w:1024 h:988
+test_images/panorama.69_147_18_94.jpg
+[SaveCubeMap] face#2 azi_center:180 fovx:78 fovy:76 aspect:1.03648 dir:(-0.829038 1.25181e-07 0.559193) w:1024 h:988
+test_images/panorama.141_219_18_94.jpg
+[SaveCubeMap] face#3 azi_center:252 fovx:78 fovy:76 aspect:1.03648 dir:(-0.256187 -0.788462 0.559193) w:1024 h:988
+test_images/panorama.213_291_18_94.jpg
+[SaveCubeMap] face#4 azi_center:324 fovx:78 fovy:76 aspect:1.03648 dir:(0.670705 -0.487296 0.559193) w:1024 h:988
+test_images/panorama.285_363_18_94.jpg
+[SaveCubeMap] face#5 azi_center:36 fovx:78 fovy:76 aspect:1.03648 dir:(0.809017 0.587785 7.54979e-08) w:1024 h:988
+test_images/panorama.-3_75_52_128.jpg
+[SaveCubeMap] face#6 azi_center:108 fovx:78 fovy:76 aspect:1.03648 dir:(-0.309017 0.951056 7.54979e-08) w:1024 h:988
+test_images/panorama.69_147_52_128.jpg
+[SaveCubeMap] face#7 azi_center:180 fovx:78 fovy:76 aspect:1.03648 dir:(-1 1.50996e-07 7.54979e-08) w:1024 h:988
+test_images/panorama.141_219_52_128.jpg
+[SaveCubeMap] face#8 azi_center:252 fovx:78 fovy:76 aspect:1.03648 dir:(-0.309017 -0.951056 7.54979e-08) w:1024 h:988
+test_images/panorama.213_291_52_128.jpg
+[SaveCubeMap] face#9 azi_center:324 fovx:78 fovy:76 aspect:1.03648 dir:(0.809017 -0.587785 7.54979e-08) w:1024 h:988
+test_images/panorama.285_363_52_128.jpg
+[SaveCubeMap] face#10 azi_center:36 fovx:78 fovy:76 aspect:1.03648 dir:(0.670705 0.487296 -0.559193) w:1024 h:988
+test_images/panorama.-3_75_86_162.jpg
+[SaveCubeMap] face#11 azi_center:108 fovx:78 fovy:76 aspect:1.03648 dir:(-0.256187 0.788462 -0.559193) w:1024 h:988
+test_images/panorama.69_147_86_162.jpg
+[SaveCubeMap] face#12 azi_center:180 fovx:78 fovy:76 aspect:1.03648 dir:(-0.829038 1.25181e-07 -0.559193) w:1024 h:988
+test_images/panorama.141_219_86_162.jpg
+[SaveCubeMap] face#13 azi_center:252 fovx:78 fovy:76 aspect:1.03648 dir:(-0.256187 -0.788462 -0.559193) w:1024 h:988
+test_images/panorama.213_291_86_162.jpg
+[SaveCubeMap] face#14 azi_center:324 fovx:78 fovy:76 aspect:1.03648 dir:(0.670705 -0.487296 -0.559193) w:1024 h:988
+test_images/panorama.285_363_86_162.jpg
+SaveCubemps done! time:3398
+LeReS done! time:0
+0/1 baseline:.\\baseline\\panorama.jpg
+gt:.\\gt\\panorama.png
+output_filename:.\\result\\panorama.png
+Level0 width:512 height:256(36~220) buffer_size:131072
+Level1 width:1024 height:512(73~439) buffer_size:524288
+Level2 width:2048 height:1024(147~877) buffer_size:2097152
+...All done! @16824
+[EquirectangularMap::Load8bit] stbi_load failed:.\\gt\\panorama.png
+----------
+RMSE_given:0 RMSE_result:0 (-nan(ind)) MAE_given:0 MAE_result_avg:0 (-nan(ind)) MRE_given:0 MRE_result_avg:0 (-nan(ind)) RMSElog_given:0 RMSElog_result:0 (-nan(ind)) delta1_given:0 delta1_result:0 (0) delta2_given:0 delta2_result:0 (0) delta3_given:0 delta3_result:0 (0)
+time_Reg_avg:663 time_Laplacian_avg:15453
+----------
+
+D:\nycu\research\WACV2023-High-Resolution-Depth-Estimation-for-360deg-Panoramas-Through-Perspective-and-Panoramic-Dep\x64\Release\WACV2022.exe (處理序 26072) 已結束，出現代碼 0。

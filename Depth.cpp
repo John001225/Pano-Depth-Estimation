@@ -349,7 +349,7 @@ bool DepthNamespace::EquirectangularMap::Load(std::string& filename, bool mono36
 		}
 		delete Data;
 	}
-	//cout << "[EquirectangularMap::Load] success! 16bit?" << is_16bit << " w:" << width << " h:" << height << " c:" << channels << endl;
+	//std::cout << "[EquirectangularMap::Load] success! 16bit?" << is_16bit << " w:" << width << " h:" << height << " c:" << channels << std::endl;
 
 	return true;
 }
@@ -752,7 +752,7 @@ Vec2i CoordToXY(Vec2f& coord, int out_width, int& out_height)
 }
 
 bool DepthNamespace::MergeDepthMaps(std::string& equirectangular_map_filename, std::vector<std::string>& perspective_map_filenames, std::string& out_filename,
-	std::vector<Vec4f>& pmap_FOVs, std::vector<Vec4f>& pmap_ranges,
+	std::string& result_folder, std::string& rawname, std::vector<Vec4f>& pmap_FOVs, std::vector<Vec4f>& pmap_ranges,
 	int out_width, Vec2f& zenith_range, std::string* equirectangular_map_groundtruth, Metrics* metrics, int* time_Reg, int* time_Laplacian)
 {
 	DWORD time_begin = timeGetTime();
@@ -784,6 +784,7 @@ bool DepthNamespace::MergeDepthMaps(std::string& equirectangular_map_filename, s
 		pmap.ranges[1] = MIN2(pmap_ranges[i][1], D2R(359.9));
 		pmap.ranges[2] = pmap_ranges[i][2];
 		pmap.ranges[3] = pmap_ranges[i][3];
+		
 	}
 
 	//let's solve depth-to-depth register for every pmap first
@@ -814,7 +815,7 @@ bool DepthNamespace::MergeDepthMaps(std::string& equirectangular_map_filename, s
 	std::memset(data, 0, sizeof(unsigned short) * out_width * out_height);  //default is completely black 
 
 	//debug: save directly copy values from pmaps?
-	if (false)
+	if (true)
 	{
 		unsigned short* data2 = new unsigned short[out_width * out_height];
 		std::memset(data2, 0, sizeof(unsigned short) * out_width * out_height);
@@ -825,6 +826,7 @@ bool DepthNamespace::MergeDepthMaps(std::string& equirectangular_map_filename, s
 			{
 				//to spherical coord.
 				Vec2f coord((float)x / (float)(out_width - 1) * 2 * MYPI, (float)y / (float)(out_height - 1) * MYPI);
+
 
 				for (int p = 0; p < pmaps.size(); p++)
 				{
@@ -842,8 +844,9 @@ bool DepthNamespace::MergeDepthMaps(std::string& equirectangular_map_filename, s
 						float val = pmap.Value(xy[0], xy[1]);
 
 						//outline pmap bounding boxes:
-						//if(x == x0 || x == x1 || y == y0 || y == y1)
-						//	val = 1;  
+						/*float val = 0;
+						if(x == x0 || x == x1 || y == y0 || y == y1)
+							val = 1;  */
 
 						data2[y * out_width + x] = (unsigned short)(val * 65535.0f);
 
@@ -855,8 +858,8 @@ bool DepthNamespace::MergeDepthMaps(std::string& equirectangular_map_filename, s
 				}
 			}
 		}
-
-		Save16BitPNG(data2, out_width, out_height, (out_filename + ".pmap.png").c_str());
+		Save16BitPNG(data2, out_width, out_height, (result_folder + "pmap\\" + rawname + ".pmap.png").c_str());
+		//Save16BitPNG(data2, out_width, out_height, (out_filename + ".pmap.png").c_str());
 		//Save16BitPNG(data2, out_width, out_height, (out_filename).c_str());
 
 		delete data2;
@@ -1684,8 +1687,10 @@ bool DepthNamespace::SolveDepthAll(EquirectangularMap& emap, std::vector<Perspec
 
 				//update values by Laplacian masks
 #pragma omp parallel for
+				//if(false)
 				for (int ii = 0; ii < indices_size; ii++)
 				{
+					//int ii = 0; // test, need to be deleted
 					int Y = ii / width + height0;
 					int X = ii % width;
 
@@ -1980,6 +1985,10 @@ private:
 bool DepthNamespace::ErrorData(EquirectangularMap& emap_gt, unsigned short* data, int data_width, int data_height, float& mse, float& mae, float& mre,
 	float &mselog, float& delta1, float& delta2, float& delta3, int align_way, bool cap_depth, Vec2f* least_square_shift, float* median_shift_factor_out)
 {
+
+	std::cout << "!!!!!!!!!!!!!!!!error data!!!!!!!!!!!!!!!!!" << std::endl;
+	std::cout << "aling way " << align_way << std::endl;
+	std::cout << "cap_depth " << cap_depth << std::endl;
 	int height0 = (int)(g_zenith_range[0] / MYPI * data_height);
 	int height1 = (int)(g_zenith_range[1] / MYPI * data_height);
 
@@ -2074,7 +2083,7 @@ bool DepthNamespace::ErrorData(EquirectangularMap& emap_gt, unsigned short* data
 		}
 
 		median_shift_factor = gt_median / given_median;
-		//cout << "[Error_data] ratio:" << ratio_x << "," << ratio_y << " gt_sorted:" << gt_sorted.size() << " gt_median:" << gt_median << " given_median:" << given_median << " median_shift_factor:" << median_shift_factor << endl;
+		std::cout << "[Error_data] ratio:" << ratio_x << "," << ratio_y << " gt_sorted:" << gt_sorted.size() << " gt_median:" << gt_median << " given_median:" << given_median << " median_shift_factor:" << median_shift_factor << std::endl;
 
 		if (median_shift_factor_out)
 			*median_shift_factor_out = median_shift_factor;
@@ -2312,7 +2321,7 @@ bool DepthNamespace::ErrorEmap(EquirectangularMap& emap_gt, EquirectangularMap& 
 
 		median_shift_factor = gt_median / given_median;
 
-		std::cout << "[ErrorEmap] ratio:" << ratio_x << "," << ratio_y << " gt_sorted:" << gt_sorted.size() << " gt_median:" << gt_median << " given_median:" << given_median << " median_shift_factor:" << median_shift_factor << std::endl;
+		//std::cout << "[ErrorEmap] ratio:" << ratio_x << "," << ratio_y << " gt_sorted:" << gt_sorted.size() << " gt_median:" << gt_median << " given_median:" << given_median << " median_shift_factor:" << median_shift_factor << std::endl;
 
 		if (median_shift_factor_out)
 		{
@@ -2468,7 +2477,12 @@ bool DepthNamespace::ErrorCompare(std::string& gt_filename, std::string& baselin
 	}
 
 	EquirectangularMap emap_baseline;
-	if (!emap_baseline.Load(baseline_filename, true/*mono360*/))
+	//if (!emap_baseline.Load(baseline_filename, true/*mono360*/))
+	//{
+	//	std::cout << "cannot load emap_baseline? " << baseline_filename << std::endl;
+	//	return false;
+	//}
+	if (!emap_baseline.Load(baseline_filename))
 	{
 		std::cout << "cannot load emap_baseline? " << baseline_filename << std::endl;
 		return false;
@@ -2477,6 +2491,7 @@ bool DepthNamespace::ErrorCompare(std::string& gt_filename, std::string& baselin
 	//(mono360) disp-depth compare: 
 	if (DispDepthCompare)
 	{
+		//std::cout << "!!!DispDepthCompare!!!" << std::endl;
 		//first convert the gt depth map to disparity map
 		EquirectangularMap emap_gt_disp;  //use a temp copy
 		if (!emap_gt_disp.Load(gt_filename))

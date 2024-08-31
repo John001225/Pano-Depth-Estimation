@@ -1,2 +1,6 @@
 D:\codes\Dreamhost\github_WACV2022\WACV2022\x64\Release\WACV2022.exe
 D:\codes\Dreamhost\github_WACV2022_\WACV2022\x64\Release\WACV2022.exe
+D:\nycu\research\WACV2023-High-Resolution-Depth-Estimation-for-360deg-Panoramas-Through-Perspective-and-Panoramic-Dep\x64\Release\WACV2022.exe
+C:\Users\user\sheng\WACV2023-High-Resolution-Depth-Estimation-for-360deg-Panoramas-Through-Perspective-and-Panoramic-Dep\x64\Release\WACV2022.exe
+D:\nycu\research\new_wacv\WACV2023-High-Resolution-Depth-Estimation-for-360deg-Panoramas-Through-Perspective-and-Panoramic-Dep\x64\Release\WACV2022.exe
+D:\sheng\WACV2023-High-Resolution-Depth-Estimation-for-360deg-Panoramas-Through-Perspective-and-Panoramic-Dep\x64\Release\WACV2022.exe

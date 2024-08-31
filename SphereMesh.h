@@ -14,7 +14,7 @@ namespace SphereNamespace
 	public:
 		int width;
 		int height;
-		unsigned int id;  //opengl texture id		
+		GLuint id;  //opengl texture id		
 		unsigned char* data;
 
 		Texture()

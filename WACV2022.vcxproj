@@ -41,7 +41,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>ilmbase22/include;glfw/include;glut;glew/include;cwc/include;opencv/include;ceres-solver/config;ceres-solver/include;ceres-solver/internal;ceres-solver/internal/ceres;ceres-solver/internal/ceres/miniglog;eigen</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>glm/include;ilmbase22/include;glfw/include;glut;glew/include;cwc/include;opencv/include;ceres-solver/config;ceres-solver/include;ceres-solver/internal;ceres-solver/internal/ceres;ceres-solver/internal/ceres/miniglog;eigen</AdditionalIncludeDirectories>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <OpenMPSupport>true</OpenMPSupport>

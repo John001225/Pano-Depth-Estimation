@@ -1,16 +1,18 @@
-#version 130
+#version 460 core
 
-varying vec3 N;
-varying vec3 v;
-varying vec4 p;  //original position in object space
-varying vec4 texcoord;
+layout(location = 0) in vec3 vertexPosition;
+layout(location = 2) in vec3 vertexNormal;
+layout(location = 1) in vec2 vertexTexCoord;
 
-void main(void)
+out vec3 FragPos;
+out vec3 Normal;
+out vec2 TexCoord;
+
+void main()
 {
-   v = vec3(gl_ModelViewMatrix * gl_Vertex);       
-   N = normalize(gl_NormalMatrix * gl_Normal);      
-   p = gl_Vertex;  
-   texcoord = gl_MultiTexCoord0;
+    FragPos = vertexPosition;
+    Normal = normalize(vertexNormal);
+    TexCoord = vertexTexCoord;
 
-   gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
+    gl_Position = gl_ModelViewProjectionMatrix * vec4(vertexPosition, 1.0);
 }

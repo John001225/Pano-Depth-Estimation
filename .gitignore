@@ -1,1 +1,4 @@
-.vs/
+datas/
+record/
+test_images_matterport3d/
+test_images_replica360_2k/
