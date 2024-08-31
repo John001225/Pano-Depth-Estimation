@@ -1,5 +1,6 @@
 datas/
 record/
+test_images/
 test_images_matterport3d/
 test_images_replica360_2k/
 PerceptualSimilarity/
