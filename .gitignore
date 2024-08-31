@@ -2,3 +2,10 @@ datas/
 record/
 test_images_matterport3d/
 test_images_replica360_2k/
+PerceptualSimilarity/
+ZoeDepth/
+Depth-Anything/
+Depth-Anything-V2/
+EGformer/
+AdelaiDepth/
+AdaBins/
