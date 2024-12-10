@@ -130,7 +130,10 @@ void DepthNamespace::PerspectiveMap::SetWindow(float AzimuthLeft, float AzimuthR
 	middle = SphericalToWorld((azimuth_left + azimuth_right) / 2, (zenith_top + zenith_down) / 2);
 
 	//the left dir is approx. up CROSS look-dir :
-	Vec3f left_dir = Vec3f(0, 0, 1).cross(middle).normalize();
+	//Vec3f left_dir = Vec3f(0, 0, 1).cross(middle).normalize(); //original
+	bool isPole = (std::abs(int(R2D(azimuth_right - azimuth_left)) == 360));
+	//std::cout << R2D(azimuth_right - azimuth_left) << " azi r " << azimuth_right << " azi l " << azimuth_left << " isPole " << isPole << std::endl;
+	Vec3f left_dir = isPole ? Vec3f(0, -1, 0).cross(middle).normalize() : Vec3f(0, 0, 1).cross(middle).normalize(); // deal with the pole case
 
 	//the real up dir is left cross look-dir:
 	Vec3f up_dir = left_dir.cross(middle).normalize();
@@ -781,12 +784,30 @@ bool DepthNamespace::MergeDepthMaps(std::string& equirectangular_map_filename, s
 
 		//set the valid (to-use) ranges of each pmap
 		pmap.ranges[0] = MIN2(pmap_ranges[i][0], D2R(359.9));
-		pmap.ranges[1] = MIN2(pmap_ranges[i][1], D2R(359.9));
+		pmap.ranges[1] = MIN2(pmap_ranges[i][1], D2R(359.9)); // the original code to make the range not to larger than 360
 		pmap.ranges[2] = pmap_ranges[i][2];
 		pmap.ranges[3] = pmap_ranges[i][3];
+
+		//pmap.ranges[0] = pmap_ranges[i][0]; // the new range allow to larger than 360, and x2 in save pmap and laplacian mask is to handle this
+		//pmap.ranges[1] = pmap_ranges[i][1];
+
+		//the new range for 6fold padding(from 60 to 72) case, or from 60 to 90
+		//int pad = 30;
+		//if (pmap_ranges[i][0] > pmap_ranges[i][1]) {
+		//	pmap.ranges[0] = MIN2(pmap_ranges[i][0] - D2R(pad), D2R(359.9));
+		//	pmap.ranges[1] = MIN2(pmap_ranges[i][1] + D2R(pad), D2R(359.9));
+		//	//pmap.ranges[0] = pmap_ranges[i][0] - D2R(6);
+		//	//pmap.ranges[1] = pmap_ranges[i][1] + D2R(6);
+		//}
+		//else {
+		//	pmap.ranges[0] = MIN2(pmap_ranges[i][0] + D2R(pad), D2R(359.9));
+		//	pmap.ranges[1] = MIN2(pmap_ranges[i][1] - D2R(pad), D2R(359.9));
+		//	//pmap.ranges[0] = pmap_ranges[i][0] + D2R(6);
+		//	//pmap.ranges[1] = pmap_ranges[i][1] - D2R(6);
+		//}
 		
 	}
-
+	//std::cout << "here1" << std::endl;
 	//let's solve depth-to-depth register for every pmap first
 	if (true)
 	{
@@ -801,7 +822,9 @@ bool DepthNamespace::MergeDepthMaps(std::string& equirectangular_map_filename, s
 			if (SolveDepthToDepth(emap_baseline, pmaps, pmaps_actives, zenith_range, abcd))
 			{
 				//now, convert the disparity values to depth values by abcd
+				//std::cout << "here1.4" << std::endl;
 				pmaps[p].Depth2DepthTransform(abcd);
+				//std::cout << "here1.5" << std::endl;
 			}
 		}
 
@@ -809,6 +832,7 @@ bool DepthNamespace::MergeDepthMaps(std::string& equirectangular_map_filename, s
 			*time_Reg = timeGetTime() - time;
 
 	}	
+	//std::cout << "here2" << std::endl;
 
 	//the output equirectangular map buffer (16bit):
 	unsigned short* data = new unsigned short[out_width * out_height];  //rows is top-to-bottom order
@@ -819,6 +843,33 @@ bool DepthNamespace::MergeDepthMaps(std::string& equirectangular_map_filename, s
 	{
 		unsigned short* data2 = new unsigned short[out_width * out_height];
 		std::memset(data2, 0, sizeof(unsigned short) * out_width * out_height);
+
+		//std::cout << "pmap size " << pmaps.size() << std::endl;
+
+		/*for (auto pmap : pmaps) {
+			std::cout << "pamp0 " << R2D(pmap.ranges[0]) << std::endl;
+			std::cout << "pamp1 " << R2D(pmap.ranges[1]) << std::endl;
+			std::cout << "pamp2 " << R2D(pmap.ranges[2]) << std::endl;
+			std::cout << "pamp3 " << R2D(pmap.ranges[3]) << std::endl;
+			int x0 = round((pmap.ranges[0] / (2 * MYPI)) * (out_width - 1));
+			int x1 = round((pmap.ranges[1] / (2 * MYPI)) * (out_width - 1));
+			int y0 = round((pmap.ranges[2] / MYPI) * (out_height - 1));
+			int y1 = round((pmap.ranges[3] / MYPI) * (out_height - 1));
+			int x2 = -1;
+			if (x0 > (out_width - 1)) {
+				x2 = x0 - (out_width - 1);
+				x0 = (out_width - 1);
+			}
+			else if (x1 > (out_width - 1)) {
+				x2 = x1 - (out_width - 1);
+				x1 = (out_width - 1);
+			}
+			std::cout << "x0 " << x0 << std::endl;
+			std::cout << "x1 " << x1 << std::endl;
+			std::cout << "x2 " << x2 << std::endl;
+			std::cout << "y0 " << y0 << std::endl;
+			std::cout << "y1 " << y1 << std::endl;
+		}*/
 
 		for (int x = 0; x < out_width; x++)
 		{
@@ -837,23 +888,78 @@ bool DepthNamespace::MergeDepthMaps(std::string& equirectangular_map_filename, s
 					int x1 = round((pmap.ranges[1] / (2 * MYPI)) * (out_width - 1));
 					int y0 = round((pmap.ranges[2] / MYPI) * (out_height - 1));
 					int y1 = round((pmap.ranges[3] / MYPI) * (out_height - 1));
+					int x2 = -1;
+					if (x0 > (out_width - 1)) {
+						x2 = x0 - (out_width - 1);
+						x0 = (out_width - 1);
+					}
+					else if (x1 > (out_width - 1)) {
+						x2 = x1 - (out_width - 1);
+						x1 = (out_width - 1);
+					}
 
-					if (x >= MIN2(x0, x1) && x <= MAX2(x0, x1) && y >= y0 && y <= y1)
-					{
-						Vec2f xy = pmap.SphericalTo2D(coord.x, coord.y);
-						float val = pmap.Value(xy[0], xy[1]);
+					if (x2 == -1) {
+						if (x >= MIN2(x0, x1) && x <= MAX2(x0, x1) && y >= y0 && y <= y1)
+						{
+							bool skip = false;
+							Vec2f xy = pmap.SphericalTo2D(coord.x, coord.y);
+							if (xy.x < 0 || xy.x > 1 || xy.y < 0 || xy.y >1)
+							{
+								int X = xy.x * (float)(pmap.width - 1);
+								int Y = xy.y * (float)(pmap.height - 1);
 
-						//outline pmap bounding boxes:
-						/*float val = 0;
-						if(x == x0 || x == x1 || y == y0 || y == y1)
-							val = 1;  */
+								skip = true;
 
-						data2[y * out_width + x] = (unsigned short)(val * 65535.0f);
+								std::cout << "[SavePmap] oops! p#" << p << " range:" << R2D(pmap.ranges[0]) << "," << R2D(pmap.ranges[1]) << "," <<
+									R2D(pmap.ranges[2]) << "," << R2D(pmap.ranges[3]) << " @azi:" << R2D(coord.x) << " zen:" << R2D(coord.y) << " xy:" << xy << " X:" << X << " Y:" << Y << std::endl;
+							}
+							if (skip) continue;
+							float val = pmap.Value(xy[0], xy[1]);
 
-						//save to data too?
-						data[y * out_width + x] = (unsigned short)(val * 65535.0f);
+							//outline pmap bounding boxes:
+							//float val = 0;
+							if (x == x0 || x == x1 || y == y0 || y == y1)
+								val = 1;
 
-						break;
+							if (data2[y * out_width + x] == (unsigned short)(1 * 65535.0f)) continue;
+							data2[y * out_width + x] = (unsigned short)(val * 65535.0f);
+
+							//save to data too?
+							//data[y * out_width + x] = (unsigned short)(val * 65535.0f);
+
+							//break;
+						}
+					}
+					else {
+						if (((x >= MIN2(x0, x1) && x <= MAX2(x0, x1)) || (x >= MIN2(0, x2) && x <= MAX2(0, x2))) && y >= y0 && y <= y1)
+						{
+							bool skip = false;
+							Vec2f xy = pmap.SphericalTo2D(coord.x, coord.y);
+							if (xy.x < 0 || xy.x > 1 || xy.y < 0 || xy.y >1)
+							{
+								int X = xy.x * (float)(pmap.width - 1);
+								int Y = xy.y * (float)(pmap.height - 1);
+
+								skip = true;
+
+								std::cout << "[SavePmap] oops! p#" << p << " range:" << R2D(pmap.ranges[0]) << "," << R2D(pmap.ranges[1]) << "," <<
+									R2D(pmap.ranges[2]) << "," << R2D(pmap.ranges[3]) << " @azi:" << R2D(coord.x) << " zen:" << R2D(coord.y) << " xy:" << xy << " X:" << X << " Y:" << Y << std::endl;
+							}
+							if (skip) continue;
+							float val = pmap.Value(xy[0], xy[1]);
+
+							//outline pmap bounding boxes:
+							//float val = 0;
+							if (x == x0 || x == x1 || y == y0 || y == y1)
+								val = 1;
+							if (data2[y * out_width + x] == (unsigned short)(1 * 65535.0f)) continue;
+							data2[y * out_width + x] = (unsigned short)(val * 65535.0f);
+
+							//save to data too?
+							//data[y * out_width + x] = (unsigned short)(val * 65535.0f);
+
+							//break;
+						}
 					}
 				}
 			}
@@ -1502,6 +1608,18 @@ bool DepthNamespace::SolveDepthAll(EquirectangularMap& emap, std::vector<Perspec
 			int x1 = round((pmap.ranges[1] / (2 * MYPI)) * (width - 1));
 			int y0 = round((pmap.ranges[2] / MYPI) * (height - 1));
 			int y1 = round((pmap.ranges[3] / MYPI) * (height - 1));
+			int x2 = -1; // x2 is to handle the when the x > width -1
+			if (x0 > (width - 1)) {
+				x2 = x0 - (width - 1);
+				x0 = (width - 1);
+				//std::cout << "x2 activate" << std::endl;
+			}
+			else if (x1 > (width - 1)) {
+				x2 = x1 - (width - 1);
+				x1 = (width - 1);
+				//std::cout << "x2 activate" << std::endl;
+			}
+			
 
 			//NOTE: x0 not necessarily < x1 ! so we need to make sure "x_step" is +1 or -1
 			int xs = 0;  //"x step"
@@ -1514,7 +1632,7 @@ bool DepthNamespace::SolveDepthAll(EquirectangularMap& emap, std::vector<Perspec
 			int ys = 1;
 
 			//test: enlarge a bit?
-			if (true)
+			if (false)
 			{
 				//int xs_enlarge = 4 / pow(level - 1, 2);
 				int xs_enlarge = 4;
@@ -1556,6 +1674,10 @@ bool DepthNamespace::SolveDepthAll(EquirectangularMap& emap, std::vector<Perspec
 					y1 = 0;
 				if (y1 >= height)
 					y1 = height - 1;
+
+				/*if (x2 != -1) { //due to the xs/ys _enlarge is set to 0, so i didnt write for x2
+					x2 += xs_enlarge;
+				}*/
 			}
 
 			//note: must strictly within the zenith_range
@@ -1566,6 +1688,7 @@ bool DepthNamespace::SolveDepthAll(EquirectangularMap& emap, std::vector<Perspec
 
 			//for every pixel in this pmap's BB, inclusive of all boundary pixels		
 			int X = x0;
+			bool x2_start = false;
 			while (true)  //iterate X from x0 to x1, inclusive of both ends
 			{
 				for (int Y = y0; Y <= y1; Y += ys)
@@ -1594,15 +1717,21 @@ bool DepthNamespace::SolveDepthAll(EquirectangularMap& emap, std::vector<Perspec
 						Vec2f coord((float)xx / (float)(width - 1) * 2 * MYPI, (float)yy / (float)(height - 1) * MYPI);
 
 						Vec2f xy = pmap.SphericalTo2D(coord.x, coord.y);  //to 2D 0~1 xy in this pmap
+						//if (x2_start) { std::cout << "xy.x: " << xy.x << ", xy.y: " << xy.y << std::endl; }
+
+						bool skip = false;
 
 						if (xy.x < 0 || xy.x > 1 || xy.y < 0 || xy.y >1)
 						{
 							int X = xy.x * (float)(pmap.width - 1);
 							int Y = xy.y * (float)(pmap.height - 1);
 
+							skip = true;
+
 							std::cout << "[SolveDepthAll] oops! p#" << p << " range:" << R2D(pmap.ranges[0]) << "," << R2D(pmap.ranges[1]) << "," <<
 								R2D(pmap.ranges[2]) << "," << R2D(pmap.ranges[3]) << " @azi:" << R2D(coord.x) << " zen:" << R2D(coord.y) << " xy:" << xy << " X:" << X << " Y:" << Y << std::endl;
 						}
+						//if (skip) continue;
 
 						float val = pmap.Value(xy[0], xy[1]);
 						Laplacian += val * (*itr).second/*weight*/;
@@ -1619,10 +1748,22 @@ bool DepthNamespace::SolveDepthAll(EquirectangularMap& emap, std::vector<Perspec
 						window.Laplacian += Laplacian;
 					}
 				}
+				//if (x2_start) std::cout << "x2 loop" << std::endl; // check if x2 works
 
 				X += xs;  //X would be x0 to x1, inclusive
-				if (X == x1)
+				if (X == x1 && x2 == -1) {
 					break;
+				}
+				else if (X == x1 && x2 != -1) {
+					xs = 1;
+					X = 0;
+					x2_start = true;
+					//std::cout << "x2 loop start" << std::endl;
+				}
+				else if (x2_start && X == x2) {
+					//std::cout << "x2 loop end" << std::endl;
+					break;
+				}
 			}
 		}
 
@@ -1986,9 +2127,9 @@ bool DepthNamespace::ErrorData(EquirectangularMap& emap_gt, unsigned short* data
 	float &mselog, float& delta1, float& delta2, float& delta3, int align_way, bool cap_depth, Vec2f* least_square_shift, float* median_shift_factor_out)
 {
 
-	std::cout << "!!!!!!!!!!!!!!!!error data!!!!!!!!!!!!!!!!!" << std::endl;
+	/*std::cout << "!!!!!!!!!!!!!!!!error data!!!!!!!!!!!!!!!!!" << std::endl;
 	std::cout << "aling way " << align_way << std::endl;
-	std::cout << "cap_depth " << cap_depth << std::endl;
+	std::cout << "cap_depth " << cap_depth << std::endl;*/
 	int height0 = (int)(g_zenith_range[0] / MYPI * data_height);
 	int height1 = (int)(g_zenith_range[1] / MYPI * data_height);
 
@@ -2083,7 +2224,7 @@ bool DepthNamespace::ErrorData(EquirectangularMap& emap_gt, unsigned short* data
 		}
 
 		median_shift_factor = gt_median / given_median;
-		std::cout << "[Error_data] ratio:" << ratio_x << "," << ratio_y << " gt_sorted:" << gt_sorted.size() << " gt_median:" << gt_median << " given_median:" << given_median << " median_shift_factor:" << median_shift_factor << std::endl;
+		//std::cout << "[Error_data] ratio:" << ratio_x << "," << ratio_y << " gt_sorted:" << gt_sorted.size() << " gt_median:" << gt_median << " given_median:" << given_median << " median_shift_factor:" << median_shift_factor << std::endl;
 
 		if (median_shift_factor_out)
 			*median_shift_factor_out = median_shift_factor;
@@ -2142,7 +2283,7 @@ bool DepthNamespace::ErrorData(EquirectangularMap& emap_gt, unsigned short* data
 
 		least_square = Vec2f(s, o);
 
-		std::cout << "[ErrorData] a00:" << a_00 << " a01:" << a_01 << "a11:" << a_11 << "b0:" << b_0 << " b_1:" << b_1 << " least_square:" << least_square << std::endl;
+		//std::cout << "[ErrorData] a00:" << a_00 << " a01:" << a_01 << "a11:" << a_11 << "b0:" << b_0 << " b_1:" << b_1 << " least_square:" << least_square << std::endl;
 
 		//pred = s * pred + o
 	}
