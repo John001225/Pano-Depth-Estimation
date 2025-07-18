@@ -1,4 +1,4 @@
-# WACV2023-High Resolution Depth Estimation for Panoramas Through Perspective Map Registrations
+<!-- # WACV2023-High Resolution Depth Estimation for Panoramas Through Perspective Map Registrations
 High-Resolution Depth Estimation for 360deg Panoramas Through Perspective and Panoramic Depth Images Registration <br>
 Chi-Han Peng and Jiayao Zhang <br>
 IEEE/CVF Winter Conference on Applications of Computer Vision (WACV), 2023 <br>
@@ -60,4 +60,4 @@ month = {January},
 year = {2023},
 pages = {3116-3125}
 }
-```
+``` -->
