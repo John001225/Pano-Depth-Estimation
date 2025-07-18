@@ -431,7 +431,7 @@ bool SaveCubeMap(Spherical& S, vector<Vec4f>& settings, string filename_head)
 }
 
 
-bool CreateDepthPanoramas(int argc, char* argv[], bool metric_cal_only, bool skip_createPano, bool skip_depth_pred, bool skip_merge, bool auto_Fold)
+bool CreateDepthPanoramas(int argc, char* argv[], bool metric_cal_only, bool skip_createPano, bool skip_depth_pred, bool skip_merge, bool auto_Fold, string split_type)
 {
 	if (argc < 6)
 	{
@@ -460,9 +460,14 @@ bool CreateDepthPanoramas(int argc, char* argv[], bool metric_cal_only, bool ski
 	//set to another folder
 	// matterport3d
 	baseline_folder = ".\\\\datas\\\\matterport3d\\\\egformer\\\\result\\\\";
-	RGB_folder = ".\\\\datas\\\\matterport3d\\\\rgb\\\\";
-	//RGB_folder = ".\\\\rgbs\\\\rgb1\\\\";
-	gt_folder = ".\\\\datas\\\\matterport3d\\\\gt_grayscale\\\\";
+	RGB_folder = ".\\\\datas\\\\masked_rgb\\\\"; // for masked rgb
+	//RGB_folder = ".\\\\datas\\\\matterport3d\\\\test\\\\test_color\\\\"; //original test sets (2014 images)
+	//RGB_folder = ".\\\\rgbs\\\\rgb3\\\\";
+	//RGB_folder = ".\\\\datas\\\\matterport3d\\\\train\\\\train_color\\\\"; // for training set
+	//RGB_folder = ".\\\\datas\\\\matterport3d\\\\val\\\\val_color\\\\"; // for val set
+	gt_folder = ".\\\\datas\\\\matterport3d\\\\test\\\\test_depth\\\\"; //original test sets (2014 images)
+	//gt_folder = ".\\\\datas\\\\matterport3d\\\\train\\\\train_depth\\\\"; // for training set
+	//gt_folder = ".\\\\datas\\\\matterport3d\\\\val\\\\val_depth\\\\"; // for val set
 	result_folder = ".\\\\record\\\\matterport3d\\\\baseline_unifuse\\\\depthAnything_metric_raw_margin10\\\\result\\\\";
 	test_img_folder = "test_images_matterport3d/test_images_depthAnyting_metric_raw_margin10/";
 
@@ -492,11 +497,11 @@ bool CreateDepthPanoramas(int argc, char* argv[], bool metric_cal_only, bool ski
 		bool replica = false;
 
 		// matterport3d
-		string gt_folder = ".\\datas\\matterport3d\\gt_grayscale\\";
+		//string gt_folder = ".\\datas\\matterport3d\\gt_grayscale\\";
 		//string pred_folder = ".\\record\\matterport3d\\baseline_unifuse\\zoe_raw\\result\\";
-		string pred_folder = ".\\datas\\matterport3d\\panoformer\\result\\"; // baseline 
+		string pred_folder = ""; // baseline 
 		//output_txt = ".\\record\\matterport3d\\baseline_unifuse\\zoe_raw\\metrics.txt";
-		string output_txt = ".\\datas\\matterport3d\\panoformer\\result\\metrics.txt";
+		string output_txt = "";
 
 		// replica360 2k
 		//replica = true;
@@ -504,78 +509,330 @@ bool CreateDepthPanoramas(int argc, char* argv[], bool metric_cal_only, bool ski
 		//string pred_folder = ".\\record\\replica360_2k\\baseline_hohonet\\leres\\\\result\\"; // hohonet
 		//string output_txt = ".\\record\\replica360_2k\\baseline_hohonet\\leres\\\\result\\\\metrics.txt"; //hohonet
 
+		// for multiple types of results
+		//string baselines[] = { "unifuse", "hohonet" };
+		////string baselines[] = { "unifuse" };
+		//string types[] = {"_5_fold_auto", ""};
+		//for (auto type : types) {
+		//	string results[] = { "depthAnything_metric_raw" + type, "leres" + type, "zoe_raw" + type, "depthAnythingV2_metric_raw" + type };
+		//	//string results[] = { "depthAnything_metric_raw" + type};
+		//	for (auto baseline : baselines) {
+		//		for (auto result : results) {
+		//			output_txt = ".\\record\\matterport3d\\baseline_" + baseline + "\\" + result + "\\metrics_re_cal.txt";
 
-		string baselines[] = { "unifuse", "hohonet" };
-		//string baselines[] = { "unifuse" };
-		string types[] = {"_5_fold_auto", ""};
-		for (auto type : types) {
-			string results[] = { "depthAnything_metric_raw" + type, "leres" + type, "zoe_raw" + type, "depthAnythingV2_metric_raw" + type };
-			//string results[] = { "depthAnything_metric_raw" + type};
-			for (auto baseline : baselines) {
-				for (auto result : results) {
-					output_txt = ".\\record\\matterport3d\\baseline_" + baseline + "\\" + result + "\\metrics_re_cal.txt";
+
+		//			//set to another folder
+		//			// matterport3d
+		//			//baseline_folder = ".\\\\datas\\\\matterport3d\\\\" + baseline + "\\\\result\\\\";
+		//			pred_folder = ".\\\\record\\\\matterport3d\\\\baseline_" + baseline + "\\\\" + result + "\\\\result\\\\";
+		//			//test_img_folder = "test_images_matterport3d/test_images_" + result + "/";
+
+		//			std::cout << "type: " << type << std::endl;
+		//			std::cout << "baseline: " << baseline << std::endl;
+		//			std::cout << "result: " << result << std::endl;
+		//			std::cout << "output_txt: " << output_txt << std::endl;
+		//			std::cout << "pred_folder: " << pred_folder << std::endl;
+
+		//			vector<string> gts;
+		//			AllFilesInFolder(gt_folder.c_str(), gts);
+		//			//cout << gts[0] << endl;
 
 
-					//set to another folder
+		//			float rmse_given_avg = 0, rmse_result_avg = 0, mae_given_avg = 0, mae_result_avg = 0,
+		//				mre_given_avg = 0, mre_result_avg = 0, rmselog_given_avg = 0, rmselog_result_avg = 0;
+		//			float delta1_given_avg = 0, delta1_result_avg = 0, delta2_given_avg = 0, delta2_result_avg = 0, delta3_given_avg = 0, delta3_result_avg = 0;
+
+		//			float img_num = 0, load_error_num = 0;
+
+		//			for (auto gt : gts) {
+		//				string pred;
+		//				string rawname;
+		//				char* filename = PathFindFileNameA(gt.c_str());
+
+		//				// matterport3d
+		//				rawname = string(filename).substr(0, 4);
+		//				pred = pred_folder + rawname + ".png"; //for merged pred pano and egformer panoformer
+		//				//pred = pred_folder + rawname + "_rgb.depth.png"; // hohonet
+		//				//pred = pred_folder + rawname + "_depth_pred.jpg"; //for pred of baseline of unifuse / depthAnything
+		//				//pred = pred_folder + rawname + "_depth_pred.png"; //for pred of baseline of zoe / depthAnything metric
+
+		//				// replica360 2k
+		//				//std::string suffix = "_depth_pano.pfm";
+		//				//size_t suffixPos = string(filename).find(suffix);
+		//				//rawname = string(filename).substr(0, suffixPos);
+		//				//pred = pred_folder + rawname + "_rgb_pano.png"; // leres (hohonet)
+		//				//pred = pred_folder + rawname + "_rgb_pano.depth.png"; // hohonet
+
+
+		//				int align_way = 1;
+		//				//align_way = 0; // no align
+		//				//load the ground-truth emap:
+		//				EquirectangularMap emap_gt;
+		//				EquirectangularMap emap_pred;
+
+		//				vector<DepthNamespace::Metrics> metrics_aligned_all;
+		//				DepthNamespace::Metrics metrics_aligned;
+
+		//				bool cap_depth = true, DispDepthCompare = false;
+
+		//				//the pred is disp
+		//				if (DispDepthCompare) {
+		//					string shifted_filename_str = pred_folder + "shifted\\\\" + rawname + "_depth_pred.png";
+		//					const char* shifted_filename = shifted_filename_str.c_str();
+		//					ErrorCompare(gt, pred, DispDepthCompare, metrics_aligned.mse_result, metrics_aligned.mae_result, metrics_aligned.mre_result,
+		//						metrics_aligned.mselog_result, metrics_aligned.delta1_result, metrics_aligned.delta2_result, metrics_aligned.delta3_result, align_way, cap_depth, shifted_filename);
+
+		//					metrics_aligned_all.push_back(metrics_aligned);
+
+
+		//					rmse_given_avg += sqrt(metrics_aligned.mse_given);
+		//					rmse_result_avg += sqrt(metrics_aligned.mse_result);
+		//					mae_given_avg += metrics_aligned.mae_given;
+		//					mae_result_avg += metrics_aligned.mae_result;
+		//					mre_given_avg += metrics_aligned.mre_given;
+		//					mre_result_avg += metrics_aligned.mre_result;
+		//					rmselog_given_avg += sqrt(metrics_aligned.mselog_given);
+		//					rmselog_result_avg += sqrt(metrics_aligned.mselog_result);
+		//					delta1_given_avg += metrics_aligned.delta1_given;
+		//					delta1_result_avg += metrics_aligned.delta1_result;
+		//					delta2_given_avg += metrics_aligned.delta2_given;
+		//					delta2_result_avg += metrics_aligned.delta2_result;
+		//					delta3_given_avg += metrics_aligned.delta3_given;
+		//					delta3_result_avg += metrics_aligned.delta3_result;
+
+		//					img_num++;
+		//				}
+		//				else {
+		//					if (emap_gt.Load((gt)) && emap_pred.Load((pred)))
+		//					{
+		//						//emap_pred.DispDepthConversion(); // zoe, convert disp to depth
+		//						ErrorEmap(emap_gt, emap_pred, metrics_aligned.mse_result, metrics_aligned.mae_result, metrics_aligned.mre_result,
+		//							metrics_aligned.mselog_result, metrics_aligned.delta1_result, metrics_aligned.delta2_result, metrics_aligned.delta3_result, align_way, cap_depth);
+
+		//						metrics_aligned_all.push_back(metrics_aligned);
+
+
+		//						rmse_given_avg += sqrt(metrics_aligned.mse_given);
+		//						rmse_result_avg += sqrt(metrics_aligned.mse_result);
+		//						mae_given_avg += metrics_aligned.mae_given;
+		//						mae_result_avg += metrics_aligned.mae_result;
+		//						mre_given_avg += metrics_aligned.mre_given;
+		//						mre_result_avg += metrics_aligned.mre_result;
+		//						rmselog_given_avg += sqrt(metrics_aligned.mselog_given);
+		//						rmselog_result_avg += sqrt(metrics_aligned.mselog_result);
+		//						delta1_given_avg += metrics_aligned.delta1_given;
+		//						delta1_result_avg += metrics_aligned.delta1_result;
+		//						delta2_given_avg += metrics_aligned.delta2_given;
+		//						delta2_result_avg += metrics_aligned.delta2_result;
+		//						delta3_given_avg += metrics_aligned.delta3_given;
+		//						delta3_result_avg += metrics_aligned.delta3_result;
+
+		//						img_num++;
+
+		//					}
+		//					else {
+		//						cout << "load error" << endl;
+		//						load_error_num++; // replica360 2k / there are some imgs cannt load
+		//						if (!replica) {
+		//							return true;
+		//						}
+		//					}
+		//				}
+		//				cout << gt << "   " << pred << endl;
+		//			}
+
+		//			rmse_given_avg /= img_num;
+		//			rmse_result_avg /= img_num;
+		//			mae_given_avg /= img_num;
+		//			mae_result_avg /= img_num;
+		//			mre_given_avg /= img_num;
+		//			mre_result_avg /= img_num;
+		//			rmselog_given_avg /= img_num;
+		//			rmselog_result_avg /= img_num;
+		//			delta1_given_avg /= img_num;
+		//			delta1_result_avg /= img_num;
+		//			delta2_given_avg /= img_num;
+		//			delta2_result_avg /= img_num;
+		//			delta3_given_avg /= img_num;
+		//			delta3_result_avg /= img_num;
+
+		//			cout << "RMSE_given:" << rmse_given_avg << " RMSE_result:" << rmse_result_avg << " (" <<
+		//				(rmse_result_avg - rmse_given_avg) / rmse_given_avg << ")" <<
+		//				" MAE_given:" << mae_given_avg << " MAE_result_avg:" << mae_result_avg << " (" <<
+		//				(mae_result_avg - mae_given_avg) / mae_given_avg << ")" <<
+		//				" MRE_given:" << mre_given_avg << " MRE_result_avg:" << mre_result_avg << " (" <<
+		//				(mre_result_avg - mre_given_avg) / mre_given_avg << ")" <<
+		//				" RMSElog_given:" << rmselog_given_avg << " RMSElog_result:" << rmselog_result_avg << " (" <<
+		//				(rmselog_result_avg - rmselog_given_avg) / rmselog_given_avg << ")" <<
+		//				" delta1_given:" << delta1_given_avg << " delta1_result:" << delta1_result_avg << " (" <<
+		//				(delta1_result_avg - delta1_given_avg) << ")" <<
+		//				" delta2_given:" << delta2_given_avg << " delta2_result:" << delta2_result_avg << " (" <<
+		//				(delta2_result_avg - delta2_given_avg) << ")" <<
+		//				" delta3_given:" << delta3_given_avg << " delta3_result:" << delta3_result_avg << " (" <<
+		//				(delta3_result_avg - delta3_given_avg) << ")" << endl;
+
+		//			ofstream outFile(output_txt);
+
+		//			if (!outFile) {
+		//				std::cerr << "fail to open file" << std::endl;
+		//				return 1;
+		//			}
+		//			outFile << " RMSE: " << rmse_result_avg << endl;
+		//			outFile << " MAE: " << mae_result_avg << endl;
+		//			outFile << " MRE: " << mre_result_avg << endl;
+		//			outFile << " RMSElog: " << rmselog_result_avg << endl;
+		//			outFile << " delta1: " << delta1_result_avg << endl;
+		//			outFile << " delta2: " << delta2_result_avg << endl;
+		//			outFile << " delta3: " << delta3_result_avg << endl;
+
+		//			outFile.close();
+
+		//			cout << "error counts: " << load_error_num << endl;
+
+		//			
+		//		}
+		//	}
+		//}
+
+		// for multiple baselines
+		/*string baselines[] = { "CRF360D", "slicenet", "unifuse", "hohonet"};*/
+		//string baselines[] = { "nobaseline" };
+		string baselines[] = { "depthanything" };
+		//for baseline
+		//string types[] = {""};
+		//for record
+		//string types[] = { "leres_fold5", "depthAnything_metric_raw_5_6_5_fold_padding_6", "depthAnything_metric_raw_5_6_5_fold"};
+
+		/*string types[] = { "depthAnything_metric_raw_5_6_5_fold_padding_6", "leres_5_6_5_fold_padding_6", "zoe_raw_5_6_5_fold_padding_6",
+		 "depthAnythingV2_metric_raw_5_6_5_fold_padding_6", "depthAnything_metric_raw_fold5", "depthAnything_metric_raw_fold6",
+		 "depthAnything_metric_raw_6_fold_padding", "depthAnything_metric_raw_5_6_5_fold", "depthAnything_metric_raw_3_fold",
+		 "depthAnything_metric_raw_4_fold", "depthAnything_metric_raw_3_6_3_fold", "depthAnything_metric_raw_4_6_4_fold",
+		 "depthAnything_metric_raw_6_fold_padding_15", "depthAnything_metric_raw_6_fold_padding_30" };*/
+		//string types[] = { "depthAnything_metric_raw_5_6_5_fold_padding_6"};
+		string types[] = { "depthanythingV1" };
+
+		for (auto baseline : baselines) {
+			for (auto type : types) {
+				//for (auto result : results)  
+					//output_txt = ".\\record\\matterport3d\\baseline_" + baseline + "\\" + result + "\\metrics_re_cal.txt";
+
+				//for baseline
+				/*output_txt = ".\\datas\\matterport3d\\" + baseline + "\\result\\metrics_new.txt";
+				pred_folder = ".\\datas\\matterport3d\\" + baseline + "\\result\\";*/
+				
+				
+				//for record
+				/*output_txt = ".\\record\\matterport3d\\baseline_" + baseline + "\\" + type + "\\metrics_stitched_seamless.txt";
+				pred_folder = ".\\record\\matterport3d\\baseline_" + baseline + "\\" + type + "\\result_stitched_seamless\\";*/
+
+				//for stitched
+				/*output_txt = ".\\record\\matterport3d\\baseline_" + baseline + "\\" + type + "\\result_test\\metrics_stitched_DAv1.txt";
+				pred_folder = ".\\record\\matterport3d\\baseline_" + baseline + "\\" + type + "\\result_test\\pmap_stitched\\";*/
+
+				//for depthanything v1
+				output_txt = ".\\record\\matterport3d\\baseline_" + baseline + "\\" + type + "\\metrics_DAv1.txt";
+				pred_folder = ".\\record\\matterport3d\\baseline_" + baseline + "\\" + type + "\\";
+
+				//for nobaseline output
+				//output_txt = ".\\record\\matterport3d\\baseline_" + baseline + "\\output_new\\" + type + "\\registration_poisson\\metrics_2kref_1k.txt";
+				//pred_folder = ".\\record\\matterport3d\\baseline_" + baseline + "\\output_new\\" + type + "\\registration_poisson\\result_2kref_1k\\";
+
+				std::cout << "type: " << type << std::endl;
+				std::cout << "baseline: " << baseline << std::endl;
+				//std::cout << "result: " << result << std::endl;
+				std::cout << "output_txt: " << output_txt << std::endl;
+				std::cout << "pred_folder: " << pred_folder << std::endl;
+
+				vector<string> gts;
+				AllFilesInFolder(gt_folder.c_str(), gts);
+				//cout << gts[0] << endl;
+
+
+				float rmse_given_avg = 0, rmse_result_avg = 0, mae_given_avg = 0, mae_result_avg = 0,
+					mre_given_avg = 0, mre_result_avg = 0, rmselog_given_avg = 0, rmselog_result_avg = 0;
+				float delta1_given_avg = 0, delta1_result_avg = 0, delta2_given_avg = 0, delta2_result_avg = 0, delta3_given_avg = 0, delta3_result_avg = 0;
+
+				float img_num = 0, load_error_num = 0;
+
+				for (auto gt : gts) {
+					string pred;
+					string rawname;
+					char* filename = PathFindFileNameA(gt.c_str());
+
 					// matterport3d
-					//baseline_folder = ".\\\\datas\\\\matterport3d\\\\" + baseline + "\\\\result\\\\";
-					pred_folder = ".\\\\record\\\\matterport3d\\\\baseline_" + baseline + "\\\\" + result + "\\\\result\\\\";
-					//test_img_folder = "test_images_matterport3d/test_images_" + result + "/";
+					rawname = string(filename).substr(0, 4);
+					//pred = pred_folder + rawname + ".png"; //for merged pred pano and egformer panoformer
+					
+					// for baseline
+					//if (baseline == "hohonet") {
+					//	pred = pred_folder + rawname + "_rgb.depth.png"; // hohonet
+					//}
+					//else if (baseline == "CRF360D" || baseline == "slicenet" || baseline == "unifuse") {
+					//	pred = pred_folder + rawname + "_depth_pred.jpg"; //for pred of baseline of unifuse / depthAnything /CRF360D
+					//}
+					
+					// for record
+					//pred = pred_folder + rawname + ".png";
 
-					std::cout << "type: " << type << std::endl;
-					std::cout << "baseline: " << baseline << std::endl;
-					std::cout << "result: " << result << std::endl;
-					std::cout << "output_txt: " << output_txt << std::endl;
-					std::cout << "pred_folder: " << pred_folder << std::endl;
+					//pred = pred_folder + rawname + "_rgb.depth.png"; // hohonet
+					//pred = pred_folder + rawname + "_depth_pred.jpg"; //for pred of baseline of unifuse / depthAnything /CRF360D
+					//pred = pred_folder + rawname + "_depth_pred.png"; //for pred of baseline of zoe / depthAnything metric
+					//pred = pred_folder + rawname + "_seamless.png"; // for seamless
+					//pred = pred_folder + rawname + ".pmap_stitched.png"; //for stitched 
+					pred = pred_folder + rawname + "_rgb.png"; //for depthanythingV1
 
-					vector<string> gts;
-					AllFilesInFolder(gt_folder.c_str(), gts);
-					//cout << gts[0] << endl;
-
-
-					float rmse_given_avg = 0, rmse_result_avg = 0, mae_given_avg = 0, mae_result_avg = 0,
-						mre_given_avg = 0, mre_result_avg = 0, rmselog_given_avg = 0, rmselog_result_avg = 0;
-					float delta1_given_avg = 0, delta1_result_avg = 0, delta2_given_avg = 0, delta2_result_avg = 0, delta3_given_avg = 0, delta3_result_avg = 0;
-
-					float img_num = 0, load_error_num = 0;
-
-					for (auto gt : gts) {
-						string pred;
-						string rawname;
-						char* filename = PathFindFileNameA(gt.c_str());
-
-						// matterport3d
-						rawname = string(filename).substr(0, 4);
-						pred = pred_folder + rawname + ".png"; //for merged pred pano and egformer panoformer
-						//pred = pred_folder + rawname + "_rgb.depth.png"; // hohonet
-						//pred = pred_folder + rawname + "_depth_pred.jpg"; //for pred of baseline of unifuse / depthAnything
-						//pred = pred_folder + rawname + "_depth_pred.png"; //for pred of baseline of zoe / depthAnything metric
-
-						// replica360 2k
-						//std::string suffix = "_depth_pano.pfm";
-						//size_t suffixPos = string(filename).find(suffix);
-						//rawname = string(filename).substr(0, suffixPos);
-						//pred = pred_folder + rawname + "_rgb_pano.png"; // leres (hohonet)
-						//pred = pred_folder + rawname + "_rgb_pano.depth.png"; // hohonet
+					// replica360 2k
+					//std::string suffix = "_depth_pano.pfm";
+					//size_t suffixPos = string(filename).find(suffix);
+					//rawname = string(filename).substr(0, suffixPos);
+					//pred = pred_folder + rawname + "_rgb_pano.png"; // leres (hohonet)
+					//pred = pred_folder + rawname + "_rgb_pano.depth.png"; // hohonet
 
 
-						int align_way = 1;
-						//align_way = 0; // no align
-						//load the ground-truth emap:
-						EquirectangularMap emap_gt;
-						EquirectangularMap emap_pred;
+					int align_way = 1;
+					//align_way = 0; // no align
+					//load the ground-truth emap:
+					EquirectangularMap emap_gt;
+					EquirectangularMap emap_pred;
 
-						vector<DepthNamespace::Metrics> metrics_aligned_all;
-						DepthNamespace::Metrics metrics_aligned;
+					vector<DepthNamespace::Metrics> metrics_aligned_all;
+					DepthNamespace::Metrics metrics_aligned;
 
-						bool cap_depth = true, DispDepthCompare = false;
+					bool cap_depth = true, DispDepthCompare = false;
 
-						//the pred is disp
-						if (DispDepthCompare) {
-							string shifted_filename_str = pred_folder + "shifted\\\\" + rawname + "_depth_pred.png";
-							const char* shifted_filename = shifted_filename_str.c_str();
-							ErrorCompare(gt, pred, DispDepthCompare, metrics_aligned.mse_result, metrics_aligned.mae_result, metrics_aligned.mre_result,
-								metrics_aligned.mselog_result, metrics_aligned.delta1_result, metrics_aligned.delta2_result, metrics_aligned.delta3_result, align_way, cap_depth, shifted_filename);
+					//the pred is disp
+					if (DispDepthCompare) {
+						string shifted_filename_str = pred_folder + "shifted\\\\" + rawname + "_depth_pred.png";
+						const char* shifted_filename = shifted_filename_str.c_str();
+						ErrorCompare(gt, pred, DispDepthCompare, metrics_aligned.mse_result, metrics_aligned.mae_result, metrics_aligned.mre_result,
+							metrics_aligned.mselog_result, metrics_aligned.delta1_result, metrics_aligned.delta2_result, metrics_aligned.delta3_result, align_way, cap_depth, shifted_filename);
+
+						metrics_aligned_all.push_back(metrics_aligned);
+
+
+						rmse_given_avg += sqrt(metrics_aligned.mse_given);
+						rmse_result_avg += sqrt(metrics_aligned.mse_result);
+						mae_given_avg += metrics_aligned.mae_given;
+						mae_result_avg += metrics_aligned.mae_result;
+						mre_given_avg += metrics_aligned.mre_given;
+						mre_result_avg += metrics_aligned.mre_result;
+						rmselog_given_avg += sqrt(metrics_aligned.mselog_given);
+						rmselog_result_avg += sqrt(metrics_aligned.mselog_result);
+						delta1_given_avg += metrics_aligned.delta1_given;
+						delta1_result_avg += metrics_aligned.delta1_result;
+						delta2_given_avg += metrics_aligned.delta2_given;
+						delta2_result_avg += metrics_aligned.delta2_result;
+						delta3_given_avg += metrics_aligned.delta3_given;
+						delta3_result_avg += metrics_aligned.delta3_result;
+
+						img_num++;
+					}
+					else {
+						if (emap_gt.Load((gt)) && emap_pred.Load((pred)))
+						{
+							//emap_pred.DispDepthConversion(); // zoe, convert disp to depth
+							ErrorEmap(emap_gt, emap_pred, metrics_aligned.mse_result, metrics_aligned.mae_result, metrics_aligned.mre_result,
+								metrics_aligned.mselog_result, metrics_aligned.delta1_result, metrics_aligned.delta2_result, metrics_aligned.delta3_result, align_way, cap_depth);
 
 							metrics_aligned_all.push_back(metrics_aligned);
 
@@ -596,96 +853,69 @@ bool CreateDepthPanoramas(int argc, char* argv[], bool metric_cal_only, bool ski
 							delta3_result_avg += metrics_aligned.delta3_result;
 
 							img_num++;
+
 						}
 						else {
-							if (emap_gt.Load((gt)) && emap_pred.Load((pred)))
-							{
-								//emap_pred.DispDepthConversion(); // zoe, convert disp to depth
-								ErrorEmap(emap_gt, emap_pred, metrics_aligned.mse_result, metrics_aligned.mae_result, metrics_aligned.mre_result,
-									metrics_aligned.mselog_result, metrics_aligned.delta1_result, metrics_aligned.delta2_result, metrics_aligned.delta3_result, align_way, cap_depth);
-
-								metrics_aligned_all.push_back(metrics_aligned);
-
-
-								rmse_given_avg += sqrt(metrics_aligned.mse_given);
-								rmse_result_avg += sqrt(metrics_aligned.mse_result);
-								mae_given_avg += metrics_aligned.mae_given;
-								mae_result_avg += metrics_aligned.mae_result;
-								mre_given_avg += metrics_aligned.mre_given;
-								mre_result_avg += metrics_aligned.mre_result;
-								rmselog_given_avg += sqrt(metrics_aligned.mselog_given);
-								rmselog_result_avg += sqrt(metrics_aligned.mselog_result);
-								delta1_given_avg += metrics_aligned.delta1_given;
-								delta1_result_avg += metrics_aligned.delta1_result;
-								delta2_given_avg += metrics_aligned.delta2_given;
-								delta2_result_avg += metrics_aligned.delta2_result;
-								delta3_given_avg += metrics_aligned.delta3_given;
-								delta3_result_avg += metrics_aligned.delta3_result;
-
-								img_num++;
-
-							}
-							else {
-								cout << "load error" << endl;
-								load_error_num++; // replica360 2k / there are some imgs cannt load
-								if (!replica) {
-									return true;
-								}
+							cout << "load error" << endl;
+							load_error_num++; // replica360 2k / there are some imgs cannt load
+							if (!replica) {
+								return true;
 							}
 						}
-						cout << gt << "   " << pred << endl;
 					}
-
-					rmse_given_avg /= img_num;
-					rmse_result_avg /= img_num;
-					mae_given_avg /= img_num;
-					mae_result_avg /= img_num;
-					mre_given_avg /= img_num;
-					mre_result_avg /= img_num;
-					rmselog_given_avg /= img_num;
-					rmselog_result_avg /= img_num;
-					delta1_given_avg /= img_num;
-					delta1_result_avg /= img_num;
-					delta2_given_avg /= img_num;
-					delta2_result_avg /= img_num;
-					delta3_given_avg /= img_num;
-					delta3_result_avg /= img_num;
-
-					cout << "RMSE_given:" << rmse_given_avg << " RMSE_result:" << rmse_result_avg << " (" <<
-						(rmse_result_avg - rmse_given_avg) / rmse_given_avg << ")" <<
-						" MAE_given:" << mae_given_avg << " MAE_result_avg:" << mae_result_avg << " (" <<
-						(mae_result_avg - mae_given_avg) / mae_given_avg << ")" <<
-						" MRE_given:" << mre_given_avg << " MRE_result_avg:" << mre_result_avg << " (" <<
-						(mre_result_avg - mre_given_avg) / mre_given_avg << ")" <<
-						" RMSElog_given:" << rmselog_given_avg << " RMSElog_result:" << rmselog_result_avg << " (" <<
-						(rmselog_result_avg - rmselog_given_avg) / rmselog_given_avg << ")" <<
-						" delta1_given:" << delta1_given_avg << " delta1_result:" << delta1_result_avg << " (" <<
-						(delta1_result_avg - delta1_given_avg) << ")" <<
-						" delta2_given:" << delta2_given_avg << " delta2_result:" << delta2_result_avg << " (" <<
-						(delta2_result_avg - delta2_given_avg) << ")" <<
-						" delta3_given:" << delta3_given_avg << " delta3_result:" << delta3_result_avg << " (" <<
-						(delta3_result_avg - delta3_given_avg) << ")" << endl;
-
-					ofstream outFile(output_txt);
-
-					if (!outFile) {
-						std::cerr << "fail to open file" << std::endl;
-						return 1;
-					}
-					outFile << " RMSE: " << rmse_result_avg << endl;
-					outFile << " MAE: " << mae_result_avg << endl;
-					outFile << " MRE: " << mre_result_avg << endl;
-					outFile << " RMSElog: " << rmselog_result_avg << endl;
-					outFile << " delta1: " << delta1_result_avg << endl;
-					outFile << " delta2: " << delta2_result_avg << endl;
-					outFile << " delta3: " << delta3_result_avg << endl;
-
-					outFile.close();
-
-					cout << "error counts: " << load_error_num << endl;
-
-					
+					cout << gt << "   " << pred << endl;
 				}
+
+				rmse_given_avg /= img_num;
+				rmse_result_avg /= img_num;
+				mae_given_avg /= img_num;
+				mae_result_avg /= img_num;
+				mre_given_avg /= img_num;
+				mre_result_avg /= img_num;
+				rmselog_given_avg /= img_num;
+				rmselog_result_avg /= img_num;
+				delta1_given_avg /= img_num;
+				delta1_result_avg /= img_num;
+				delta2_given_avg /= img_num;
+				delta2_result_avg /= img_num;
+				delta3_given_avg /= img_num;
+				delta3_result_avg /= img_num;
+
+				cout << "RMSE_given:" << rmse_given_avg << " RMSE_result:" << rmse_result_avg << " (" <<
+					(rmse_result_avg - rmse_given_avg) / rmse_given_avg << ")" <<
+					" MAE_given:" << mae_given_avg << " MAE_result_avg:" << mae_result_avg << " (" <<
+					(mae_result_avg - mae_given_avg) / mae_given_avg << ")" <<
+					" MRE_given:" << mre_given_avg << " MRE_result_avg:" << mre_result_avg << " (" <<
+					(mre_result_avg - mre_given_avg) / mre_given_avg << ")" <<
+					" RMSElog_given:" << rmselog_given_avg << " RMSElog_result:" << rmselog_result_avg << " (" <<
+					(rmselog_result_avg - rmselog_given_avg) / rmselog_given_avg << ")" <<
+					" delta1_given:" << delta1_given_avg << " delta1_result:" << delta1_result_avg << " (" <<
+					(delta1_result_avg - delta1_given_avg) << ")" <<
+					" delta2_given:" << delta2_given_avg << " delta2_result:" << delta2_result_avg << " (" <<
+					(delta2_result_avg - delta2_given_avg) << ")" <<
+					" delta3_given:" << delta3_given_avg << " delta3_result:" << delta3_result_avg << " (" <<
+					(delta3_result_avg - delta3_given_avg) << ")" << endl;
+
+				ofstream outFile(output_txt);
+
+				if (!outFile) {
+					std::cerr << "fail to open file" << std::endl;
+					return 1;
+				}
+				outFile << " RMSE: " << rmse_result_avg << endl;
+				outFile << " MAE: " << mae_result_avg << endl;
+				outFile << " MRE: " << mre_result_avg << endl;
+				outFile << " RMSElog: " << rmselog_result_avg << endl;
+				outFile << " delta1: " << delta1_result_avg << endl;
+				outFile << " delta2: " << delta2_result_avg << endl;
+				outFile << " delta3: " << delta3_result_avg << endl;
+
+				outFile.close();
+
+				cout << "error counts: " << load_error_num << endl;
+
+
+				
 			}
 		}
 		return true;
@@ -810,13 +1040,20 @@ bool CreateDepthPanoramas(int argc, char* argv[], bool metric_cal_only, bool ski
 						auto_fold(rawname);
 					}
 
-					SaveCubeMap(g_L, g_cubemap_FOVs, "test_images_matterport3d/perspective_rgb_3_6_3_fold/" + rawname);  //LeReS
+					SaveCubeMap(g_L, g_cubemap_FOVs, "test_images_matterport3d/perspective_masked/" + rawname);  //LeReS
 					//SaveCubeMap(g_L, g_cubemap_FOVs, "test_images/" + rawname); //test
 					//return true;
 				}
 			}
 		}
+		ofstream outfile;
+		streambuf* coutbuf = nullptr;
+		outfile.open(".\\record\\test_img_log_txt\\_5_fold_log_4.txt");
+		coutbuf = cout.rdbuf();
+		cout.rdbuf(outfile.rdbuf());
 		cout << "SaveCubemps done! time:" << timeGetTime() - time << endl;
+		cout.rdbuf(coutbuf);
+		outfile.close();
 	}
 	else {
 		cout << "skip_createPano" << endl;
@@ -880,21 +1117,30 @@ bool CreateDepthPanoramas(int argc, char* argv[], bool metric_cal_only, bool ski
 	time = timeGetTime();
 
 	if (!skip_merge) {
-		string baselines[] = { "unifuse", "hohonet" };
-		//string baselines[] = { "unifuse" };
-		string type = "_3_6_3_fold";
-		string results[] = { "depthAnything_metric_raw" + type, "leres" + type, "zoe_raw" + type, "depthAnythingV2_metric_raw" + type };
-		//string results[] = { "depthAnythingV2_metric_raw" + type};
+		//string baselines[] = { "slicenet",  "CRF360D"};
+		//string baselines[] = { "CRF360D" };
+		//string baselines[] = { "CRF360D", "unifuse", "hohonet", "slicenet"};
+		string baselines[] = { "nobaseline" };
+		string type = split_type;
+		//string results[] = { "depthAnything_metric_raw" + type, "leres" + type, "zoe_raw" + type, "depthAnythingV2_metric_raw" + type };
+		string results[] = { "depthAnything_metric_raw" + type};
 		for (auto baseline : baselines) {
 			for (auto result : results) {
-				if (save_metric) output_txt = ".\\record\\matterport3d\\baseline_" + baseline + "\\" + result + "\\metrics.txt";
+				/*if (save_metric) output_txt = ".\\record\\matterport3d\\baseline_" + baseline + "\\" + result + "\\metrics.txt";*/ //original registration based
+				if (save_metric) output_txt = ".\\record\\matterport3d\\baseline_" + baseline + "\\output_new\\" + result + "\\metrics_1kref.txt"; // using sr model as reference
+
 
 
 				//set to another folder
 				// matterport3d
-				baseline_folder = ".\\\\datas\\\\matterport3d\\\\" + baseline + "\\\\result\\\\";
-				result_folder = ".\\\\record\\\\matterport3d\\\\baseline_" + baseline + "\\\\" + result + "\\\\result\\\\";
+				/*baseline_folder = ".\\\\datas\\\\matterport3d\\\\" + baseline + "\\\\result\\\\";*/ // for other panoramic method as reference
+				//baseline_folder = ".\\\\datas\\\\matterport3d\\\\" + baseline + "_val\\\\result\\\\"; // for train and val set of matterport3d
+				baseline_folder = ".\\record\\matterport3d\\baseline_" + baseline + "\\output_new\\" + result + "\\result_stitched_seamless_1k\\";
+				//result_folder = ".\\\\record\\\\matterport3d\\\\baseline_" + baseline + "\\\\" + result + "\\\\result_test\\\\"; // for original
+				/*result_folder = ".\\\\record\\\\matterport3d\\\\baseline_" + baseline + "\\\\" + result + "\\\\input_stitched\\\\";*/ // for input_stitched
+				result_folder = ".\\\\record\\\\matterport3d\\\\baseline_" + baseline + "\\\\output_new\\\\" + result + "\\\\result_1kref\\\\"; // use sr model as reference
 				test_img_folder = "test_images_matterport3d/test_images_" + result + "/";
+				//test_img_folder = "test_images_matterport3d/test_images_val_" + result + "/"; // for train and val set of matterport3d
 				/*cout << output_txt << endl;
 				cout << baseline_folder << endl;
 				cout << result_folder << endl;
@@ -931,12 +1177,15 @@ bool CreateDepthPanoramas(int argc, char* argv[], bool metric_cal_only, bool ski
 
 						//baseline filename?
 						//fn_equirectangular_baseline = baseline_folder + rawname + ".jpg";  //bifuse
-						if (baseline == "unifuse") {
+						if (baseline == "unifuse" || baseline == "CRF360D" || baseline == "slicenet" || baseline == "slicenet_masked") {
 							fn_equirectangular_baseline = baseline_folder + rawname + "_depth_pred.jpg"; // unifuse matterport, depth-anyting metterport
 						}
 						//fn_equirectangular_baseline = baseline_folder + rawname + "_depth_pred.png"; // Zoe matterport, depth-anyting metric raw matterport
 						if (baseline == "hohonet") {
 							fn_equirectangular_baseline = baseline_folder + rawname + "_rgb.depth.png"; // hohonet matterport
+						}
+						if (baseline == "nobaseline") {
+							fn_equirectangular_baseline = baseline_folder + rawname + "_seamless.png"; // for sr model
 						}
 						if (baseline == "egformer" || baseline == "panoformer") {
 							fn_equirectangular_baseline = baseline_folder + rawname + ".png"; // egformer panoformer matterport
@@ -963,9 +1212,11 @@ bool CreateDepthPanoramas(int argc, char* argv[], bool metric_cal_only, bool ski
 						{
 							//default matterport way:
 							//fn_equirectangular_gt = gt_folder + rawname + ".png"; 
-							fn_equirectangular_gt = gt_folder + rawname + "_depth_gt.jpg"; // matterport
+							//fn_equirectangular_gt = gt_folder + rawname + "_depth_gt.jpg"; // matterport old
+							fn_equirectangular_gt = gt_folder + rawname + "_depth_gt.png"; // new
 
 							//stanford2d3d: replace "_rgb" with "_depth: 
+							if (false)
 							{
 								size_t index = fn_equirectangular_gt.find("_rgb");
 								if (index != string::npos)
@@ -1018,6 +1269,7 @@ bool CreateDepthPanoramas(int argc, char* argv[], bool metric_cal_only, bool ski
 
 					vector<string> pmap_fns;  //filename of the perspective RGB images
 					cout << "g_cubemap_FOVs.size()" << g_cubemap_FOVs.size() << endl;
+					std::cout << "split type: " << split_type << std::endl;
 
 					for (int i = 0; i < g_cubemap_FOVs.size(); i++)
 					{
@@ -1073,219 +1325,194 @@ bool CreateDepthPanoramas(int argc, char* argv[], bool metric_cal_only, bool ski
 					DepthNamespace::Metrics metrics_aligned;
 					int time_Reg = 0, time_Laplacian = 0;
 					if (!DepthNamespace::MergeDepthMaps(fn_equirectangular_baseline, pmap_fns, output_filename, result_folder, rawname, g_cubemap_FOVs, g_cubemap_ranges,
-						2048, g_zenith_range, &fn_equirectangular_gt, &metrics_aligned, &time_Reg, &time_Laplacian))
+						2048, g_zenith_range, split_type, &fn_equirectangular_gt, &metrics_aligned, &time_Reg, &time_Laplacian ))
 					{
 						cout << "[CreateDepthPanorma] MergeDepthMaps #" << i << " failed!" << endl;
 						return false;
 					}
 
+					if (true) { 
+						time_Regs.push_back(time_Reg);
+						time_Laplacians.push_back(time_Laplacian);
 
-					time_Regs.push_back(time_Reg);
-					time_Laplacians.push_back(time_Laplacian);
+						char metrics_aligned_filename[260] = { NULL };
+						sprintf(metrics_aligned_filename, "%s.aligned.txt", (result_folder + rawname).c_str());
+						metrics_aligned.Save(metrics_aligned_filename);
+						metrics_aligned_all.push_back(metrics_aligned);
 
-					char metrics_aligned_filename[260] = { NULL };
-					sprintf(metrics_aligned_filename, "%s.aligned.txt", (result_folder + rawname).c_str());
-					metrics_aligned.Save(metrics_aligned_filename);
-					metrics_aligned_all.push_back(metrics_aligned);
-
-					//report avg metrics so far
-					if (i == RGB_filenames.size() - 1 || (i > 0 && i % 5 == 0))
-					{
-						cout << "----------" << endl;
-						for (int Case = 0; Case < 1; Case++)
+						//report avg metrics so far
+						if (i == RGB_filenames.size() - 1 || (i > 0 && i % 5 == 0))
 						{
-							vector<DepthNamespace::Metrics>* metrics_all = NULL;
-							metrics_all = &metrics_aligned_all;
-
-							float rmse_given_avg = 0, rmse_result_avg = 0, mae_given_avg = 0, mae_result_avg = 0,
-								mre_given_avg = 0, mre_result_avg = 0, rmselog_given_avg = 0, rmselog_result_avg = 0;
-							float delta1_given_avg = 0, delta1_result_avg = 0, delta2_given_avg = 0, delta2_result_avg = 0, delta3_given_avg = 0, delta3_result_avg = 0;
-							for (int i = 0; i < (*metrics_all).size(); i++)
+							cout << "----------" << endl;
+							for (int Case = 0; Case < 1; Case++)
 							{
-								rmse_given_avg += sqrt((*metrics_all)[i].mse_given);
-								rmse_result_avg += sqrt((*metrics_all)[i].mse_result);
-								mae_given_avg += (*metrics_all)[i].mae_given;
-								mae_result_avg += (*metrics_all)[i].mae_result;
-								mre_given_avg += (*metrics_all)[i].mre_given;
-								mre_result_avg += (*metrics_all)[i].mre_result;
-								rmselog_given_avg += sqrt((*metrics_all)[i].mselog_given);
-								rmselog_result_avg += sqrt((*metrics_all)[i].mselog_result);
-								delta1_given_avg += (*metrics_all)[i].delta1_given;
-								delta1_result_avg += (*metrics_all)[i].delta1_result;
-								delta2_given_avg += (*metrics_all)[i].delta2_given;
-								delta2_result_avg += (*metrics_all)[i].delta2_result;
-								delta3_given_avg += (*metrics_all)[i].delta3_given;
-								delta3_result_avg += (*metrics_all)[i].delta3_result;
-							}
-							rmse_given_avg /= (float)(*metrics_all).size();
-							rmse_result_avg /= (float)(*metrics_all).size();
-							mae_given_avg /= (float)(*metrics_all).size();
-							mae_result_avg /= (float)(*metrics_all).size();
-							mre_given_avg /= (float)(*metrics_all).size();
-							mre_result_avg /= (float)(*metrics_all).size();
-							rmselog_given_avg /= (float)(*metrics_all).size();
-							rmselog_result_avg /= (float)(*metrics_all).size();
-							delta1_given_avg /= (float)(*metrics_all).size();
-							delta1_result_avg /= (float)(*metrics_all).size();
-							delta2_given_avg /= (float)(*metrics_all).size();
-							delta2_result_avg /= (float)(*metrics_all).size();
-							delta3_given_avg /= (float)(*metrics_all).size();
-							delta3_result_avg /= (float)(*metrics_all).size();
+								vector<DepthNamespace::Metrics>* metrics_all = NULL;
+								metrics_all = &metrics_aligned_all;
 
-							/*cout << "RMSE_given:" << rmse_given_avg << " RMSE_result:" << rmse_result_avg << " (" <<
-								(rmse_result_avg - rmse_given_avg) / rmse_given_avg << ")" <<
-								" MAE_given:" << mae_given_avg << " MAE_result_avg:" << mae_result_avg << " (" <<
-								(mae_result_avg - mae_given_avg) / mae_given_avg << ")" <<
-								" MRE_given:" << mre_given_avg << " MRE_result_avg:" << mre_result_avg << " (" <<
-								(mre_result_avg - mre_given_avg) / mre_given_avg << ")" <<
-								" RMSElog_given:" << rmselog_given_avg << " RMSElog_result:" << rmselog_result_avg << " (" <<
-								(rmselog_result_avg - rmselog_given_avg) / rmselog_given_avg << ")" <<
-								" delta1_given:" << delta1_given_avg << " delta1_result:" << delta1_result_avg << " (" <<
-								(delta1_result_avg - delta1_given_avg) << ")" <<
-								" delta2_given:" << delta2_given_avg << " delta2_result:" << delta2_result_avg << " (" <<
-								(delta2_result_avg - delta2_given_avg) << ")" <<
-								" delta3_given:" << delta3_given_avg << " delta3_result:" << delta3_result_avg << " (" <<
-								(delta3_result_avg - delta3_given_avg) << ")" << endl;*/
-
-							cout << "(*metrics_all).size() " << (*metrics_all).size() << endl;
-
-							if (save_metric && i == RGB_filenames.size() - 1 && (*metrics_all).size() == RGB_filenames.size()) {
-								ofstream outFile(output_txt);
-
-								if (!outFile) {
-									std::cerr << "fail to open file" << std::endl;
-									return 1;
+								float rmse_given_avg = 0, rmse_result_avg = 0, mae_given_avg = 0, mae_result_avg = 0,
+									mre_given_avg = 0, mre_result_avg = 0, rmselog_given_avg = 0, rmselog_result_avg = 0;
+								float delta1_given_avg = 0, delta1_result_avg = 0, delta2_given_avg = 0, delta2_result_avg = 0, delta3_given_avg = 0, delta3_result_avg = 0;
+								for (int i = 0; i < (*metrics_all).size(); i++)
+								{
+									rmse_given_avg += sqrt((*metrics_all)[i].mse_given);
+									rmse_result_avg += sqrt((*metrics_all)[i].mse_result);
+									mae_given_avg += (*metrics_all)[i].mae_given;
+									mae_result_avg += (*metrics_all)[i].mae_result;
+									mre_given_avg += (*metrics_all)[i].mre_given;
+									mre_result_avg += (*metrics_all)[i].mre_result;
+									rmselog_given_avg += sqrt((*metrics_all)[i].mselog_given);
+									rmselog_result_avg += sqrt((*metrics_all)[i].mselog_result);
+									delta1_given_avg += (*metrics_all)[i].delta1_given;
+									delta1_result_avg += (*metrics_all)[i].delta1_result;
+									delta2_given_avg += (*metrics_all)[i].delta2_given;
+									delta2_result_avg += (*metrics_all)[i].delta2_result;
+									delta3_given_avg += (*metrics_all)[i].delta3_given;
+									delta3_result_avg += (*metrics_all)[i].delta3_result;
 								}
-								outFile << " RMSE: " << rmse_result_avg << endl;
-								outFile << " MAE: " << mae_result_avg << endl;
-								outFile << " MRE: " << mre_result_avg << endl;
-								outFile << " RMSElog: " << rmselog_result_avg << endl;
-								outFile << " delta1: " << delta1_result_avg << endl;
-								outFile << " delta2: " << delta2_result_avg << endl;
-								outFile << " delta3: " << delta3_result_avg << endl;
+								rmse_given_avg /= (float)(*metrics_all).size();
+								rmse_result_avg /= (float)(*metrics_all).size();
+								mae_given_avg /= (float)(*metrics_all).size();
+								mae_result_avg /= (float)(*metrics_all).size();
+								mre_given_avg /= (float)(*metrics_all).size();
+								mre_result_avg /= (float)(*metrics_all).size();
+								rmselog_given_avg /= (float)(*metrics_all).size();
+								rmselog_result_avg /= (float)(*metrics_all).size();
+								delta1_given_avg /= (float)(*metrics_all).size();
+								delta1_result_avg /= (float)(*metrics_all).size();
+								delta2_given_avg /= (float)(*metrics_all).size();
+								delta2_result_avg /= (float)(*metrics_all).size();
+								delta3_given_avg /= (float)(*metrics_all).size();
+								delta3_result_avg /= (float)(*metrics_all).size();
 
-								outFile.close();
+								/*cout << "RMSE_given:" << rmse_given_avg << " RMSE_result:" << rmse_result_avg << " (" <<
+									(rmse_result_avg - rmse_given_avg) / rmse_given_avg << ")" <<
+									" MAE_given:" << mae_given_avg << " MAE_result_avg:" << mae_result_avg << " (" <<
+									(mae_result_avg - mae_given_avg) / mae_given_avg << ")" <<
+									" MRE_given:" << mre_given_avg << " MRE_result_avg:" << mre_result_avg << " (" <<
+									(mre_result_avg - mre_given_avg) / mre_given_avg << ")" <<
+									" RMSElog_given:" << rmselog_given_avg << " RMSElog_result:" << rmselog_result_avg << " (" <<
+									(rmselog_result_avg - rmselog_given_avg) / rmselog_given_avg << ")" <<
+									" delta1_given:" << delta1_given_avg << " delta1_result:" << delta1_result_avg << " (" <<
+									(delta1_result_avg - delta1_given_avg) << ")" <<
+									" delta2_given:" << delta2_given_avg << " delta2_result:" << delta2_result_avg << " (" <<
+									(delta2_result_avg - delta2_given_avg) << ")" <<
+									" delta3_given:" << delta3_given_avg << " delta3_result:" << delta3_result_avg << " (" <<
+									(delta3_result_avg - delta3_given_avg) << ")" << endl;*/
 
-								cout << "save metric at " << output_txt << endl;
+								cout << "(*metrics_all).size() " << (*metrics_all).size() << endl;
+
+								if (save_metric && i == RGB_filenames.size() - 1 && (*metrics_all).size() == RGB_filenames.size()) {
+									ofstream outFile(output_txt);
+
+									if (!outFile) {
+										std::cerr << "fail to open file" << std::endl;
+										return 1;
+									}
+									outFile << " RMSE: " << rmse_result_avg << endl;
+									outFile << " MAE: " << mae_result_avg << endl;
+									outFile << " MRE: " << mre_result_avg << endl;
+									outFile << " RMSElog: " << rmselog_result_avg << endl;
+									outFile << " delta1: " << delta1_result_avg << endl;
+									outFile << " delta2: " << delta2_result_avg << endl;
+									outFile << " delta3: " << delta3_result_avg << endl;
+
+									outFile.close();
+
+									cout << "save metric at " << output_txt << endl;
+								}
 							}
+
+							float time_Reg_avg = 0;
+							for (int ii = 0; ii < time_Regs.size(); ii++)
+							{
+								time_Reg_avg += time_Regs[ii];
+							}
+							time_Reg_avg /= (float)time_Regs.size();
+
+							float time_Laplacian_avg = 0;
+							for (int ii = 0; ii < time_Laplacians.size(); ii++)
+							{
+								time_Laplacian_avg += time_Laplacians[ii];
+							}
+							time_Laplacian_avg /= (float)time_Laplacians.size();
+
+							cout << "time_Reg_avg:" << time_Reg_avg << " time_Laplacian_avg:" << time_Laplacian_avg << endl;
+
+							cout << "----------" << endl;
 						}
-
-						float time_Reg_avg = 0;
-						for (int ii = 0; ii < time_Regs.size(); ii++)
-						{
-							time_Reg_avg += time_Regs[ii];
-						}
-						time_Reg_avg /= (float)time_Regs.size();
-
-						float time_Laplacian_avg = 0;
-						for (int ii = 0; ii < time_Laplacians.size(); ii++)
-						{
-							time_Laplacian_avg += time_Laplacians[ii];
-						}
-						time_Laplacian_avg /= (float)time_Laplacians.size();
-
-						cout << "time_Reg_avg:" << time_Reg_avg << " time_Laplacian_avg:" << time_Laplacian_avg << endl;
-
-						cout << "----------" << endl;
 					}
 				}
-				FILE* fp = fopen(output_txt.c_str(), "r");
-				vector<string> RGB_filenames;
-				AllFilesInFolder(RGB_folder.c_str(), RGB_filenames);
+				if (true) { //save metrics.txt
+					FILE* fp = fopen(output_txt.c_str(), "r");
+					vector<string> RGB_filenames;
+					AllFilesInFolder(RGB_folder.c_str(), RGB_filenames);
 
-				if (fp == NULL) {
-					cout << output_txt << " doesnt exist" << endl;
-					cout << result_folder << " cal metrics" << endl;
-					bool replica = false;
-
-					// matterport3d
-					//string gt_folder = ".\\datas\\matterport3d\\gt_grayscale\\";
-					string pred_folder = result_folder;
-					//string pred_folder = ".\\datas\\matterport3d\\depthAnything_V2_metric\\result\\"; // baseline 
-					//output_txt = ".\\record\\matterport3d\\baseline_unifuse\\zoe_raw\\metrics.txt";
-					//string output_txt = ".\\datas\\matterport3d\\depthAnything_V2_metric\\result\\metrics.txt";
-
-					// replica360 2k
-					//replica = true;
-					//string gt_folder = ".\\datas\\replica360_2k\\replica3602k_gt\\";
-					//string pred_folder = ".\\record\\replica360_2k\\baseline_hohonet\\leres\\\\result\\"; // hohonet
-					//string output_txt = ".\\record\\replica360_2k\\baseline_hohonet\\leres\\\\result\\\\metrics.txt"; //hohonet
-
-					vector<string> gts;
-					AllFilesInFolder(gt_folder.c_str(), gts);
-					//cout << gts[0] << endl;
-
-
-					float rmse_given_avg = 0, rmse_result_avg = 0, mae_given_avg = 0, mae_result_avg = 0,
-						mre_given_avg = 0, mre_result_avg = 0, rmselog_given_avg = 0, rmselog_result_avg = 0;
-					float delta1_given_avg = 0, delta1_result_avg = 0, delta2_given_avg = 0, delta2_result_avg = 0, delta3_given_avg = 0, delta3_result_avg = 0;
-
-					float img_num = 0, load_error_num = 0;
-
-					for (auto gt : gts) {
-						string pred;
-						string rawname;
-						char* filename = PathFindFileNameA(gt.c_str());
+					if (fp == NULL) {
+						cout << output_txt << " doesnt exist" << endl;
+						cout << result_folder << " cal metrics" << endl;
+						bool replica = false;
 
 						// matterport3d
-						rawname = string(filename).substr(0, 4);
-						pred = pred_folder + rawname + ".png"; //for merged pred pano
-						//pred = pred_folder + rawname + "_rgb.depth.png"; // hohonet
-						//pred = pred_folder + rawname + "_depth_pred.jpg"; //for pred of baseline of unifuse / depthAnything
-						//pred = pred_folder + rawname + "_depth_pred.png"; //for pred of baseline of zoe / depthAnything metric
+						//string gt_folder = ".\\datas\\matterport3d\\gt_grayscale\\";
+						string pred_folder = result_folder;
+						//string pred_folder = ".\\datas\\matterport3d\\depthAnything_V2_metric\\result\\"; // baseline 
+						//output_txt = ".\\record\\matterport3d\\baseline_unifuse\\zoe_raw\\metrics.txt";
+						//string output_txt = ".\\datas\\matterport3d\\depthAnything_V2_metric\\result\\metrics.txt";
 
 						// replica360 2k
-						//std::string suffix = "_depth_pano.pfm";
-						//size_t suffixPos = string(filename).find(suffix);
-						//rawname = string(filename).substr(0, suffixPos);
-						//pred = pred_folder + rawname + "_rgb_pano.png"; // leres (hohonet)
-						//pred = pred_folder + rawname + "_rgb_pano.depth.png"; // hohonet
+						//replica = true;
+						//string gt_folder = ".\\datas\\replica360_2k\\replica3602k_gt\\";
+						//string pred_folder = ".\\record\\replica360_2k\\baseline_hohonet\\leres\\\\result\\"; // hohonet
+						//string output_txt = ".\\record\\replica360_2k\\baseline_hohonet\\leres\\\\result\\\\metrics.txt"; //hohonet
+
+						vector<string> gts;
+						AllFilesInFolder(gt_folder.c_str(), gts);
+						//cout << gts[0] << endl;
 
 
-						int align_way = 1;
-						//align_way = 0; // no align
-						//load the ground-truth emap:
-						EquirectangularMap emap_gt;
-						EquirectangularMap emap_pred;
+						float rmse_given_avg = 0, rmse_result_avg = 0, mae_given_avg = 0, mae_result_avg = 0,
+							mre_given_avg = 0, mre_result_avg = 0, rmselog_given_avg = 0, rmselog_result_avg = 0;
+						float delta1_given_avg = 0, delta1_result_avg = 0, delta2_given_avg = 0, delta2_result_avg = 0, delta3_given_avg = 0, delta3_result_avg = 0;
 
-						vector<DepthNamespace::Metrics> metrics_aligned_all;
-						DepthNamespace::Metrics metrics_aligned;
+						float img_num = 0, load_error_num = 0;
 
-						bool cap_depth = true, DispDepthCompare = false;
+						for (auto gt : gts) {
+							string pred;
+							string rawname;
+							char* filename = PathFindFileNameA(gt.c_str());
 
-						//the pred is disp
-						if (DispDepthCompare) {
-							string shifted_filename_str = pred_folder + "shifted\\\\" + rawname + "_depth_pred.png";
-							const char* shifted_filename = shifted_filename_str.c_str();
-							ErrorCompare(gt, pred, DispDepthCompare, metrics_aligned.mse_result, metrics_aligned.mae_result, metrics_aligned.mre_result,
-								metrics_aligned.mselog_result, metrics_aligned.delta1_result, metrics_aligned.delta2_result, metrics_aligned.delta3_result, align_way, cap_depth, shifted_filename);
+							// matterport3d
+							rawname = string(filename).substr(0, 4);
+							pred = pred_folder + rawname + ".png"; //for merged pred pano
+							//pred = pred_folder + rawname + "_rgb.depth.png"; // hohonet
+							//pred = pred_folder + rawname + "_depth_pred.jpg"; //for pred of baseline of unifuse / depthAnything
+							//pred = pred_folder + rawname + "_depth_pred.png"; //for pred of baseline of zoe / depthAnything metric
 
-							metrics_aligned_all.push_back(metrics_aligned);
+							// replica360 2k
+							//std::string suffix = "_depth_pano.pfm";
+							//size_t suffixPos = string(filename).find(suffix);
+							//rawname = string(filename).substr(0, suffixPos);
+							//pred = pred_folder + rawname + "_rgb_pano.png"; // leres (hohonet)
+							//pred = pred_folder + rawname + "_rgb_pano.depth.png"; // hohonet
 
 
-							rmse_given_avg += sqrt(metrics_aligned.mse_given);
-							rmse_result_avg += sqrt(metrics_aligned.mse_result);
-							mae_given_avg += metrics_aligned.mae_given;
-							mae_result_avg += metrics_aligned.mae_result;
-							mre_given_avg += metrics_aligned.mre_given;
-							mre_result_avg += metrics_aligned.mre_result;
-							rmselog_given_avg += sqrt(metrics_aligned.mselog_given);
-							rmselog_result_avg += sqrt(metrics_aligned.mselog_result);
-							delta1_given_avg += metrics_aligned.delta1_given;
-							delta1_result_avg += metrics_aligned.delta1_result;
-							delta2_given_avg += metrics_aligned.delta2_given;
-							delta2_result_avg += metrics_aligned.delta2_result;
-							delta3_given_avg += metrics_aligned.delta3_given;
-							delta3_result_avg += metrics_aligned.delta3_result;
+							int align_way = 1;
+							//align_way = 0; // no align
+							//load the ground-truth emap:
+							EquirectangularMap emap_gt;
+							EquirectangularMap emap_pred;
 
-							img_num++;
-						}
-						else {
-							if (emap_gt.Load((gt)) && emap_pred.Load((pred)))
-							{
-								//emap_pred.DispDepthConversion(); // zoe, convert disp to depth
-								ErrorEmap(emap_gt, emap_pred, metrics_aligned.mse_result, metrics_aligned.mae_result, metrics_aligned.mre_result,
-									metrics_aligned.mselog_result, metrics_aligned.delta1_result, metrics_aligned.delta2_result, metrics_aligned.delta3_result, align_way, cap_depth);
+							vector<DepthNamespace::Metrics> metrics_aligned_all;
+							DepthNamespace::Metrics metrics_aligned;
+
+							bool cap_depth = true, DispDepthCompare = false;
+
+							//the pred is disp
+							if (DispDepthCompare) {
+								string shifted_filename_str = pred_folder + "shifted\\\\" + rawname + "_depth_pred.png";
+								const char* shifted_filename = shifted_filename_str.c_str();
+								ErrorCompare(gt, pred, DispDepthCompare, metrics_aligned.mse_result, metrics_aligned.mae_result, metrics_aligned.mre_result,
+									metrics_aligned.mselog_result, metrics_aligned.delta1_result, metrics_aligned.delta2_result, metrics_aligned.delta3_result, align_way, cap_depth, shifted_filename);
 
 								metrics_aligned_all.push_back(metrics_aligned);
 
@@ -1306,68 +1533,96 @@ bool CreateDepthPanoramas(int argc, char* argv[], bool metric_cal_only, bool ski
 								delta3_result_avg += metrics_aligned.delta3_result;
 
 								img_num++;
-
 							}
 							else {
-								cout << "load error" << endl;
-								load_error_num++; // replica360 2k / there are some imgs cannt load
-								if (!replica) {
-									return true;
+								if (emap_gt.Load((gt)) && emap_pred.Load((pred)))
+								{
+									//emap_pred.DispDepthConversion(); // zoe, convert disp to depth
+									ErrorEmap(emap_gt, emap_pred, metrics_aligned.mse_result, metrics_aligned.mae_result, metrics_aligned.mre_result,
+										metrics_aligned.mselog_result, metrics_aligned.delta1_result, metrics_aligned.delta2_result, metrics_aligned.delta3_result, align_way, cap_depth);
+
+									metrics_aligned_all.push_back(metrics_aligned);
+
+
+									rmse_given_avg += sqrt(metrics_aligned.mse_given);
+									rmse_result_avg += sqrt(metrics_aligned.mse_result);
+									mae_given_avg += metrics_aligned.mae_given;
+									mae_result_avg += metrics_aligned.mae_result;
+									mre_given_avg += metrics_aligned.mre_given;
+									mre_result_avg += metrics_aligned.mre_result;
+									rmselog_given_avg += sqrt(metrics_aligned.mselog_given);
+									rmselog_result_avg += sqrt(metrics_aligned.mselog_result);
+									delta1_given_avg += metrics_aligned.delta1_given;
+									delta1_result_avg += metrics_aligned.delta1_result;
+									delta2_given_avg += metrics_aligned.delta2_given;
+									delta2_result_avg += metrics_aligned.delta2_result;
+									delta3_given_avg += metrics_aligned.delta3_given;
+									delta3_result_avg += metrics_aligned.delta3_result;
+
+									img_num++;
+
+								}
+								else {
+									cout << "load error" << endl;
+									load_error_num++; // replica360 2k / there are some imgs cannt load
+									if (!replica) {
+										return true;
+									}
 								}
 							}
+							cout << gt << "   " << pred << endl;
 						}
-						cout << gt << "   " << pred << endl;
+
+						rmse_given_avg /= img_num;
+						rmse_result_avg /= img_num;
+						mae_given_avg /= img_num;
+						mae_result_avg /= img_num;
+						mre_given_avg /= img_num;
+						mre_result_avg /= img_num;
+						rmselog_given_avg /= img_num;
+						rmselog_result_avg /= img_num;
+						delta1_given_avg /= img_num;
+						delta1_result_avg /= img_num;
+						delta2_given_avg /= img_num;
+						delta2_result_avg /= img_num;
+						delta3_given_avg /= img_num;
+						delta3_result_avg /= img_num;
+
+						/*cout << "RMSE_given:" << rmse_given_avg << " RMSE_result:" << rmse_result_avg << " (" <<
+							(rmse_result_avg - rmse_given_avg) / rmse_given_avg << ")" <<
+							" MAE_given:" << mae_given_avg << " MAE_result_avg:" << mae_result_avg << " (" <<
+							(mae_result_avg - mae_given_avg) / mae_given_avg << ")" <<
+							" MRE_given:" << mre_given_avg << " MRE_result_avg:" << mre_result_avg << " (" <<
+							(mre_result_avg - mre_given_avg) / mre_given_avg << ")" <<
+							" RMSElog_given:" << rmselog_given_avg << " RMSElog_result:" << rmselog_result_avg << " (" <<
+							(rmselog_result_avg - rmselog_given_avg) / rmselog_given_avg << ")" <<
+							" delta1_given:" << delta1_given_avg << " delta1_result:" << delta1_result_avg << " (" <<
+							(delta1_result_avg - delta1_given_avg) << ")" <<
+							" delta2_given:" << delta2_given_avg << " delta2_result:" << delta2_result_avg << " (" <<
+							(delta2_result_avg - delta2_given_avg) << ")" <<
+							" delta3_given:" << delta3_given_avg << " delta3_result:" << delta3_result_avg << " (" <<
+							(delta3_result_avg - delta3_given_avg) << ")" << endl;*/
+
+						ofstream outFile(output_txt);
+
+						if (!outFile) {
+							std::cerr << "fail to open file" << std::endl;
+							return 1;
+						}
+						outFile << " RMSE: " << rmse_result_avg << endl;
+						outFile << " MAE: " << mae_result_avg << endl;
+						outFile << " MRE: " << mre_result_avg << endl;
+						outFile << " RMSElog: " << rmselog_result_avg << endl;
+						outFile << " delta1: " << delta1_result_avg << endl;
+						outFile << " delta2: " << delta2_result_avg << endl;
+						outFile << " delta3: " << delta3_result_avg << endl;
+
+						outFile.close();
+
+						cout << "error counts: " << load_error_num << endl;
+
+						//return true;
 					}
-
-					rmse_given_avg /= img_num;
-					rmse_result_avg /= img_num;
-					mae_given_avg /= img_num;
-					mae_result_avg /= img_num;
-					mre_given_avg /= img_num;
-					mre_result_avg /= img_num;
-					rmselog_given_avg /= img_num;
-					rmselog_result_avg /= img_num;
-					delta1_given_avg /= img_num;
-					delta1_result_avg /= img_num;
-					delta2_given_avg /= img_num;
-					delta2_result_avg /= img_num;
-					delta3_given_avg /= img_num;
-					delta3_result_avg /= img_num;
-
-					/*cout << "RMSE_given:" << rmse_given_avg << " RMSE_result:" << rmse_result_avg << " (" <<
-						(rmse_result_avg - rmse_given_avg) / rmse_given_avg << ")" <<
-						" MAE_given:" << mae_given_avg << " MAE_result_avg:" << mae_result_avg << " (" <<
-						(mae_result_avg - mae_given_avg) / mae_given_avg << ")" <<
-						" MRE_given:" << mre_given_avg << " MRE_result_avg:" << mre_result_avg << " (" <<
-						(mre_result_avg - mre_given_avg) / mre_given_avg << ")" <<
-						" RMSElog_given:" << rmselog_given_avg << " RMSElog_result:" << rmselog_result_avg << " (" <<
-						(rmselog_result_avg - rmselog_given_avg) / rmselog_given_avg << ")" <<
-						" delta1_given:" << delta1_given_avg << " delta1_result:" << delta1_result_avg << " (" <<
-						(delta1_result_avg - delta1_given_avg) << ")" <<
-						" delta2_given:" << delta2_given_avg << " delta2_result:" << delta2_result_avg << " (" <<
-						(delta2_result_avg - delta2_given_avg) << ")" <<
-						" delta3_given:" << delta3_given_avg << " delta3_result:" << delta3_result_avg << " (" <<
-						(delta3_result_avg - delta3_given_avg) << ")" << endl;*/
-
-					ofstream outFile(output_txt);
-
-					if (!outFile) {
-						std::cerr << "fail to open file" << std::endl;
-						return 1;
-					}
-					outFile << " RMSE: " << rmse_result_avg << endl;
-					outFile << " MAE: " << mae_result_avg << endl;
-					outFile << " MRE: " << mre_result_avg << endl;
-					outFile << " RMSElog: " << rmselog_result_avg << endl;
-					outFile << " delta1: " << delta1_result_avg << endl;
-					outFile << " delta2: " << delta2_result_avg << endl;
-					outFile << " delta3: " << delta3_result_avg << endl;
-
-					outFile.close();
-
-					cout << "error counts: " << load_error_num << endl;
-
-					//return true;
 				}
 			}
 		}
@@ -1570,9 +1825,13 @@ int main(int argc, char* argv[])
 {
 	bool shift_all = false, shift_v = false, shift_h = false, no_shift = false, margin10 = false, fold8 = false, fold6 = false, fold4 = false;
 	bool margin_quarter = false, fold3 = false;
-	bool test = false, padding = false, fold161 = false, fold363 = true;
-	bool metric_cal_only = false, skip_createPano = true, skip_depth_pred = true, skip_merge = false , auto_Fold = false;
+	bool test = false, padding = false, fold161 = false, fold363 = false, fold565 = false, fold464 = false;
+	bool metric_cal_only = false, skip_createPano = false , skip_depth_pred = true, skip_merge = true, auto_Fold = false;
 	bool output2file = false;
+
+	//string split_types[] = { "_fold5", "_fold6", "_6_fold_padding", "_5_6_5_fold_padding_6" };
+	string split_types[] = { "_5_6_5_fold" };
+	//string split_types[] = { "_3_fold", "_4_fold", "_3_6_3_fold", "_4_6_4_fold", "_6_fold_padding_15", "_6_fold_padding_30"};
 	ofstream outfile;
 	streambuf* coutbuf = nullptr;
 	if (output2file) {
@@ -1583,148 +1842,517 @@ int main(int argc, char* argv[])
 	//setup cubemap setting
 	/*string rawname = "0001";
 	auto_fold(rawname);*/
-	if (false)
-	{
-		//4-fold 
-
-		//up (zenith center is 63)
-		g_cubemap_FOVs.push_back(Vec4f(D2R(-2), D2R(92), D2R(17), D2R(109)));
-		g_cubemap_FOVs.push_back(Vec4f(D2R(88), D2R(182), D2R(17), D2R(109)));
-		g_cubemap_FOVs.push_back(Vec4f(D2R(178), D2R(272), D2R(17), D2R(109)));
-		g_cubemap_FOVs.push_back(Vec4f(D2R(268), D2R(362), D2R(17), D2R(109)));
-		//middle
-		g_cubemap_FOVs.push_back(Vec4f(D2R(-2), D2R(92), D2R(44), D2R(136)));
-		g_cubemap_FOVs.push_back(Vec4f(D2R(88), D2R(182), D2R(44), D2R(136)));
-		g_cubemap_FOVs.push_back(Vec4f(D2R(178), D2R(272), D2R(44), D2R(136)));
-		g_cubemap_FOVs.push_back(Vec4f(D2R(268), D2R(362), D2R(44), D2R(136)));
-		//down (zenith center is 117)
-		g_cubemap_FOVs.push_back(Vec4f(D2R(-2), D2R(92), D2R(71), D2R(163)));
-		g_cubemap_FOVs.push_back(Vec4f(D2R(88), D2R(182), D2R(71), D2R(163)));
-		g_cubemap_FOVs.push_back(Vec4f(D2R(178), D2R(272), D2R(71), D2R(163)));
-		g_cubemap_FOVs.push_back(Vec4f(D2R(268), D2R(362), D2R(71), D2R(163)));
-
-		//"up"
-		g_cubemap_ranges.push_back(Vec4f(D2R(90), D2R(0), D2R(25), D2R(56)));
-		g_cubemap_ranges.push_back(Vec4f(D2R(180), D2R(90), D2R(25), D2R(56)));
-		g_cubemap_ranges.push_back(Vec4f(D2R(270), D2R(180), D2R(25), D2R(56)));
-		g_cubemap_ranges.push_back(Vec4f(D2R(360), D2R(270), D2R(25), D2R(56)));
-		//"middle"
-		g_cubemap_ranges.push_back(Vec4f(D2R(90), D2R(0), D2R(56), D2R(124)));
-		g_cubemap_ranges.push_back(Vec4f(D2R(180), D2R(90), D2R(56), D2R(124)));
-		g_cubemap_ranges.push_back(Vec4f(D2R(270), D2R(180), D2R(56), D2R(124)));
-		g_cubemap_ranges.push_back(Vec4f(D2R(360), D2R(270), D2R(56), D2R(124)));
-		//"down"
-		g_cubemap_ranges.push_back(Vec4f(D2R(90), D2R(0), D2R(124), D2R(155)));
-		g_cubemap_ranges.push_back(Vec4f(D2R(180), D2R(90), D2R(124), D2R(155)));
-		g_cubemap_ranges.push_back(Vec4f(D2R(270), D2R(180), D2R(124), D2R(155)));
-		g_cubemap_ranges.push_back(Vec4f(D2R(360), D2R(270), D2R(124), D2R(155)));
-	}
-	if (false)
-	{
-		//5-fold for MiDas
-
-		float margin = D2R(2);
-		float azi00 = D2R(0) - margin, azi01 = D2R(72) + margin;
-		float azi10 = D2R(72) - margin, azi11 = D2R(144) + margin;
-		float azi20 = D2R(144) - margin, azi21 = D2R(216) + margin;
-		float azi30 = D2R(216) - margin, azi31 = D2R(288) + margin;
-		float azi40 = D2R(288) - margin, azi41 = D2R(360) + margin;
-
-		//up (zenith center is 49)
-		float zen00 = D2R(20), zen01 = D2R(78);
-		g_cubemap_FOVs.push_back(Vec4f(azi00, azi01, zen00, zen01));
-		g_cubemap_FOVs.push_back(Vec4f(azi10, azi11, zen00, zen01));
-		g_cubemap_FOVs.push_back(Vec4f(azi20, azi21, zen00, zen01));
-		g_cubemap_FOVs.push_back(Vec4f(azi30, azi31, zen00, zen01));
-		g_cubemap_FOVs.push_back(Vec4f(azi40, azi41, zen00, zen01));
-		//middle (zenith center is 90)
-		float zen10 = D2R(61), zen11 = D2R(119);
-		g_cubemap_FOVs.push_back(Vec4f(azi00, azi01, zen10, zen11));
-		g_cubemap_FOVs.push_back(Vec4f(azi10, azi11, zen10, zen11));
-		g_cubemap_FOVs.push_back(Vec4f(azi20, azi21, zen10, zen11));
-		g_cubemap_FOVs.push_back(Vec4f(azi30, azi31, zen10, zen11));
-		g_cubemap_FOVs.push_back(Vec4f(azi40, azi41, zen10, zen11));
-		//down (zenith center is 131)
-		float zen20 = D2R(102), zen21 = D2R(160);
-		g_cubemap_FOVs.push_back(Vec4f(azi00, azi01, zen20, zen21));
-		g_cubemap_FOVs.push_back(Vec4f(azi10, azi11, zen20, zen21));
-		g_cubemap_FOVs.push_back(Vec4f(azi20, azi21, zen20, zen21));
-		g_cubemap_FOVs.push_back(Vec4f(azi30, azi31, zen20, zen21));
-		g_cubemap_FOVs.push_back(Vec4f(azi40, azi41, zen20, zen21));
-
-		////ranges:
-
-		//"up"
-		float Zen00 = D2R(25), Zen01 = D2R(67);
-		g_cubemap_ranges.push_back(Vec4f(azi01 - margin, azi00 + margin, Zen00, Zen01));
-		g_cubemap_ranges.push_back(Vec4f(azi11 - margin, azi10 + margin, Zen00, Zen01));
-		g_cubemap_ranges.push_back(Vec4f(azi21 - margin, azi20 + margin, Zen00, Zen01));
-		g_cubemap_ranges.push_back(Vec4f(azi31 - margin, azi30 + margin, Zen00, Zen01));
-		g_cubemap_ranges.push_back(Vec4f(azi41 - margin, azi40 + margin, Zen00, Zen01));
-		//"middle"
-		float Zen10 = D2R(67), Zen11 = D2R(113);
-		g_cubemap_ranges.push_back(Vec4f(azi01 - margin, azi00 + margin, Zen10, Zen11));
-		g_cubemap_ranges.push_back(Vec4f(azi11 - margin, azi10 + margin, Zen10, Zen11));
-		g_cubemap_ranges.push_back(Vec4f(azi21 - margin, azi20 + margin, Zen10, Zen11));
-		g_cubemap_ranges.push_back(Vec4f(azi31 - margin, azi30 + margin, Zen10, Zen11));
-		g_cubemap_ranges.push_back(Vec4f(azi41 - margin, azi40 + margin, Zen10, Zen11));
-		//"down"
-		float Zen20 = D2R(113), Zen21 = D2R(155);
-		g_cubemap_ranges.push_back(Vec4f(azi01 - margin, azi00 + margin, Zen20, Zen21));
-		g_cubemap_ranges.push_back(Vec4f(azi11 - margin, azi10 + margin, Zen20, Zen21));
-		g_cubemap_ranges.push_back(Vec4f(azi21 - margin, azi20 + margin, Zen20, Zen21));
-		g_cubemap_ranges.push_back(Vec4f(azi31 - margin, azi30 + margin, Zen20, Zen21));
-		g_cubemap_ranges.push_back(Vec4f(azi41 - margin, azi40 + margin, Zen20, Zen21));
-	}
-	if (test) {
-		//6-fold
-		float margin = D2R(3);
-		if (margin10) margin = D2R(10);
-
-		float azi00, azi01;
-		float azi10, azi11;
-		float azi20, azi21;
-		float azi30, azi31;
-		float azi40, azi41;
-		float azi50, azi51;
-
-		{
-
-			azi00 = D2R(0) - margin, azi01 = D2R(18) + margin;
-			azi10 = D2R(18)- margin, azi11 = D2R(90) + margin;
-			azi20 = D2R(90) - margin, azi21 = D2R(155) + margin;
-			azi30 = D2R(155) - margin, azi31 = D2R(235)+ margin;
-			azi40 = D2R(235) - margin, azi41 = D2R(300) + margin;
-			azi50 = D2R(300) - margin, azi51 = D2R(360) + margin;
+	for(auto split_type : split_types){
+		no_shift = false;
+		fold6 = false;
+		padding = false;
+		fold565 = false;
+		fold3 = false;
+		fold4 = false;
+		fold363 = false;
+		fold464 = false;
+		float pad = 0;
+		g_cubemap_ranges.clear();
+		g_cubemap_FOVs.clear();
+		if (split_type == "_fold5") {
+			no_shift = true;
 		}
-
-		//up (zenith center is 56)
-		float zen00 = D2R(18), zen01 = D2R(94);
-		g_cubemap_FOVs.push_back(Vec4f(azi00, azi01, zen00, zen01));
-		g_cubemap_FOVs.push_back(Vec4f(azi10, azi11, zen00, zen01));
-		g_cubemap_FOVs.push_back(Vec4f(azi20, azi21, zen00, zen01));
-		g_cubemap_FOVs.push_back(Vec4f(azi30, azi31, zen00, zen01));
-		g_cubemap_FOVs.push_back(Vec4f(azi40, azi41, zen00, zen01));
-		g_cubemap_FOVs.push_back(Vec4f(azi50, azi51, zen00, zen01));
-		//middle (zenith center is 90)
-		float zen10 = D2R(52), zen11 = D2R(128);
-		g_cubemap_FOVs.push_back(Vec4f(azi00, azi01, zen10, zen11));
-		g_cubemap_FOVs.push_back(Vec4f(azi10, azi11, zen10, zen11));
-		g_cubemap_FOVs.push_back(Vec4f(azi20, azi21, zen10, zen11));
-		g_cubemap_FOVs.push_back(Vec4f(azi30, azi31, zen10, zen11));
-		g_cubemap_FOVs.push_back(Vec4f(azi40, azi41, zen10, zen11));
-		g_cubemap_FOVs.push_back(Vec4f(azi50, azi51, zen10, zen11));
-		//down (zenith center is 124)
-		float zen20 = D2R(86), zen21 = D2R(162);
-		g_cubemap_FOVs.push_back(Vec4f(azi00, azi01, zen20, zen21));
-		g_cubemap_FOVs.push_back(Vec4f(azi10, azi11, zen20, zen21));
-		g_cubemap_FOVs.push_back(Vec4f(azi20, azi21, zen20, zen21));
-		g_cubemap_FOVs.push_back(Vec4f(azi30, azi31, zen20, zen21));
-		g_cubemap_FOVs.push_back(Vec4f(azi40, azi41, zen20, zen21));
-		g_cubemap_FOVs.push_back(Vec4f(azi50, azi51, zen20, zen21));
-
-		////ranges;
+		else if (split_type == "_fold6") {
+			fold6 = true;
+		}
+		else if (split_type == "_6_fold_padding") {
+			fold6 = true;
+			pad = 6;
+		}
+		else if (split_type == "_5_6_5_fold") {
+			fold565 = true;
+		}
+		else if (split_type == "_5_6_5_fold_padding_6") {
+			pad = 6;
+			fold565 = true;
+		}
+		else if (split_type == "_3_fold") {
+			fold3 = true;
+		}
+		else if (split_type == "_4_fold") {
+			fold4 = true;
+		}
+		else if (split_type == "_3_6_3_fold") {
+			fold363 = true;
+		}
+		else if (split_type == "_4_6_4_fold") {
+			fold464 = true;
+		}
+		else if (split_type == "_6_fold_padding_15") {
+			fold6 = true;
+			pad = 15;
+		}
+		else if (split_type == "_6_fold_padding_30") {
+			fold6 = true;
+			pad = 30;
+		}
+		else {
+			cout << "error" << endl;
+			return 0;
+		}
+		if (false)
 		{
+			//4-fold 
+
+			//up (zenith center is 63)
+			g_cubemap_FOVs.push_back(Vec4f(D2R(-2), D2R(92), D2R(17), D2R(109)));
+			g_cubemap_FOVs.push_back(Vec4f(D2R(88), D2R(182), D2R(17), D2R(109)));
+			g_cubemap_FOVs.push_back(Vec4f(D2R(178), D2R(272), D2R(17), D2R(109)));
+			g_cubemap_FOVs.push_back(Vec4f(D2R(268), D2R(362), D2R(17), D2R(109)));
+			//middle
+			g_cubemap_FOVs.push_back(Vec4f(D2R(-2), D2R(92), D2R(44), D2R(136)));
+			g_cubemap_FOVs.push_back(Vec4f(D2R(88), D2R(182), D2R(44), D2R(136)));
+			g_cubemap_FOVs.push_back(Vec4f(D2R(178), D2R(272), D2R(44), D2R(136)));
+			g_cubemap_FOVs.push_back(Vec4f(D2R(268), D2R(362), D2R(44), D2R(136)));
+			//down (zenith center is 117)
+			g_cubemap_FOVs.push_back(Vec4f(D2R(-2), D2R(92), D2R(71), D2R(163)));
+			g_cubemap_FOVs.push_back(Vec4f(D2R(88), D2R(182), D2R(71), D2R(163)));
+			g_cubemap_FOVs.push_back(Vec4f(D2R(178), D2R(272), D2R(71), D2R(163)));
+			g_cubemap_FOVs.push_back(Vec4f(D2R(268), D2R(362), D2R(71), D2R(163)));
+
+			//"up"
+			g_cubemap_ranges.push_back(Vec4f(D2R(90), D2R(0), D2R(25), D2R(56)));
+			g_cubemap_ranges.push_back(Vec4f(D2R(180), D2R(90), D2R(25), D2R(56)));
+			g_cubemap_ranges.push_back(Vec4f(D2R(270), D2R(180), D2R(25), D2R(56)));
+			g_cubemap_ranges.push_back(Vec4f(D2R(360), D2R(270), D2R(25), D2R(56)));
+			//"middle"
+			g_cubemap_ranges.push_back(Vec4f(D2R(90), D2R(0), D2R(56), D2R(124)));
+			g_cubemap_ranges.push_back(Vec4f(D2R(180), D2R(90), D2R(56), D2R(124)));
+			g_cubemap_ranges.push_back(Vec4f(D2R(270), D2R(180), D2R(56), D2R(124)));
+			g_cubemap_ranges.push_back(Vec4f(D2R(360), D2R(270), D2R(56), D2R(124)));
+			//"down"
+			g_cubemap_ranges.push_back(Vec4f(D2R(90), D2R(0), D2R(124), D2R(155)));
+			g_cubemap_ranges.push_back(Vec4f(D2R(180), D2R(90), D2R(124), D2R(155)));
+			g_cubemap_ranges.push_back(Vec4f(D2R(270), D2R(180), D2R(124), D2R(155)));
+			g_cubemap_ranges.push_back(Vec4f(D2R(360), D2R(270), D2R(124), D2R(155)));
+		}
+		if (false)
+		{
+			//5-fold for MiDas
+
+			float margin = D2R(2);
+			float azi00 = D2R(0) - margin, azi01 = D2R(72) + margin;
+			float azi10 = D2R(72) - margin, azi11 = D2R(144) + margin;
+			float azi20 = D2R(144) - margin, azi21 = D2R(216) + margin;
+			float azi30 = D2R(216) - margin, azi31 = D2R(288) + margin;
+			float azi40 = D2R(288) - margin, azi41 = D2R(360) + margin;
+
+			//up (zenith center is 49)
+			float zen00 = D2R(20), zen01 = D2R(78);
+			g_cubemap_FOVs.push_back(Vec4f(azi00, azi01, zen00, zen01));
+			g_cubemap_FOVs.push_back(Vec4f(azi10, azi11, zen00, zen01));
+			g_cubemap_FOVs.push_back(Vec4f(azi20, azi21, zen00, zen01));
+			g_cubemap_FOVs.push_back(Vec4f(azi30, azi31, zen00, zen01));
+			g_cubemap_FOVs.push_back(Vec4f(azi40, azi41, zen00, zen01));
+			//middle (zenith center is 90)
+			float zen10 = D2R(61), zen11 = D2R(119);
+			g_cubemap_FOVs.push_back(Vec4f(azi00, azi01, zen10, zen11));
+			g_cubemap_FOVs.push_back(Vec4f(azi10, azi11, zen10, zen11));
+			g_cubemap_FOVs.push_back(Vec4f(azi20, azi21, zen10, zen11));
+			g_cubemap_FOVs.push_back(Vec4f(azi30, azi31, zen10, zen11));
+			g_cubemap_FOVs.push_back(Vec4f(azi40, azi41, zen10, zen11));
+			//down (zenith center is 131)
+			float zen20 = D2R(102), zen21 = D2R(160);
+			g_cubemap_FOVs.push_back(Vec4f(azi00, azi01, zen20, zen21));
+			g_cubemap_FOVs.push_back(Vec4f(azi10, azi11, zen20, zen21));
+			g_cubemap_FOVs.push_back(Vec4f(azi20, azi21, zen20, zen21));
+			g_cubemap_FOVs.push_back(Vec4f(azi30, azi31, zen20, zen21));
+			g_cubemap_FOVs.push_back(Vec4f(azi40, azi41, zen20, zen21));
+
+			////ranges:
+
+			//"up"
+			float Zen00 = D2R(25), Zen01 = D2R(67);
+			g_cubemap_ranges.push_back(Vec4f(azi01 - margin, azi00 + margin, Zen00, Zen01));
+			g_cubemap_ranges.push_back(Vec4f(azi11 - margin, azi10 + margin, Zen00, Zen01));
+			g_cubemap_ranges.push_back(Vec4f(azi21 - margin, azi20 + margin, Zen00, Zen01));
+			g_cubemap_ranges.push_back(Vec4f(azi31 - margin, azi30 + margin, Zen00, Zen01));
+			g_cubemap_ranges.push_back(Vec4f(azi41 - margin, azi40 + margin, Zen00, Zen01));
+			//"middle"
+			float Zen10 = D2R(67), Zen11 = D2R(113);
+			g_cubemap_ranges.push_back(Vec4f(azi01 - margin, azi00 + margin, Zen10, Zen11));
+			g_cubemap_ranges.push_back(Vec4f(azi11 - margin, azi10 + margin, Zen10, Zen11));
+			g_cubemap_ranges.push_back(Vec4f(azi21 - margin, azi20 + margin, Zen10, Zen11));
+			g_cubemap_ranges.push_back(Vec4f(azi31 - margin, azi30 + margin, Zen10, Zen11));
+			g_cubemap_ranges.push_back(Vec4f(azi41 - margin, azi40 + margin, Zen10, Zen11));
+			//"down"
+			float Zen20 = D2R(113), Zen21 = D2R(155);
+			g_cubemap_ranges.push_back(Vec4f(azi01 - margin, azi00 + margin, Zen20, Zen21));
+			g_cubemap_ranges.push_back(Vec4f(azi11 - margin, azi10 + margin, Zen20, Zen21));
+			g_cubemap_ranges.push_back(Vec4f(azi21 - margin, azi20 + margin, Zen20, Zen21));
+			g_cubemap_ranges.push_back(Vec4f(azi31 - margin, azi30 + margin, Zen20, Zen21));
+			g_cubemap_ranges.push_back(Vec4f(azi41 - margin, azi40 + margin, Zen20, Zen21));
+		}
+		if (test) {
+			//6-fold
+			float margin = D2R(3);
+			if (margin10) margin = D2R(10);
+
+			float azi00, azi01;
+			float azi10, azi11;
+			float azi20, azi21;
+			float azi30, azi31;
+			float azi40, azi41;
+			float azi50, azi51;
+
+			{
+
+				azi00 = D2R(0) - margin, azi01 = D2R(18) + margin;
+				azi10 = D2R(18)- margin, azi11 = D2R(90) + margin;
+				azi20 = D2R(90) - margin, azi21 = D2R(155) + margin;
+				azi30 = D2R(155) - margin, azi31 = D2R(235)+ margin;
+				azi40 = D2R(235) - margin, azi41 = D2R(300) + margin;
+				azi50 = D2R(300) - margin, azi51 = D2R(360) + margin;
+			}
+
+			//up (zenith center is 56)
+			float zen00 = D2R(18), zen01 = D2R(94);
+			g_cubemap_FOVs.push_back(Vec4f(azi00, azi01, zen00, zen01));
+			g_cubemap_FOVs.push_back(Vec4f(azi10, azi11, zen00, zen01));
+			g_cubemap_FOVs.push_back(Vec4f(azi20, azi21, zen00, zen01));
+			g_cubemap_FOVs.push_back(Vec4f(azi30, azi31, zen00, zen01));
+			g_cubemap_FOVs.push_back(Vec4f(azi40, azi41, zen00, zen01));
+			g_cubemap_FOVs.push_back(Vec4f(azi50, azi51, zen00, zen01));
+			//middle (zenith center is 90)
+			float zen10 = D2R(52), zen11 = D2R(128);
+			g_cubemap_FOVs.push_back(Vec4f(azi00, azi01, zen10, zen11));
+			g_cubemap_FOVs.push_back(Vec4f(azi10, azi11, zen10, zen11));
+			g_cubemap_FOVs.push_back(Vec4f(azi20, azi21, zen10, zen11));
+			g_cubemap_FOVs.push_back(Vec4f(azi30, azi31, zen10, zen11));
+			g_cubemap_FOVs.push_back(Vec4f(azi40, azi41, zen10, zen11));
+			g_cubemap_FOVs.push_back(Vec4f(azi50, azi51, zen10, zen11));
+			//down (zenith center is 124)
+			float zen20 = D2R(86), zen21 = D2R(162);
+			g_cubemap_FOVs.push_back(Vec4f(azi00, azi01, zen20, zen21));
+			g_cubemap_FOVs.push_back(Vec4f(azi10, azi11, zen20, zen21));
+			g_cubemap_FOVs.push_back(Vec4f(azi20, azi21, zen20, zen21));
+			g_cubemap_FOVs.push_back(Vec4f(azi30, azi31, zen20, zen21));
+			g_cubemap_FOVs.push_back(Vec4f(azi40, azi41, zen20, zen21));
+			g_cubemap_FOVs.push_back(Vec4f(azi50, azi51, zen20, zen21));
+
+			////ranges;
+			{
+
+				//"up"
+				float Zen00 = D2R(25), Zen01 = D2R(60);
+				g_cubemap_ranges.push_back(Vec4f(azi01 - margin, azi00 + margin, Zen00, Zen01));
+				g_cubemap_ranges.push_back(Vec4f(azi11 - margin, azi10 + margin, Zen00, Zen01));
+				g_cubemap_ranges.push_back(Vec4f(azi21 - margin, azi20 + margin, Zen00, Zen01));
+				g_cubemap_ranges.push_back(Vec4f(azi31 - margin, azi30 + margin, Zen00, Zen01));
+				g_cubemap_ranges.push_back(Vec4f(azi41 - margin, azi40 + margin, Zen00, Zen01));
+				g_cubemap_ranges.push_back(Vec4f(azi51 - margin, azi50 + margin, Zen00, Zen01));
+				//"middle"
+				float Zen10 = D2R(60), Zen11 = D2R(120);
+				g_cubemap_ranges.push_back(Vec4f(azi01 - margin, azi00 + margin, Zen10, Zen11));
+				g_cubemap_ranges.push_back(Vec4f(azi11 - margin, azi10 + margin, Zen10, Zen11));
+				g_cubemap_ranges.push_back(Vec4f(azi21 - margin, azi20 + margin, Zen10, Zen11));
+				g_cubemap_ranges.push_back(Vec4f(azi31 - margin, azi30 + margin, Zen10, Zen11));
+				g_cubemap_ranges.push_back(Vec4f(azi41 - margin, azi40 + margin, Zen10, Zen11));
+				g_cubemap_ranges.push_back(Vec4f(azi51 - margin, azi50 + margin, Zen10, Zen11));
+				//"down"
+				float Zen20 = D2R(120), Zen21 = D2R(155);
+				g_cubemap_ranges.push_back(Vec4f(azi01 - margin, azi00 + margin, Zen20, Zen21));
+				g_cubemap_ranges.push_back(Vec4f(azi11 - margin, azi10 + margin, Zen20, Zen21));
+				g_cubemap_ranges.push_back(Vec4f(azi21 - margin, azi20 + margin, Zen20, Zen21));
+				g_cubemap_ranges.push_back(Vec4f(azi31 - margin, azi30 + margin, Zen20, Zen21));
+				g_cubemap_ranges.push_back(Vec4f(azi41 - margin, azi40 + margin, Zen20, Zen21));
+				g_cubemap_ranges.push_back(Vec4f(azi51 - margin, azi50 + margin, Zen20, Zen21));
+			}
+		}
+		if (fold3) {
+			//4-fold
+			float margin = D2R(3);
+
+			float azi00, azi01;
+			float azi10, azi11;
+			float azi20, azi21;
+			float azi30, azi31;
+			float azi40, azi41;
+			float azi50, azi51;
+
+			{
+
+				azi00 = D2R(0) - margin, azi01 = D2R(120) + margin;
+				azi10 = D2R(120) - margin, azi11 = D2R(240) + margin;
+				azi20 = D2R(240) - margin, azi21 = D2R(360) + margin;
+				/*azi30 = D2R(270) - margin, azi31 = D2R(360) + margin;*/
+				/*azi40 = D2R(240) - margin, azi41 = D2R(300) + margin;
+				azi50 = D2R(300) - margin, azi51 = D2R(360) + margin;*/
+			}
+
+			//up (zenith center is 56)
+			//float zen00 = D2R(18), zen01 = D2R(94);
+			//if use the original zenith, the pmap will out of range of zenith when do the sphericalto2d
+			//float zen00 = D2R(17), zen01 = D2R(109);
+			float zen00 = D2R(7), zen01 = D2R(84);
+			g_cubemap_FOVs.push_back(Vec4f(azi00, azi01, zen00, zen01));
+			g_cubemap_FOVs.push_back(Vec4f(azi10, azi11, zen00, zen01));
+			g_cubemap_FOVs.push_back(Vec4f(azi20, azi21, zen00, zen01));
+			/*g_cubemap_FOVs.push_back(Vec4f(azi30, azi31, zen00, zen01));*/
+			/*g_cubemap_FOVs.push_back(Vec4f(azi40, azi41, zen00, zen01));
+			g_cubemap_FOVs.push_back(Vec4f(azi50, azi51, zen00, zen01));*/
+			//middle (zenith center is 90)
+			//float zen10 = D2R(52), zen11 = D2R(128);
+			float zen10 = D2R(44), zen11 = D2R(136);
+			g_cubemap_FOVs.push_back(Vec4f(azi00, azi01, zen10, zen11));
+			g_cubemap_FOVs.push_back(Vec4f(azi10, azi11, zen10, zen11));
+			g_cubemap_FOVs.push_back(Vec4f(azi20, azi21, zen10, zen11));
+			/*g_cubemap_FOVs.push_back(Vec4f(azi30, azi31, zen10, zen11));*/
+			/*g_cubemap_FOVs.push_back(Vec4f(azi40, azi41, zen10, zen11));
+			g_cubemap_FOVs.push_back(Vec4f(azi50, azi51, zen10, zen11));*/
+			//down (zenith center is 124)
+			float zen20 = D2R(96), zen21 = D2R(172);
+			//float zen20 = D2R(77), zen21 = D2R(163);
+			g_cubemap_FOVs.push_back(Vec4f(azi00, azi01, zen20, zen21));
+			g_cubemap_FOVs.push_back(Vec4f(azi10, azi11, zen20, zen21));
+			g_cubemap_FOVs.push_back(Vec4f(azi20, azi21, zen20, zen21));
+			/*g_cubemap_FOVs.push_back(Vec4f(azi30, azi31, zen20, zen21));*/
+			/*g_cubemap_FOVs.push_back(Vec4f(azi40, azi41, zen20, zen21));
+			g_cubemap_FOVs.push_back(Vec4f(azi50, azi51, zen20, zen21));*/
+
+			////ranges;
+			{
+
+				//"up"
+				float Zen00 = D2R(25), Zen01 = D2R(64);
+				//float Zen00 = D2R(25), Zen01 = D2R(56);
+				g_cubemap_ranges.push_back(Vec4f(azi01 - margin, azi00 + margin, Zen00, Zen01));
+				g_cubemap_ranges.push_back(Vec4f(azi11 - margin, azi10 + margin, Zen00, Zen01));
+				g_cubemap_ranges.push_back(Vec4f(azi21 - margin, azi20 + margin, Zen00, Zen01));
+				/*g_cubemap_ranges.push_back(Vec4f(azi31 - margin, azi30 + margin, Zen00, Zen01));*/
+				/*g_cubemap_ranges.push_back(Vec4f(azi41 - margin, azi40 + margin, Zen00, Zen01));
+				g_cubemap_ranges.push_back(Vec4f(azi51 - margin, azi50 + margin, Zen00, Zen01));*/
+				//"middle"
+				float Zen10 = D2R(64), Zen11 = D2R(116);
+				//float Zen10 = D2R(56), Zen11 = D2R(124);
+				g_cubemap_ranges.push_back(Vec4f(azi01 - margin, azi00 + margin, Zen10, Zen11));
+				g_cubemap_ranges.push_back(Vec4f(azi11 - margin, azi10 + margin, Zen10, Zen11));
+				g_cubemap_ranges.push_back(Vec4f(azi21 - margin, azi20 + margin, Zen10, Zen11));
+				/*g_cubemap_ranges.push_back(Vec4f(azi31 - margin, azi30 + margin, Zen10, Zen11));*/
+				/*g_cubemap_ranges.push_back(Vec4f(azi41 - margin, azi40 + margin, Zen10, Zen11));
+				g_cubemap_ranges.push_back(Vec4f(azi51 - margin, azi50 + margin, Zen10, Zen11));*/
+				//"down"
+				float Zen20 = D2R(116), Zen21 = D2R(155);
+				//float Zen20 = D2R(124), Zen21 = D2R(155);
+				g_cubemap_ranges.push_back(Vec4f(azi01 - margin, azi00 + margin, Zen20, Zen21));
+				g_cubemap_ranges.push_back(Vec4f(azi11 - margin, azi10 + margin, Zen20, Zen21));
+				g_cubemap_ranges.push_back(Vec4f(azi21 - margin, azi20 + margin, Zen20, Zen21));
+				/*g_cubemap_ranges.push_back(Vec4f(azi31 - margin, azi30 + margin, Zen20, Zen21));*/
+				/*g_cubemap_ranges.push_back(Vec4f(azi41 - margin, azi40 + margin, Zen20, Zen21));
+				g_cubemap_ranges.push_back(Vec4f(azi51 - margin, azi50 + margin, Zen20, Zen21));*/
+			}
+		}
+		if (fold4) {
+			//4-fold
+			float margin = D2R(3);
+			if (margin_quarter) margin = D2R(15); //2x / (2x + 90) = 1 / 4 ==> x = 15
+
+			float azi00, azi01;
+			float azi10, azi11;
+			float azi20, azi21;
+			float azi30, azi31;
+			float azi40, azi41;
+			float azi50, azi51;
+
+			{
+
+				azi00 = D2R(0) - margin, azi01 = D2R(90) + margin;
+				azi10 = D2R(90) - margin, azi11 = D2R(180) + margin;
+				azi20 = D2R(180) - margin, azi21 = D2R(270) + margin;
+				azi30 = D2R(270) - margin, azi31 = D2R(360) + margin;
+				/*azi40 = D2R(240) - margin, azi41 = D2R(300) + margin;
+				azi50 = D2R(300) - margin, azi51 = D2R(360) + margin;*/
+			}
+
+			//up (zenith center is 56)
+			//float zen00 = D2R(18), zen01 = D2R(94);
+			//if use the original zenith, the pmap will out of range of zenith when do the sphericalto2d
+			float zen00 = D2R(17), zen01 = D2R(109);
+			g_cubemap_FOVs.push_back(Vec4f(azi00, azi01, zen00, zen01));
+			g_cubemap_FOVs.push_back(Vec4f(azi10, azi11, zen00, zen01));
+			g_cubemap_FOVs.push_back(Vec4f(azi20, azi21, zen00, zen01));
+			g_cubemap_FOVs.push_back(Vec4f(azi30, azi31, zen00, zen01));
+			/*g_cubemap_FOVs.push_back(Vec4f(azi40, azi41, zen00, zen01));
+			g_cubemap_FOVs.push_back(Vec4f(azi50, azi51, zen00, zen01));*/
+			//middle (zenith center is 90)
+			//float zen10 = D2R(52), zen11 = D2R(128);
+			float zen10 = D2R(44), zen11 = D2R(136);
+			g_cubemap_FOVs.push_back(Vec4f(azi00, azi01, zen10, zen11));
+			g_cubemap_FOVs.push_back(Vec4f(azi10, azi11, zen10, zen11));
+			g_cubemap_FOVs.push_back(Vec4f(azi20, azi21, zen10, zen11));
+			g_cubemap_FOVs.push_back(Vec4f(azi30, azi31, zen10, zen11));
+			/*g_cubemap_FOVs.push_back(Vec4f(azi40, azi41, zen10, zen11));
+			g_cubemap_FOVs.push_back(Vec4f(azi50, azi51, zen10, zen11));*/
+			//down (zenith center is 124)
+			//float zen20 = D2R(86), zen21 = D2R(162);
+			float zen20 = D2R(77), zen21 = D2R(163);
+			g_cubemap_FOVs.push_back(Vec4f(azi00, azi01, zen20, zen21));
+			g_cubemap_FOVs.push_back(Vec4f(azi10, azi11, zen20, zen21));
+			g_cubemap_FOVs.push_back(Vec4f(azi20, azi21, zen20, zen21));
+			g_cubemap_FOVs.push_back(Vec4f(azi30, azi31, zen20, zen21));
+			/*g_cubemap_FOVs.push_back(Vec4f(azi40, azi41, zen20, zen21));
+			g_cubemap_FOVs.push_back(Vec4f(azi50, azi51, zen20, zen21));*/
+
+			////ranges;
+			{
+
+				//"up"
+				//float Zen00 = D2R(25), Zen01 = D2R(60);
+				float Zen00 = D2R(25), Zen01 = D2R(56);
+				g_cubemap_ranges.push_back(Vec4f(azi01 - margin, azi00 + margin, Zen00, Zen01));
+				g_cubemap_ranges.push_back(Vec4f(azi11 - margin, azi10 + margin, Zen00, Zen01));
+				g_cubemap_ranges.push_back(Vec4f(azi21 - margin, azi20 + margin, Zen00, Zen01));
+				g_cubemap_ranges.push_back(Vec4f(azi31 - margin, azi30 + margin, Zen00, Zen01));
+				/*g_cubemap_ranges.push_back(Vec4f(azi41 - margin, azi40 + margin, Zen00, Zen01));
+				g_cubemap_ranges.push_back(Vec4f(azi51 - margin, azi50 + margin, Zen00, Zen01));*/
+				//"middle"
+				//float Zen10 = D2R(60), Zen11 = D2R(120);
+				float Zen10 = D2R(56), Zen11 = D2R(124);
+				g_cubemap_ranges.push_back(Vec4f(azi01 - margin, azi00 + margin, Zen10, Zen11));
+				g_cubemap_ranges.push_back(Vec4f(azi11 - margin, azi10 + margin, Zen10, Zen11));
+				g_cubemap_ranges.push_back(Vec4f(azi21 - margin, azi20 + margin, Zen10, Zen11));
+				g_cubemap_ranges.push_back(Vec4f(azi31 - margin, azi30 + margin, Zen10, Zen11));
+				/*g_cubemap_ranges.push_back(Vec4f(azi41 - margin, azi40 + margin, Zen10, Zen11));
+				g_cubemap_ranges.push_back(Vec4f(azi51 - margin, azi50 + margin, Zen10, Zen11));*/
+				//"down"
+				//float Zen20 = D2R(120), Zen21 = D2R(155);
+				float Zen20 = D2R(124), Zen21 = D2R(155);
+				g_cubemap_ranges.push_back(Vec4f(azi01 - margin, azi00 + margin, Zen20, Zen21));
+				g_cubemap_ranges.push_back(Vec4f(azi11 - margin, azi10 + margin, Zen20, Zen21));
+				g_cubemap_ranges.push_back(Vec4f(azi21 - margin, azi20 + margin, Zen20, Zen21));
+				g_cubemap_ranges.push_back(Vec4f(azi31 - margin, azi30 + margin, Zen20, Zen21));
+				/*g_cubemap_ranges.push_back(Vec4f(azi41 - margin, azi40 + margin, Zen20, Zen21));
+				g_cubemap_ranges.push_back(Vec4f(azi51 - margin, azi50 + margin, Zen20, Zen21));*/
+			}
+		}
+		if (fold6) {
+			//6-fold
+			float margin = D2R(3);
+			if (margin10) margin = D2R(10);
+			//float pad = 0;
+			//if (padding) pad = 6; // if pad is 6, it means from 60 to 72, if pad is 15, it means from 60 to 90, if pad is 30, it means from 60 to 120
+
+			float azi00, azi01;
+			float azi10, azi11;
+			float azi20, azi21;
+			float azi30, azi31;
+			float azi40, azi41;
+			float azi50, azi51;
+
+			{
+
+				azi00 = D2R(0 - pad) - margin, azi01 = D2R(60 + pad) + margin;
+				azi10 = D2R(60 - pad) - margin, azi11 = D2R(120 + pad) + margin;
+				azi20 = D2R(120 - pad) - margin, azi21 = D2R(180 + pad) + margin;
+				azi30 = D2R(180 - pad) - margin, azi31 = D2R(240 + pad) + margin;
+				azi40 = D2R(240 - pad) - margin, azi41 = D2R(300 + pad) + margin;
+				azi50 = D2R(300 - pad) - margin, azi51 = D2R(360 + pad) + margin;
+			}
+
+			//up (zenith center is 56)
+			float zen00 = D2R(18), zen01 = D2R(94);
+			g_cubemap_FOVs.push_back(Vec4f(azi00, azi01, zen00, zen01));
+			g_cubemap_FOVs.push_back(Vec4f(azi10, azi11, zen00, zen01));
+			g_cubemap_FOVs.push_back(Vec4f(azi20, azi21, zen00, zen01));
+			g_cubemap_FOVs.push_back(Vec4f(azi30, azi31, zen00, zen01));
+			g_cubemap_FOVs.push_back(Vec4f(azi40, azi41, zen00, zen01));
+			g_cubemap_FOVs.push_back(Vec4f(azi50, azi51, zen00, zen01));
+			//middle (zenith center is 90)
+			float zen10 = D2R(52), zen11 = D2R(128);
+			g_cubemap_FOVs.push_back(Vec4f(azi00, azi01, zen10, zen11));
+			g_cubemap_FOVs.push_back(Vec4f(azi10, azi11, zen10, zen11));
+			g_cubemap_FOVs.push_back(Vec4f(azi20, azi21, zen10, zen11));
+			g_cubemap_FOVs.push_back(Vec4f(azi30, azi31, zen10, zen11));
+			g_cubemap_FOVs.push_back(Vec4f(azi40, azi41, zen10, zen11));
+			g_cubemap_FOVs.push_back(Vec4f(azi50, azi51, zen10, zen11));
+			//down (zenith center is 124)
+			float zen20 = D2R(86), zen21 = D2R(162);
+			g_cubemap_FOVs.push_back(Vec4f(azi00, azi01, zen20, zen21));
+			g_cubemap_FOVs.push_back(Vec4f(azi10, azi11, zen20, zen21));
+			g_cubemap_FOVs.push_back(Vec4f(azi20, azi21, zen20, zen21));
+			g_cubemap_FOVs.push_back(Vec4f(azi30, azi31, zen20, zen21));
+			g_cubemap_FOVs.push_back(Vec4f(azi40, azi41, zen20, zen21));
+			g_cubemap_FOVs.push_back(Vec4f(azi50, azi51, zen20, zen21));
+
+			////ranges;
+			{
+
+				//"up"
+				float Zen00 = D2R(25), Zen01 = D2R(60);
+				g_cubemap_ranges.push_back(Vec4f(azi01 - margin, azi00 + margin, Zen00, Zen01));
+				g_cubemap_ranges.push_back(Vec4f(azi11 - margin, azi10 + margin, Zen00, Zen01));
+				g_cubemap_ranges.push_back(Vec4f(azi21 - margin, azi20 + margin, Zen00, Zen01));
+				g_cubemap_ranges.push_back(Vec4f(azi31 - margin, azi30 + margin, Zen00, Zen01));
+				g_cubemap_ranges.push_back(Vec4f(azi41 - margin, azi40 + margin, Zen00, Zen01));
+				g_cubemap_ranges.push_back(Vec4f(azi51 - margin, azi50 + margin, Zen00, Zen01));
+				//"middle"
+				float Zen10 = D2R(60), Zen11 = D2R(120);
+				g_cubemap_ranges.push_back(Vec4f(azi01 - margin, azi00 + margin, Zen10, Zen11));
+				g_cubemap_ranges.push_back(Vec4f(azi11 - margin, azi10 + margin, Zen10, Zen11));
+				g_cubemap_ranges.push_back(Vec4f(azi21 - margin, azi20 + margin, Zen10, Zen11));
+				g_cubemap_ranges.push_back(Vec4f(azi31 - margin, azi30 + margin, Zen10, Zen11));
+				g_cubemap_ranges.push_back(Vec4f(azi41 - margin, azi40 + margin, Zen10, Zen11));
+				g_cubemap_ranges.push_back(Vec4f(azi51 - margin, azi50 + margin, Zen10, Zen11));
+				//"down"
+				float Zen20 = D2R(120), Zen21 = D2R(155);
+				g_cubemap_ranges.push_back(Vec4f(azi01 - margin, azi00 + margin, Zen20, Zen21));
+				g_cubemap_ranges.push_back(Vec4f(azi11 - margin, azi10 + margin, Zen20, Zen21));
+				g_cubemap_ranges.push_back(Vec4f(azi21 - margin, azi20 + margin, Zen20, Zen21));
+				g_cubemap_ranges.push_back(Vec4f(azi31 - margin, azi30 + margin, Zen20, Zen21));
+				g_cubemap_ranges.push_back(Vec4f(azi41 - margin, azi40 + margin, Zen20, Zen21));
+				g_cubemap_ranges.push_back(Vec4f(azi51 - margin, azi50 + margin, Zen20, Zen21));
+			}
+		}
+		if (fold8) {
+			//8-fold
+			float margin = D2R(3);
+			if (margin10) margin = D2R(10);
+			float azi00 = D2R(0) - margin, azi01 = D2R(45) + margin;
+			float azi10 = D2R(45) - margin, azi11 = D2R(90) + margin;
+			float azi20 = D2R(90) - margin, azi21 = D2R(135) + margin;
+			float azi30 = D2R(135) - margin, azi31 = D2R(180) + margin;
+			float azi40 = D2R(180) - margin, azi41 = D2R(225) + margin;
+			float azi50 = D2R(225) - margin, azi51 = D2R(270) + margin;
+			float azi60 = D2R(270) - margin, azi61 = D2R(315) + margin;
+			float azi70 = D2R(315) - margin, azi71 = D2R(360) + margin;
+
+			//up (zenith center is 56)
+			float zen00 = D2R(18), zen01 = D2R(94);
+			g_cubemap_FOVs.push_back(Vec4f(azi00, azi01, zen00, zen01));
+			g_cubemap_FOVs.push_back(Vec4f(azi10, azi11, zen00, zen01));
+			g_cubemap_FOVs.push_back(Vec4f(azi20, azi21, zen00, zen01));
+			g_cubemap_FOVs.push_back(Vec4f(azi30, azi31, zen00, zen01));
+			g_cubemap_FOVs.push_back(Vec4f(azi40, azi41, zen00, zen01));
+			g_cubemap_FOVs.push_back(Vec4f(azi50, azi51, zen00, zen01));
+			g_cubemap_FOVs.push_back(Vec4f(azi60, azi61, zen00, zen01));
+			g_cubemap_FOVs.push_back(Vec4f(azi70, azi71, zen00, zen01));
+			//middle (zenith center is 90)
+			float zen10 = D2R(52), zen11 = D2R(128);
+			g_cubemap_FOVs.push_back(Vec4f(azi00, azi01, zen10, zen11));
+			g_cubemap_FOVs.push_back(Vec4f(azi10, azi11, zen10, zen11));
+			g_cubemap_FOVs.push_back(Vec4f(azi20, azi21, zen10, zen11));
+			g_cubemap_FOVs.push_back(Vec4f(azi30, azi31, zen10, zen11));
+			g_cubemap_FOVs.push_back(Vec4f(azi40, azi41, zen10, zen11));
+			g_cubemap_FOVs.push_back(Vec4f(azi50, azi51, zen10, zen11));
+			g_cubemap_FOVs.push_back(Vec4f(azi60, azi61, zen10, zen11));
+			g_cubemap_FOVs.push_back(Vec4f(azi70, azi71, zen10, zen11));
+			//down (zenith center is 124)
+			float zen20 = D2R(86), zen21 = D2R(162);
+			g_cubemap_FOVs.push_back(Vec4f(azi00, azi01, zen20, zen21));
+			g_cubemap_FOVs.push_back(Vec4f(azi10, azi11, zen20, zen21));
+			g_cubemap_FOVs.push_back(Vec4f(azi20, azi21, zen20, zen21));
+			g_cubemap_FOVs.push_back(Vec4f(azi30, azi31, zen20, zen21));
+			g_cubemap_FOVs.push_back(Vec4f(azi40, azi41, zen20, zen21));
+			g_cubemap_FOVs.push_back(Vec4f(azi50, azi51, zen20, zen21));
+			g_cubemap_FOVs.push_back(Vec4f(azi60, azi61, zen20, zen21));
+			g_cubemap_FOVs.push_back(Vec4f(azi70, azi71, zen20, zen21));
+
+			////ranges:
 
 			//"up"
 			float Zen00 = D2R(25), Zen01 = D2R(60);
@@ -1734,6 +2362,8 @@ int main(int argc, char* argv[])
 			g_cubemap_ranges.push_back(Vec4f(azi31 - margin, azi30 + margin, Zen00, Zen01));
 			g_cubemap_ranges.push_back(Vec4f(azi41 - margin, azi40 + margin, Zen00, Zen01));
 			g_cubemap_ranges.push_back(Vec4f(azi51 - margin, azi50 + margin, Zen00, Zen01));
+			g_cubemap_ranges.push_back(Vec4f(azi61 - margin, azi60 + margin, Zen00, Zen01));
+			g_cubemap_ranges.push_back(Vec4f(azi71 - margin, azi70 + margin, Zen00, Zen01));
 			//"middle"
 			float Zen10 = D2R(60), Zen11 = D2R(120);
 			g_cubemap_ranges.push_back(Vec4f(azi01 - margin, azi00 + margin, Zen10, Zen11));
@@ -1742,6 +2372,8 @@ int main(int argc, char* argv[])
 			g_cubemap_ranges.push_back(Vec4f(azi31 - margin, azi30 + margin, Zen10, Zen11));
 			g_cubemap_ranges.push_back(Vec4f(azi41 - margin, azi40 + margin, Zen10, Zen11));
 			g_cubemap_ranges.push_back(Vec4f(azi51 - margin, azi50 + margin, Zen10, Zen11));
+			g_cubemap_ranges.push_back(Vec4f(azi61 - margin, azi60 + margin, Zen10, Zen11));
+			g_cubemap_ranges.push_back(Vec4f(azi71 - margin, azi70 + margin, Zen10, Zen11));
 			//"down"
 			float Zen20 = D2R(120), Zen21 = D2R(155);
 			g_cubemap_ranges.push_back(Vec4f(azi01 - margin, azi00 + margin, Zen20, Zen21));
@@ -1750,693 +2382,524 @@ int main(int argc, char* argv[])
 			g_cubemap_ranges.push_back(Vec4f(azi31 - margin, azi30 + margin, Zen20, Zen21));
 			g_cubemap_ranges.push_back(Vec4f(azi41 - margin, azi40 + margin, Zen20, Zen21));
 			g_cubemap_ranges.push_back(Vec4f(azi51 - margin, azi50 + margin, Zen20, Zen21));
+			g_cubemap_ranges.push_back(Vec4f(azi61 - margin, azi60 + margin, Zen20, Zen21));
+			g_cubemap_ranges.push_back(Vec4f(azi71 - margin, azi70 + margin, Zen20, Zen21));
 		}
-	}
-	if (fold3) {
-		//4-fold
-		float margin = D2R(3);
+		if (fold161) {
+			//up and down 1 fold, middle 6 fold
+			float margin = D2R(3);
+			if (margin10) margin = D2R(10);
+			float pad = 0;
+			//if (padding) pad = 30; // if pad is 6, it means from 60 to 72, if pad is 15, it means from 60 to 90, if pad is 30, it means from 60 to 120
 
-		float azi00, azi01;
-		float azi10, azi11;
-		float azi20, azi21;
-		float azi30, azi31;
-		float azi40, azi41;
-		float azi50, azi51;
+			float azi00, azi01;
+			float azi10, azi11;
+			float azi20, azi21;
+			float azi30, azi31;
+			float azi40, azi41;
+			float azi50, azi51;
+			float azi0, azi1;
 
-		{
+			{
 
-			azi00 = D2R(0) - margin, azi01 = D2R(120) + margin;
-			azi10 = D2R(120) - margin, azi11 = D2R(240) + margin;
-			azi20 = D2R(240) - margin, azi21 = D2R(360) + margin;
-			/*azi30 = D2R(270) - margin, azi31 = D2R(360) + margin;*/
-			/*azi40 = D2R(240) - margin, azi41 = D2R(300) + margin;
-			azi50 = D2R(300) - margin, azi51 = D2R(360) + margin;*/
+				azi00 = D2R(0 - pad) - margin, azi01 = D2R(60 + pad) + margin;
+				azi10 = D2R(60 - pad) - margin, azi11 = D2R(120 + pad) + margin;
+				azi20 = D2R(120 - pad) - margin, azi21 = D2R(180 + pad) + margin;
+				azi30 = D2R(180 - pad) - margin, azi31 = D2R(240 + pad) + margin;
+				azi40 = D2R(240 - pad) - margin, azi41 = D2R(300 + pad) + margin;
+				azi50 = D2R(300 - pad) - margin, azi51 = D2R(360 + pad) + margin;
+
+				azi0 = D2R(0), azi1 = D2R(360);
+			}
+
+			//up (zenith center is 56)
+			float zen00 = D2R(18), zen01 = D2R(94);
+			/*g_cubemap_FOVs.push_back(Vec4f(azi00, azi01, zen00, zen01));
+			g_cubemap_FOVs.push_back(Vec4f(azi10, azi11, zen00, zen01));
+			g_cubemap_FOVs.push_back(Vec4f(azi20, azi21, zen00, zen01));
+			g_cubemap_FOVs.push_back(Vec4f(azi30, azi31, zen00, zen01));
+			g_cubemap_FOVs.push_back(Vec4f(azi40, azi41, zen00, zen01));
+			g_cubemap_FOVs.push_back(Vec4f(azi50, azi51, zen00, zen01));*/
+			g_cubemap_FOVs.push_back(Vec4f(azi0, azi1, zen00, zen01));
+			//middle (zenith center is 90)
+			float zen10 = D2R(52), zen11 = D2R(128);
+			g_cubemap_FOVs.push_back(Vec4f(azi00, azi01, zen10, zen11));
+			g_cubemap_FOVs.push_back(Vec4f(azi10, azi11, zen10, zen11));
+			g_cubemap_FOVs.push_back(Vec4f(azi20, azi21, zen10, zen11));
+			g_cubemap_FOVs.push_back(Vec4f(azi30, azi31, zen10, zen11));
+			g_cubemap_FOVs.push_back(Vec4f(azi40, azi41, zen10, zen11));
+			g_cubemap_FOVs.push_back(Vec4f(azi50, azi51, zen10, zen11));
+			//down (zenith center is 124)
+			float zen20 = D2R(86), zen21 = D2R(162);
+			/*g_cubemap_FOVs.push_back(Vec4f(azi00, azi01, zen20, zen21));
+			g_cubemap_FOVs.push_back(Vec4f(azi10, azi11, zen20, zen21));
+			g_cubemap_FOVs.push_back(Vec4f(azi20, azi21, zen20, zen21));
+			g_cubemap_FOVs.push_back(Vec4f(azi30, azi31, zen20, zen21));
+			g_cubemap_FOVs.push_back(Vec4f(azi40, azi41, zen20, zen21));
+			g_cubemap_FOVs.push_back(Vec4f(azi50, azi51, zen20, zen21));*/
+			g_cubemap_FOVs.push_back(Vec4f(azi0, azi1, zen20, zen21));
+
+			////ranges;
+			{
+
+				//"up"
+				float Zen00 = D2R(25), Zen01 = D2R(60);
+				/*g_cubemap_ranges.push_back(Vec4f(azi01 - margin, azi00 + margin, Zen00, Zen01));
+				g_cubemap_ranges.push_back(Vec4f(azi11 - margin, azi10 + margin, Zen00, Zen01));
+				g_cubemap_ranges.push_back(Vec4f(azi21 - margin, azi20 + margin, Zen00, Zen01));
+				g_cubemap_ranges.push_back(Vec4f(azi31 - margin, azi30 + margin, Zen00, Zen01));
+				g_cubemap_ranges.push_back(Vec4f(azi41 - margin, azi40 + margin, Zen00, Zen01));
+				g_cubemap_ranges.push_back(Vec4f(azi51 - margin, azi50 + margin, Zen00, Zen01));*/
+				g_cubemap_ranges.push_back(Vec4f(azi1, azi0, Zen00, Zen01));
+				//"middle"
+				float Zen10 = D2R(60), Zen11 = D2R(120);
+				g_cubemap_ranges.push_back(Vec4f(azi01 - margin, azi00 + margin, Zen10, Zen11));
+				g_cubemap_ranges.push_back(Vec4f(azi11 - margin, azi10 + margin, Zen10, Zen11));
+				g_cubemap_ranges.push_back(Vec4f(azi21 - margin, azi20 + margin, Zen10, Zen11));
+				g_cubemap_ranges.push_back(Vec4f(azi31 - margin, azi30 + margin, Zen10, Zen11));
+				g_cubemap_ranges.push_back(Vec4f(azi41 - margin, azi40 + margin, Zen10, Zen11));
+				g_cubemap_ranges.push_back(Vec4f(azi51 - margin, azi50 + margin, Zen10, Zen11));
+				//"down"
+				float Zen20 = D2R(120), Zen21 = D2R(155);
+				/*g_cubemap_ranges.push_back(Vec4f(azi01 - margin, azi00 + margin, Zen20, Zen21));
+				g_cubemap_ranges.push_back(Vec4f(azi11 - margin, azi10 + margin, Zen20, Zen21));
+				g_cubemap_ranges.push_back(Vec4f(azi21 - margin, azi20 + margin, Zen20, Zen21));
+				g_cubemap_ranges.push_back(Vec4f(azi31 - margin, azi30 + margin, Zen20, Zen21));
+				g_cubemap_ranges.push_back(Vec4f(azi41 - margin, azi40 + margin, Zen20, Zen21));
+				g_cubemap_ranges.push_back(Vec4f(azi51 - margin, azi50 + margin, Zen20, Zen21));*/
+				g_cubemap_ranges.push_back(Vec4f(azi1, azi0, Zen20, Zen21));
+			}
 		}
+		if (fold363) {
+			//6-fold
+			float margin = D2R(3);
+			if (margin10) margin = D2R(10);
+			float pad = 0;
+			//if (padding) pad = 30; // if pad is 6, it means from 60 to 72, if pad is 15, it means from 60 to 90, if pad is 30, it means from 60 to 120
 
-		//up (zenith center is 56)
-		//float zen00 = D2R(18), zen01 = D2R(94);
-		//if use the original zenith, the pmap will out of range of zenith when do the sphericalto2d
-		//float zen00 = D2R(17), zen01 = D2R(109);
-		float zen00 = D2R(7), zen01 = D2R(84);
-		g_cubemap_FOVs.push_back(Vec4f(azi00, azi01, zen00, zen01));
-		g_cubemap_FOVs.push_back(Vec4f(azi10, azi11, zen00, zen01));
-		g_cubemap_FOVs.push_back(Vec4f(azi20, azi21, zen00, zen01));
-		/*g_cubemap_FOVs.push_back(Vec4f(azi30, azi31, zen00, zen01));*/
-		/*g_cubemap_FOVs.push_back(Vec4f(azi40, azi41, zen00, zen01));
-		g_cubemap_FOVs.push_back(Vec4f(azi50, azi51, zen00, zen01));*/
-		//middle (zenith center is 90)
-		//float zen10 = D2R(52), zen11 = D2R(128);
-		float zen10 = D2R(44), zen11 = D2R(136);
-		g_cubemap_FOVs.push_back(Vec4f(azi00, azi01, zen10, zen11));
-		g_cubemap_FOVs.push_back(Vec4f(azi10, azi11, zen10, zen11));
-		g_cubemap_FOVs.push_back(Vec4f(azi20, azi21, zen10, zen11));
-		/*g_cubemap_FOVs.push_back(Vec4f(azi30, azi31, zen10, zen11));*/
-		/*g_cubemap_FOVs.push_back(Vec4f(azi40, azi41, zen10, zen11));
-		g_cubemap_FOVs.push_back(Vec4f(azi50, azi51, zen10, zen11));*/
-		//down (zenith center is 124)
-		float zen20 = D2R(96), zen21 = D2R(172);
-		//float zen20 = D2R(77), zen21 = D2R(163);
-		g_cubemap_FOVs.push_back(Vec4f(azi00, azi01, zen20, zen21));
-		g_cubemap_FOVs.push_back(Vec4f(azi10, azi11, zen20, zen21));
-		g_cubemap_FOVs.push_back(Vec4f(azi20, azi21, zen20, zen21));
-		/*g_cubemap_FOVs.push_back(Vec4f(azi30, azi31, zen20, zen21));*/
-		/*g_cubemap_FOVs.push_back(Vec4f(azi40, azi41, zen20, zen21));
-		g_cubemap_FOVs.push_back(Vec4f(azi50, azi51, zen20, zen21));*/
+			float azi00, azi01;
+			float azi10, azi11;
+			float azi20, azi21;
+			float azi30, azi31;
+			float azi40, azi41;
+			float azi50, azi51;
 
-		////ranges;
-		{
+			{
 
-			//"up"
-			float Zen00 = D2R(25), Zen01 = D2R(64);
-			//float Zen00 = D2R(25), Zen01 = D2R(56);
-			g_cubemap_ranges.push_back(Vec4f(azi01 - margin, azi00 + margin, Zen00, Zen01));
-			g_cubemap_ranges.push_back(Vec4f(azi11 - margin, azi10 + margin, Zen00, Zen01));
-			g_cubemap_ranges.push_back(Vec4f(azi21 - margin, azi20 + margin, Zen00, Zen01));
-			/*g_cubemap_ranges.push_back(Vec4f(azi31 - margin, azi30 + margin, Zen00, Zen01));*/
-			/*g_cubemap_ranges.push_back(Vec4f(azi41 - margin, azi40 + margin, Zen00, Zen01));
-			g_cubemap_ranges.push_back(Vec4f(azi51 - margin, azi50 + margin, Zen00, Zen01));*/
-			//"middle"
-			float Zen10 = D2R(64), Zen11 = D2R(116);
-			//float Zen10 = D2R(56), Zen11 = D2R(124);
-			g_cubemap_ranges.push_back(Vec4f(azi01 - margin, azi00 + margin, Zen10, Zen11));
-			g_cubemap_ranges.push_back(Vec4f(azi11 - margin, azi10 + margin, Zen10, Zen11));
-			g_cubemap_ranges.push_back(Vec4f(azi21 - margin, azi20 + margin, Zen10, Zen11));
-			/*g_cubemap_ranges.push_back(Vec4f(azi31 - margin, azi30 + margin, Zen10, Zen11));*/
-			/*g_cubemap_ranges.push_back(Vec4f(azi41 - margin, azi40 + margin, Zen10, Zen11));
-			g_cubemap_ranges.push_back(Vec4f(azi51 - margin, azi50 + margin, Zen10, Zen11));*/
-			//"down"
-			float Zen20 = D2R(116), Zen21 = D2R(155);
-			//float Zen20 = D2R(124), Zen21 = D2R(155);
-			g_cubemap_ranges.push_back(Vec4f(azi01 - margin, azi00 + margin, Zen20, Zen21));
-			g_cubemap_ranges.push_back(Vec4f(azi11 - margin, azi10 + margin, Zen20, Zen21));
-			g_cubemap_ranges.push_back(Vec4f(azi21 - margin, azi20 + margin, Zen20, Zen21));
-			/*g_cubemap_ranges.push_back(Vec4f(azi31 - margin, azi30 + margin, Zen20, Zen21));*/
-			/*g_cubemap_ranges.push_back(Vec4f(azi41 - margin, azi40 + margin, Zen20, Zen21));
-			g_cubemap_ranges.push_back(Vec4f(azi51 - margin, azi50 + margin, Zen20, Zen21));*/
+				azi00 = D2R(0 - pad) - margin, azi01 = D2R(60 + pad) + margin;
+				azi10 = D2R(60 - pad) - margin, azi11 = D2R(120 + pad) + margin;
+				azi20 = D2R(120 - pad) - margin, azi21 = D2R(180 + pad) + margin;
+				azi30 = D2R(180 - pad) - margin, azi31 = D2R(240 + pad) + margin;
+				azi40 = D2R(240 - pad) - margin, azi41 = D2R(300 + pad) + margin;
+				azi50 = D2R(300 - pad) - margin, azi51 = D2R(360 + pad) + margin;
+			}
+
+			//up (zenith center is 56)
+			float zen00 = D2R(7), zen01 = D2R(84);
+			/*g_cubemap_FOVs.push_back(Vec4f(azi00, azi01, zen00, zen01));
+			g_cubemap_FOVs.push_back(Vec4f(azi10, azi11, zen00, zen01));
+			g_cubemap_FOVs.push_back(Vec4f(azi20, azi21, zen00, zen01));
+			g_cubemap_FOVs.push_back(Vec4f(azi30, azi31, zen00, zen01));
+			g_cubemap_FOVs.push_back(Vec4f(azi40, azi41, zen00, zen01));
+			g_cubemap_FOVs.push_back(Vec4f(azi50, azi51, zen00, zen01));*/
+			g_cubemap_FOVs.push_back(Vec4f(azi00, azi11, zen00, zen01));
+			g_cubemap_FOVs.push_back(Vec4f(azi20, azi31, zen00, zen01));
+			g_cubemap_FOVs.push_back(Vec4f(azi40, azi51, zen00, zen01));
+			//middle (zenith center is 90)
+			float zen10 = D2R(44), zen11 = D2R(136);
+			g_cubemap_FOVs.push_back(Vec4f(azi00, azi01, zen10, zen11));
+			g_cubemap_FOVs.push_back(Vec4f(azi10, azi11, zen10, zen11));
+			g_cubemap_FOVs.push_back(Vec4f(azi20, azi21, zen10, zen11));
+			g_cubemap_FOVs.push_back(Vec4f(azi30, azi31, zen10, zen11));
+			g_cubemap_FOVs.push_back(Vec4f(azi40, azi41, zen10, zen11));
+			g_cubemap_FOVs.push_back(Vec4f(azi50, azi51, zen10, zen11));
+			//down (zenith center is 124)
+			float zen20 = D2R(96), zen21 = D2R(172);
+			/*g_cubemap_FOVs.push_back(Vec4f(azi00, azi01, zen20, zen21));
+			g_cubemap_FOVs.push_back(Vec4f(azi10, azi11, zen20, zen21));
+			g_cubemap_FOVs.push_back(Vec4f(azi20, azi21, zen20, zen21));
+			g_cubemap_FOVs.push_back(Vec4f(azi30, azi31, zen20, zen21));
+			g_cubemap_FOVs.push_back(Vec4f(azi40, azi41, zen20, zen21));
+			g_cubemap_FOVs.push_back(Vec4f(azi50, azi51, zen20, zen21));*/
+			g_cubemap_FOVs.push_back(Vec4f(azi00, azi11, zen20, zen21));
+			g_cubemap_FOVs.push_back(Vec4f(azi20, azi31, zen20, zen21));
+			g_cubemap_FOVs.push_back(Vec4f(azi40, azi51, zen20, zen21));
+
+			////ranges;
+			{
+
+				//"up"
+				float Zen00 = D2R(25), Zen01 = D2R(60);
+				/*g_cubemap_ranges.push_back(Vec4f(azi01 - margin, azi00 + margin, Zen00, Zen01));
+				g_cubemap_ranges.push_back(Vec4f(azi11 - margin, azi10 + margin, Zen00, Zen01));
+				g_cubemap_ranges.push_back(Vec4f(azi21 - margin, azi20 + margin, Zen00, Zen01));
+				g_cubemap_ranges.push_back(Vec4f(azi31 - margin, azi30 + margin, Zen00, Zen01));
+				g_cubemap_ranges.push_back(Vec4f(azi41 - margin, azi40 + margin, Zen00, Zen01));
+				g_cubemap_ranges.push_back(Vec4f(azi51 - margin, azi50 + margin, Zen00, Zen01));*/
+				g_cubemap_ranges.push_back(Vec4f(azi11 - margin, azi00 + margin, Zen00, Zen01));
+				g_cubemap_ranges.push_back(Vec4f(azi31 - margin, azi20 + margin, Zen00, Zen01));
+				g_cubemap_ranges.push_back(Vec4f(azi51 - margin, azi40 + margin, Zen00, Zen01));
+				//"middle"
+				float Zen10 = D2R(60), Zen11 = D2R(120);
+				g_cubemap_ranges.push_back(Vec4f(azi01 - margin, azi00 + margin, Zen10, Zen11));
+				g_cubemap_ranges.push_back(Vec4f(azi11 - margin, azi10 + margin, Zen10, Zen11));
+				g_cubemap_ranges.push_back(Vec4f(azi21 - margin, azi20 + margin, Zen10, Zen11));
+				g_cubemap_ranges.push_back(Vec4f(azi31 - margin, azi30 + margin, Zen10, Zen11));
+				g_cubemap_ranges.push_back(Vec4f(azi41 - margin, azi40 + margin, Zen10, Zen11));
+				g_cubemap_ranges.push_back(Vec4f(azi51 - margin, azi50 + margin, Zen10, Zen11));
+				//"down"
+				float Zen20 = D2R(120), Zen21 = D2R(155);
+				/*g_cubemap_ranges.push_back(Vec4f(azi01 - margin, azi00 + margin, Zen20, Zen21));
+				g_cubemap_ranges.push_back(Vec4f(azi11 - margin, azi10 + margin, Zen20, Zen21));
+				g_cubemap_ranges.push_back(Vec4f(azi21 - margin, azi20 + margin, Zen20, Zen21));
+				g_cubemap_ranges.push_back(Vec4f(azi31 - margin, azi30 + margin, Zen20, Zen21));
+				g_cubemap_ranges.push_back(Vec4f(azi41 - margin, azi40 + margin, Zen20, Zen21));
+				g_cubemap_ranges.push_back(Vec4f(azi51 - margin, azi50 + margin, Zen20, Zen21));*/
+				g_cubemap_ranges.push_back(Vec4f(azi11 - margin, azi00 + margin, Zen20, Zen21));
+				g_cubemap_ranges.push_back(Vec4f(azi31 - margin, azi20 + margin, Zen20, Zen21));
+				g_cubemap_ranges.push_back(Vec4f(azi51 - margin, azi40 + margin, Zen20, Zen21));
+			}
 		}
-	}
-	if (fold4) {
-		//4-fold
-		float margin = D2R(3);
-		if (margin_quarter) margin = D2R(15); //2x / (2x + 90) = 1 / 4 ==> x = 15
+		if (fold464) {
+			//6-fold
+			float margin = D2R(3);
+			if (margin10) margin = D2R(10);
+			float pad = 0;
+			//if (padding) pad = 30; // if pad is 6, it means from 60 to 72, if pad is 15, it means from 60 to 90, if pad is 30, it means from 60 to 120
 
-		float azi00, azi01;
-		float azi10, azi11;
-		float azi20, azi21;
-		float azi30, azi31;
-		float azi40, azi41;
-		float azi50, azi51;
+			float azi00, azi01;
+			float azi10, azi11;
+			float azi20, azi21;
+			float azi30, azi31;
+			float azi40, azi41;
+			float azi50, azi51;
 
-		{
+			float azi500, azi501;
+			float azi510, azi511;
+			float azi520, azi521;
+			float azi530, azi531;
+			float azi540, azi541;
 
-			azi00 = D2R(0) - margin, azi01 = D2R(90) + margin;
-			azi10 = D2R(90) - margin, azi11 = D2R(180) + margin;
-			azi20 = D2R(180) - margin, azi21 = D2R(270) + margin;
-			azi30 = D2R(270) - margin, azi31 = D2R(360) + margin;
-			/*azi40 = D2R(240) - margin, azi41 = D2R(300) + margin;
-			azi50 = D2R(300) - margin, azi51 = D2R(360) + margin;*/
+			{
+
+				azi00 = D2R(0 - pad) - margin, azi01 = D2R(60 + pad) + margin;
+				azi10 = D2R(60 - pad) - margin, azi11 = D2R(120 + pad) + margin;
+				azi20 = D2R(120 - pad) - margin, azi21 = D2R(180 + pad) + margin;
+				azi30 = D2R(180 - pad) - margin, azi31 = D2R(240 + pad) + margin;
+				azi40 = D2R(240 - pad) - margin, azi41 = D2R(300 + pad) + margin;
+				azi50 = D2R(300 - pad) - margin, azi51 = D2R(360 + pad) + margin;
+
+				azi500 = D2R(0) - margin, azi501 = D2R(90) + margin;
+				azi510 = D2R(90) - margin, azi511 = D2R(180) + margin;
+				azi520 = D2R(180) - margin, azi521 = D2R(270) + margin;
+				azi530 = D2R(270) - margin, azi531 = D2R(360) + margin;
+				//azi540 = D2R(288) - margin, azi541 = D2R(360) + margin;
+			}
+
+			//up (zenith center is 56)
+			//float zen00 = D2R(18), zen01 = D2R(94);
+			float zen00 = D2R(17), zen01 = D2R(109);
+			/*g_cubemap_FOVs.push_back(Vec4f(azi00, azi01, zen00, zen01));
+			g_cubemap_FOVs.push_back(Vec4f(azi10, azi11, zen00, zen01));
+			g_cubemap_FOVs.push_back(Vec4f(azi20, azi21, zen00, zen01));
+			g_cubemap_FOVs.push_back(Vec4f(azi30, azi31, zen00, zen01));
+			g_cubemap_FOVs.push_back(Vec4f(azi40, azi41, zen00, zen01));
+			g_cubemap_FOVs.push_back(Vec4f(azi50, azi51, zen00, zen01));*/
+			g_cubemap_FOVs.push_back(Vec4f(azi500, azi501, zen00, zen01));
+			g_cubemap_FOVs.push_back(Vec4f(azi510, azi511, zen00, zen01));
+			g_cubemap_FOVs.push_back(Vec4f(azi520, azi521, zen00, zen01));
+			g_cubemap_FOVs.push_back(Vec4f(azi530, azi531, zen00, zen01));
+			//g_cubemap_FOVs.push_back(Vec4f(azi540, azi541, zen00, zen01));
+			//middle (zenith center is 90)
+			//float zen10 = D2R(52), zen11 = D2R(128);
+			float zen10 = D2R(44), zen11 = D2R(136);
+			g_cubemap_FOVs.push_back(Vec4f(azi00, azi01, zen10, zen11));
+			g_cubemap_FOVs.push_back(Vec4f(azi10, azi11, zen10, zen11));
+			g_cubemap_FOVs.push_back(Vec4f(azi20, azi21, zen10, zen11));
+			g_cubemap_FOVs.push_back(Vec4f(azi30, azi31, zen10, zen11));
+			g_cubemap_FOVs.push_back(Vec4f(azi40, azi41, zen10, zen11));
+			g_cubemap_FOVs.push_back(Vec4f(azi50, azi51, zen10, zen11));
+			//down (zenith center is 124)
+			//float zen20 = D2R(86), zen21 = D2R(162);
+			float zen20 = D2R(77), zen21 = D2R(163);
+			/*g_cubemap_FOVs.push_back(Vec4f(azi00, azi01, zen20, zen21));
+			g_cubemap_FOVs.push_back(Vec4f(azi10, azi11, zen20, zen21));
+			g_cubemap_FOVs.push_back(Vec4f(azi20, azi21, zen20, zen21));
+			g_cubemap_FOVs.push_back(Vec4f(azi30, azi31, zen20, zen21));
+			g_cubemap_FOVs.push_back(Vec4f(azi40, azi41, zen20, zen21));
+			g_cubemap_FOVs.push_back(Vec4f(azi50, azi51, zen20, zen21));*/
+			g_cubemap_FOVs.push_back(Vec4f(azi500, azi501, zen20, zen21));
+			g_cubemap_FOVs.push_back(Vec4f(azi510, azi511, zen20, zen21));
+			g_cubemap_FOVs.push_back(Vec4f(azi520, azi521, zen20, zen21));
+			g_cubemap_FOVs.push_back(Vec4f(azi530, azi531, zen20, zen21));
+			//g_cubemap_FOVs.push_back(Vec4f(azi540, azi541, zen20, zen21));
+
+			////ranges;
+			{
+
+				//"up"
+				//float Zen00 = D2R(25), Zen01 = D2R(60);
+				float Zen00 = D2R(25), Zen01 = D2R(56);
+				/*g_cubemap_ranges.push_back(Vec4f(azi01 - margin, azi00 + margin, Zen00, Zen01));
+				g_cubemap_ranges.push_back(Vec4f(azi11 - margin, azi10 + margin, Zen00, Zen01));
+				g_cubemap_ranges.push_back(Vec4f(azi21 - margin, azi20 + margin, Zen00, Zen01));
+				g_cubemap_ranges.push_back(Vec4f(azi31 - margin, azi30 + margin, Zen00, Zen01));
+				g_cubemap_ranges.push_back(Vec4f(azi41 - margin, azi40 + margin, Zen00, Zen01));
+				g_cubemap_ranges.push_back(Vec4f(azi51 - margin, azi50 + margin, Zen00, Zen01));*/
+				g_cubemap_ranges.push_back(Vec4f(azi501 - margin, azi500 + margin, Zen00, Zen01));
+				g_cubemap_ranges.push_back(Vec4f(azi511 - margin, azi510 + margin, Zen00, Zen01));
+				g_cubemap_ranges.push_back(Vec4f(azi521 - margin, azi520 + margin, Zen00, Zen01));
+				g_cubemap_ranges.push_back(Vec4f(azi531 - margin, azi530 + margin, Zen00, Zen01));
+				//g_cubemap_ranges.push_back(Vec4f(azi541 - margin, azi540 + margin, Zen00, Zen01));
+				//"middle"
+				//float Zen10 = D2R(60), Zen11 = D2R(120);
+				float Zen10 = D2R(56), Zen11 = D2R(124);
+				g_cubemap_ranges.push_back(Vec4f(azi01 - margin, azi00 + margin, Zen10, Zen11));
+				g_cubemap_ranges.push_back(Vec4f(azi11 - margin, azi10 + margin, Zen10, Zen11));
+				g_cubemap_ranges.push_back(Vec4f(azi21 - margin, azi20 + margin, Zen10, Zen11));
+				g_cubemap_ranges.push_back(Vec4f(azi31 - margin, azi30 + margin, Zen10, Zen11));
+				g_cubemap_ranges.push_back(Vec4f(azi41 - margin, azi40 + margin, Zen10, Zen11));
+				g_cubemap_ranges.push_back(Vec4f(azi51 - margin, azi50 + margin, Zen10, Zen11));
+				//"down"
+				//float Zen20 = D2R(120), Zen21 = D2R(155);
+				float Zen20 = D2R(124), Zen21 = D2R(155);
+				/*g_cubemap_ranges.push_back(Vec4f(azi01 - margin, azi00 + margin, Zen20, Zen21));
+				g_cubemap_ranges.push_back(Vec4f(azi11 - margin, azi10 + margin, Zen20, Zen21));
+				g_cubemap_ranges.push_back(Vec4f(azi21 - margin, azi20 + margin, Zen20, Zen21));
+				g_cubemap_ranges.push_back(Vec4f(azi31 - margin, azi30 + margin, Zen20, Zen21));
+				g_cubemap_ranges.push_back(Vec4f(azi41 - margin, azi40 + margin, Zen20, Zen21));
+				g_cubemap_ranges.push_back(Vec4f(azi51 - margin, azi50 + margin, Zen20, Zen21));*/
+				g_cubemap_ranges.push_back(Vec4f(azi501 - margin, azi500 + margin, Zen20, Zen21));
+				g_cubemap_ranges.push_back(Vec4f(azi511 - margin, azi510 + margin, Zen20, Zen21));
+				g_cubemap_ranges.push_back(Vec4f(azi521 - margin, azi520 + margin, Zen20, Zen21));
+				g_cubemap_ranges.push_back(Vec4f(azi531 - margin, azi530 + margin, Zen20, Zen21));
+				//g_cubemap_ranges.push_back(Vec4f(azi541 - margin, azi540 + margin, Zen20, Zen21));
+			}
 		}
+		if (fold565) {
+			//6-fold
+			float margin = D2R(3);
+			if (margin10) margin = D2R(10);
+			//float pad = 0;
+			//if (padding) pad = 6; // if pad is 6, it means from 60 to 72, if pad is 15, it means from 60 to 90, if pad is 30, it means from 60 to 120
 
-		//up (zenith center is 56)
-		//float zen00 = D2R(18), zen01 = D2R(94);
-		//if use the original zenith, the pmap will out of range of zenith when do the sphericalto2d
-		float zen00 = D2R(17), zen01 = D2R(109);
-		g_cubemap_FOVs.push_back(Vec4f(azi00, azi01, zen00, zen01));
-		g_cubemap_FOVs.push_back(Vec4f(azi10, azi11, zen00, zen01));
-		g_cubemap_FOVs.push_back(Vec4f(azi20, azi21, zen00, zen01));
-		g_cubemap_FOVs.push_back(Vec4f(azi30, azi31, zen00, zen01));
-		/*g_cubemap_FOVs.push_back(Vec4f(azi40, azi41, zen00, zen01));
-		g_cubemap_FOVs.push_back(Vec4f(azi50, azi51, zen00, zen01));*/
-		//middle (zenith center is 90)
-		//float zen10 = D2R(52), zen11 = D2R(128);
-		float zen10 = D2R(44), zen11 = D2R(136);
-		g_cubemap_FOVs.push_back(Vec4f(azi00, azi01, zen10, zen11));
-		g_cubemap_FOVs.push_back(Vec4f(azi10, azi11, zen10, zen11));
-		g_cubemap_FOVs.push_back(Vec4f(azi20, azi21, zen10, zen11));
-		g_cubemap_FOVs.push_back(Vec4f(azi30, azi31, zen10, zen11));
-		/*g_cubemap_FOVs.push_back(Vec4f(azi40, azi41, zen10, zen11));
-		g_cubemap_FOVs.push_back(Vec4f(azi50, azi51, zen10, zen11));*/
-		//down (zenith center is 124)
-		//float zen20 = D2R(86), zen21 = D2R(162);
-		float zen20 = D2R(77), zen21 = D2R(163);
-		g_cubemap_FOVs.push_back(Vec4f(azi00, azi01, zen20, zen21));
-		g_cubemap_FOVs.push_back(Vec4f(azi10, azi11, zen20, zen21));
-		g_cubemap_FOVs.push_back(Vec4f(azi20, azi21, zen20, zen21));
-		g_cubemap_FOVs.push_back(Vec4f(azi30, azi31, zen20, zen21));
-		/*g_cubemap_FOVs.push_back(Vec4f(azi40, azi41, zen20, zen21));
-		g_cubemap_FOVs.push_back(Vec4f(azi50, azi51, zen20, zen21));*/
+			float azi00, azi01;
+			float azi10, azi11;
+			float azi20, azi21;
+			float azi30, azi31;
+			float azi40, azi41;
+			float azi50, azi51;
 
-		////ranges;
-		{
+			float azi500, azi501;
+			float azi510, azi511;
+			float azi520, azi521;
+			float azi530, azi531;
+			float azi540, azi541;
 
-			//"up"
-			//float Zen00 = D2R(25), Zen01 = D2R(60);
-			float Zen00 = D2R(25), Zen01 = D2R(56);
-			g_cubemap_ranges.push_back(Vec4f(azi01 - margin, azi00 + margin, Zen00, Zen01));
-			g_cubemap_ranges.push_back(Vec4f(azi11 - margin, azi10 + margin, Zen00, Zen01));
-			g_cubemap_ranges.push_back(Vec4f(azi21 - margin, azi20 + margin, Zen00, Zen01));
-			g_cubemap_ranges.push_back(Vec4f(azi31 - margin, azi30 + margin, Zen00, Zen01));
-			/*g_cubemap_ranges.push_back(Vec4f(azi41 - margin, azi40 + margin, Zen00, Zen01));
-			g_cubemap_ranges.push_back(Vec4f(azi51 - margin, azi50 + margin, Zen00, Zen01));*/
-			//"middle"
-			//float Zen10 = D2R(60), Zen11 = D2R(120);
-			float Zen10 = D2R(56), Zen11 = D2R(124);
-			g_cubemap_ranges.push_back(Vec4f(azi01 - margin, azi00 + margin, Zen10, Zen11));
-			g_cubemap_ranges.push_back(Vec4f(azi11 - margin, azi10 + margin, Zen10, Zen11));
-			g_cubemap_ranges.push_back(Vec4f(azi21 - margin, azi20 + margin, Zen10, Zen11));
-			g_cubemap_ranges.push_back(Vec4f(azi31 - margin, azi30 + margin, Zen10, Zen11));
-			/*g_cubemap_ranges.push_back(Vec4f(azi41 - margin, azi40 + margin, Zen10, Zen11));
-			g_cubemap_ranges.push_back(Vec4f(azi51 - margin, azi50 + margin, Zen10, Zen11));*/
-			//"down"
-			//float Zen20 = D2R(120), Zen21 = D2R(155);
-			float Zen20 = D2R(124), Zen21 = D2R(155);
-			g_cubemap_ranges.push_back(Vec4f(azi01 - margin, azi00 + margin, Zen20, Zen21));
-			g_cubemap_ranges.push_back(Vec4f(azi11 - margin, azi10 + margin, Zen20, Zen21));
-			g_cubemap_ranges.push_back(Vec4f(azi21 - margin, azi20 + margin, Zen20, Zen21));
-			g_cubemap_ranges.push_back(Vec4f(azi31 - margin, azi30 + margin, Zen20, Zen21));
-			/*g_cubemap_ranges.push_back(Vec4f(azi41 - margin, azi40 + margin, Zen20, Zen21));
-			g_cubemap_ranges.push_back(Vec4f(azi51 - margin, azi50 + margin, Zen20, Zen21));*/
+			{
+
+				azi00 = D2R(0 - pad) - margin, azi01 = D2R(60 + pad) + margin;
+				azi10 = D2R(60 - pad) - margin, azi11 = D2R(120 + pad) + margin;
+				azi20 = D2R(120 - pad) - margin, azi21 = D2R(180 + pad) + margin;
+				azi30 = D2R(180 - pad) - margin, azi31 = D2R(240 + pad) + margin;
+				azi40 = D2R(240 - pad) - margin, azi41 = D2R(300 + pad) + margin;
+				azi50 = D2R(300 - pad) - margin, azi51 = D2R(360 + pad) + margin;
+
+				azi500 = D2R(0 - pad) - margin, azi501 = D2R(72 + pad) + margin;
+				azi510 = D2R(72 - pad) - margin, azi511 = D2R(144 + pad) + margin;
+				azi520 = D2R(144 - pad) - margin, azi521 = D2R(216 + pad) + margin;
+				azi530 = D2R(216 - pad) - margin, azi531 = D2R(288 + pad) + margin;
+				azi540 = D2R(288 - pad) - margin, azi541 = D2R(360 + pad) + margin;
+			}
+
+			//up (zenith center is 56)
+			float zen00 = D2R(18), zen01 = D2R(94);
+			/*g_cubemap_FOVs.push_back(Vec4f(azi00, azi01, zen00, zen01));
+			g_cubemap_FOVs.push_back(Vec4f(azi10, azi11, zen00, zen01));
+			g_cubemap_FOVs.push_back(Vec4f(azi20, azi21, zen00, zen01));
+			g_cubemap_FOVs.push_back(Vec4f(azi30, azi31, zen00, zen01));
+			g_cubemap_FOVs.push_back(Vec4f(azi40, azi41, zen00, zen01));
+			g_cubemap_FOVs.push_back(Vec4f(azi50, azi51, zen00, zen01));*/
+			g_cubemap_FOVs.push_back(Vec4f(azi500, azi501, zen00, zen01));
+			g_cubemap_FOVs.push_back(Vec4f(azi510, azi511, zen00, zen01));
+			g_cubemap_FOVs.push_back(Vec4f(azi520, azi521, zen00, zen01));
+			g_cubemap_FOVs.push_back(Vec4f(azi530, azi531, zen00, zen01));
+			g_cubemap_FOVs.push_back(Vec4f(azi540, azi541, zen00, zen01));
+			//middle (zenith center is 90)
+			float zen10 = D2R(52), zen11 = D2R(128);
+			g_cubemap_FOVs.push_back(Vec4f(azi00, azi01, zen10, zen11));
+			g_cubemap_FOVs.push_back(Vec4f(azi10, azi11, zen10, zen11));
+			g_cubemap_FOVs.push_back(Vec4f(azi20, azi21, zen10, zen11));
+			g_cubemap_FOVs.push_back(Vec4f(azi30, azi31, zen10, zen11));
+			g_cubemap_FOVs.push_back(Vec4f(azi40, azi41, zen10, zen11));
+			g_cubemap_FOVs.push_back(Vec4f(azi50, azi51, zen10, zen11));
+			//down (zenith center is 124)
+			float zen20 = D2R(86), zen21 = D2R(162);
+			/*g_cubemap_FOVs.push_back(Vec4f(azi00, azi01, zen20, zen21));
+			g_cubemap_FOVs.push_back(Vec4f(azi10, azi11, zen20, zen21));
+			g_cubemap_FOVs.push_back(Vec4f(azi20, azi21, zen20, zen21));
+			g_cubemap_FOVs.push_back(Vec4f(azi30, azi31, zen20, zen21));
+			g_cubemap_FOVs.push_back(Vec4f(azi40, azi41, zen20, zen21));
+			g_cubemap_FOVs.push_back(Vec4f(azi50, azi51, zen20, zen21));*/
+			g_cubemap_FOVs.push_back(Vec4f(azi500, azi501, zen20, zen21));
+			g_cubemap_FOVs.push_back(Vec4f(azi510, azi511, zen20, zen21));
+			g_cubemap_FOVs.push_back(Vec4f(azi520, azi521, zen20, zen21));
+			g_cubemap_FOVs.push_back(Vec4f(azi530, azi531, zen20, zen21));
+			g_cubemap_FOVs.push_back(Vec4f(azi540, azi541, zen20, zen21));
+
+			////ranges;
+			{
+
+				//"up"
+				float Zen00 = D2R(25), Zen01 = D2R(60);
+				/*g_cubemap_ranges.push_back(Vec4f(azi01 - margin, azi00 + margin, Zen00, Zen01));
+				g_cubemap_ranges.push_back(Vec4f(azi11 - margin, azi10 + margin, Zen00, Zen01));
+				g_cubemap_ranges.push_back(Vec4f(azi21 - margin, azi20 + margin, Zen00, Zen01));
+				g_cubemap_ranges.push_back(Vec4f(azi31 - margin, azi30 + margin, Zen00, Zen01));
+				g_cubemap_ranges.push_back(Vec4f(azi41 - margin, azi40 + margin, Zen00, Zen01));
+				g_cubemap_ranges.push_back(Vec4f(azi51 - margin, azi50 + margin, Zen00, Zen01));*/
+				g_cubemap_ranges.push_back(Vec4f(azi501 - margin, azi500 + margin, Zen00, Zen01));
+				g_cubemap_ranges.push_back(Vec4f(azi511 - margin, azi510 + margin, Zen00, Zen01));
+				g_cubemap_ranges.push_back(Vec4f(azi521 - margin, azi520 + margin, Zen00, Zen01));
+				g_cubemap_ranges.push_back(Vec4f(azi531 - margin, azi530 + margin, Zen00, Zen01));
+				g_cubemap_ranges.push_back(Vec4f(azi541 - margin, azi540 + margin, Zen00, Zen01));
+				//"middle"
+				float Zen10 = D2R(60), Zen11 = D2R(120);
+				g_cubemap_ranges.push_back(Vec4f(azi01 - margin, azi00 + margin, Zen10, Zen11));
+				g_cubemap_ranges.push_back(Vec4f(azi11 - margin, azi10 + margin, Zen10, Zen11));
+				g_cubemap_ranges.push_back(Vec4f(azi21 - margin, azi20 + margin, Zen10, Zen11));
+				g_cubemap_ranges.push_back(Vec4f(azi31 - margin, azi30 + margin, Zen10, Zen11));
+				g_cubemap_ranges.push_back(Vec4f(azi41 - margin, azi40 + margin, Zen10, Zen11));
+				g_cubemap_ranges.push_back(Vec4f(azi51 - margin, azi50 + margin, Zen10, Zen11));
+				//"down"
+				float Zen20 = D2R(120), Zen21 = D2R(155);
+				/*g_cubemap_ranges.push_back(Vec4f(azi01 - margin, azi00 + margin, Zen20, Zen21));
+				g_cubemap_ranges.push_back(Vec4f(azi11 - margin, azi10 + margin, Zen20, Zen21));
+				g_cubemap_ranges.push_back(Vec4f(azi21 - margin, azi20 + margin, Zen20, Zen21));
+				g_cubemap_ranges.push_back(Vec4f(azi31 - margin, azi30 + margin, Zen20, Zen21));
+				g_cubemap_ranges.push_back(Vec4f(azi41 - margin, azi40 + margin, Zen20, Zen21));
+				g_cubemap_ranges.push_back(Vec4f(azi51 - margin, azi50 + margin, Zen20, Zen21));*/
+				g_cubemap_ranges.push_back(Vec4f(azi501 - margin, azi500 + margin, Zen20, Zen21));
+				g_cubemap_ranges.push_back(Vec4f(azi511 - margin, azi510 + margin, Zen20, Zen21));
+				g_cubemap_ranges.push_back(Vec4f(azi521 - margin, azi520 + margin, Zen20, Zen21));
+				g_cubemap_ranges.push_back(Vec4f(azi531 - margin, azi530 + margin, Zen20, Zen21));
+				g_cubemap_ranges.push_back(Vec4f(azi541 - margin, azi540 + margin, Zen20, Zen21));
+			}
 		}
-	}
-	if (fold6) {
-		//6-fold
-		float margin = D2R(3);
-		if (margin10) margin = D2R(10);
-		float pad = 0;
-		if (padding) pad = 30; // if pad is 6, it means from 60 to 72, if pad is 15, it means from 60 to 90, if pad is 30, it means from 60 to 120
+		if (shift_h) {
+			//6-fold
+			float margin = D2R(3);
+			float azi00, azi01;
+			float azi10, azi11;
+			float azi20, azi21;
+			float azi30, azi31;
+			float azi40, azi41;
+			float azi50, azi51;
 
-		float azi00, azi01;
-		float azi10, azi11;
-		float azi20, azi21;
-		float azi30, azi31;
-		float azi40, azi41;
-		float azi50, azi51;
+			{
+				// shift horizental
+				float shift_a = D2R(36);
 
-		{
+				azi00 = D2R(0) - margin, azi01 = D2R(72) + margin - shift_a;
+				azi10 = D2R(72) - margin - shift_a, azi11 = D2R(144) + margin - shift_a;
+				azi20 = D2R(144) - margin - shift_a, azi21 = D2R(216) + margin - shift_a;
+				azi30 = D2R(216) - margin - shift_a, azi31 = D2R(288) + margin - shift_a;
+				azi40 = D2R(288) - margin - shift_a, azi41 = D2R(360) + margin - shift_a;
+				azi50 = D2R(360) - margin - shift_a, azi51 = D2R(360) + margin;
+			}
 
-			azi00 = D2R(0 - pad) - margin, azi01 = D2R(60 + pad) + margin;
-			azi10 = D2R(60 - pad) - margin, azi11 = D2R(120 + pad) + margin;
-			azi20 = D2R(120 - pad) - margin, azi21 = D2R(180 + pad) + margin;
-			azi30 = D2R(180 - pad) - margin, azi31 = D2R(240 + pad) + margin;
-			azi40 = D2R(240 - pad) - margin, azi41 = D2R(300 + pad) + margin;
-			azi50 = D2R(300 - pad) - margin, azi51 = D2R(360 + pad) + margin;
+			//up (zenith center is 56)
+			float zen00 = D2R(18), zen01 = D2R(94);
+			g_cubemap_FOVs.push_back(Vec4f(azi00, azi01, zen00, zen01));
+			g_cubemap_FOVs.push_back(Vec4f(azi10, azi11, zen00, zen01));
+			g_cubemap_FOVs.push_back(Vec4f(azi20, azi21, zen00, zen01));
+			g_cubemap_FOVs.push_back(Vec4f(azi30, azi31, zen00, zen01));
+			g_cubemap_FOVs.push_back(Vec4f(azi40, azi41, zen00, zen01));
+			g_cubemap_FOVs.push_back(Vec4f(azi50, azi51, zen00, zen01));
+			//middle (zenith center is 90)
+			float zen10 = D2R(52), zen11 = D2R(128);
+			g_cubemap_FOVs.push_back(Vec4f(azi00, azi01, zen10, zen11));
+			g_cubemap_FOVs.push_back(Vec4f(azi10, azi11, zen10, zen11));
+			g_cubemap_FOVs.push_back(Vec4f(azi20, azi21, zen10, zen11));
+			g_cubemap_FOVs.push_back(Vec4f(azi30, azi31, zen10, zen11));
+			g_cubemap_FOVs.push_back(Vec4f(azi40, azi41, zen10, zen11));
+			g_cubemap_FOVs.push_back(Vec4f(azi50, azi51, zen10, zen11));
+			//down (zenith center is 124)
+			float zen20 = D2R(86), zen21 = D2R(162);
+			g_cubemap_FOVs.push_back(Vec4f(azi00, azi01, zen20, zen21));
+			g_cubemap_FOVs.push_back(Vec4f(azi10, azi11, zen20, zen21));
+			g_cubemap_FOVs.push_back(Vec4f(azi20, azi21, zen20, zen21));
+			g_cubemap_FOVs.push_back(Vec4f(azi30, azi31, zen20, zen21));
+			g_cubemap_FOVs.push_back(Vec4f(azi40, azi41, zen20, zen21));
+			g_cubemap_FOVs.push_back(Vec4f(azi50, azi51, zen20, zen21));
+
+			////ranges;
+			{
+
+				//"up"
+				float Zen00 = D2R(25), Zen01 = D2R(60);
+				g_cubemap_ranges.push_back(Vec4f(azi01 - margin, azi00 + margin, Zen00, Zen01));
+				g_cubemap_ranges.push_back(Vec4f(azi11 - margin, azi10 + margin, Zen00, Zen01));
+				g_cubemap_ranges.push_back(Vec4f(azi21 - margin, azi20 + margin, Zen00, Zen01));
+				g_cubemap_ranges.push_back(Vec4f(azi31 - margin, azi30 + margin, Zen00, Zen01));
+				g_cubemap_ranges.push_back(Vec4f(azi41 - margin, azi40 + margin, Zen00, Zen01));
+				g_cubemap_ranges.push_back(Vec4f(azi51 - margin, azi50 + margin, Zen00, Zen01));
+				//"middle"
+				float Zen10 = D2R(60), Zen11 = D2R(120);
+				g_cubemap_ranges.push_back(Vec4f(azi01 - margin, azi00 + margin, Zen10, Zen11));
+				g_cubemap_ranges.push_back(Vec4f(azi11 - margin, azi10 + margin, Zen10, Zen11));
+				g_cubemap_ranges.push_back(Vec4f(azi21 - margin, azi20 + margin, Zen10, Zen11));
+				g_cubemap_ranges.push_back(Vec4f(azi31 - margin, azi30 + margin, Zen10, Zen11));
+				g_cubemap_ranges.push_back(Vec4f(azi41 - margin, azi40 + margin, Zen10, Zen11));
+				g_cubemap_ranges.push_back(Vec4f(azi51 - margin, azi50 + margin, Zen10, Zen11));
+				//"down"
+				float Zen20 = D2R(120), Zen21 = D2R(155);
+				g_cubemap_ranges.push_back(Vec4f(azi01 - margin, azi00 + margin, Zen20, Zen21));
+				g_cubemap_ranges.push_back(Vec4f(azi11 - margin, azi10 + margin, Zen20, Zen21));
+				g_cubemap_ranges.push_back(Vec4f(azi21 - margin, azi20 + margin, Zen20, Zen21));
+				g_cubemap_ranges.push_back(Vec4f(azi31 - margin, azi30 + margin, Zen20, Zen21));
+				g_cubemap_ranges.push_back(Vec4f(azi41 - margin, azi40 + margin, Zen20, Zen21));
+				g_cubemap_ranges.push_back(Vec4f(azi51 - margin, azi50 + margin, Zen20, Zen21));
+			}
 		}
-
-		//up (zenith center is 56)
-		float zen00 = D2R(18), zen01 = D2R(94);
-		g_cubemap_FOVs.push_back(Vec4f(azi00, azi01, zen00, zen01));
-		g_cubemap_FOVs.push_back(Vec4f(azi10, azi11, zen00, zen01));
-		g_cubemap_FOVs.push_back(Vec4f(azi20, azi21, zen00, zen01));
-		g_cubemap_FOVs.push_back(Vec4f(azi30, azi31, zen00, zen01));
-		g_cubemap_FOVs.push_back(Vec4f(azi40, azi41, zen00, zen01));
-		g_cubemap_FOVs.push_back(Vec4f(azi50, azi51, zen00, zen01));
-		//middle (zenith center is 90)
-		float zen10 = D2R(52), zen11 = D2R(128);
-		g_cubemap_FOVs.push_back(Vec4f(azi00, azi01, zen10, zen11));
-		g_cubemap_FOVs.push_back(Vec4f(azi10, azi11, zen10, zen11));
-		g_cubemap_FOVs.push_back(Vec4f(azi20, azi21, zen10, zen11));
-		g_cubemap_FOVs.push_back(Vec4f(azi30, azi31, zen10, zen11));
-		g_cubemap_FOVs.push_back(Vec4f(azi40, azi41, zen10, zen11));
-		g_cubemap_FOVs.push_back(Vec4f(azi50, azi51, zen10, zen11));
-		//down (zenith center is 124)
-		float zen20 = D2R(86), zen21 = D2R(162);
-		g_cubemap_FOVs.push_back(Vec4f(azi00, azi01, zen20, zen21));
-		g_cubemap_FOVs.push_back(Vec4f(azi10, azi11, zen20, zen21));
-		g_cubemap_FOVs.push_back(Vec4f(azi20, azi21, zen20, zen21));
-		g_cubemap_FOVs.push_back(Vec4f(azi30, azi31, zen20, zen21));
-		g_cubemap_FOVs.push_back(Vec4f(azi40, azi41, zen20, zen21));
-		g_cubemap_FOVs.push_back(Vec4f(azi50, azi51, zen20, zen21));
-
-		////ranges;
+		if (shift_v)
 		{
+			//5-fold for LeRes
 
-			//"up"
-			float Zen00 = D2R(25), Zen01 = D2R(60);
-			g_cubemap_ranges.push_back(Vec4f(azi01 - margin, azi00 + margin, Zen00, Zen01));
-			g_cubemap_ranges.push_back(Vec4f(azi11 - margin, azi10 + margin, Zen00, Zen01));
-			g_cubemap_ranges.push_back(Vec4f(azi21 - margin, azi20 + margin, Zen00, Zen01));
-			g_cubemap_ranges.push_back(Vec4f(azi31 - margin, azi30 + margin, Zen00, Zen01));
-			g_cubemap_ranges.push_back(Vec4f(azi41 - margin, azi40 + margin, Zen00, Zen01));
-			g_cubemap_ranges.push_back(Vec4f(azi51 - margin, azi50 + margin, Zen00, Zen01));
-			//"middle"
-			float Zen10 = D2R(60), Zen11 = D2R(120);
-			g_cubemap_ranges.push_back(Vec4f(azi01 - margin, azi00 + margin, Zen10, Zen11));
-			g_cubemap_ranges.push_back(Vec4f(azi11 - margin, azi10 + margin, Zen10, Zen11));
-			g_cubemap_ranges.push_back(Vec4f(azi21 - margin, azi20 + margin, Zen10, Zen11));
-			g_cubemap_ranges.push_back(Vec4f(azi31 - margin, azi30 + margin, Zen10, Zen11));
-			g_cubemap_ranges.push_back(Vec4f(azi41 - margin, azi40 + margin, Zen10, Zen11));
-			g_cubemap_ranges.push_back(Vec4f(azi51 - margin, azi50 + margin, Zen10, Zen11));
-			//"down"
-			float Zen20 = D2R(120), Zen21 = D2R(155);
-			g_cubemap_ranges.push_back(Vec4f(azi01 - margin, azi00 + margin, Zen20, Zen21));
-			g_cubemap_ranges.push_back(Vec4f(azi11 - margin, azi10 + margin, Zen20, Zen21));
-			g_cubemap_ranges.push_back(Vec4f(azi21 - margin, azi20 + margin, Zen20, Zen21));
-			g_cubemap_ranges.push_back(Vec4f(azi31 - margin, azi30 + margin, Zen20, Zen21));
-			g_cubemap_ranges.push_back(Vec4f(azi41 - margin, azi40 + margin, Zen20, Zen21));
-			g_cubemap_ranges.push_back(Vec4f(azi51 - margin, azi50 + margin, Zen20, Zen21));
-		}
-	}
-	if (fold8) {
-		//8-fold
-		float margin = D2R(3);
-		if (margin10) margin = D2R(10);
-		float azi00 = D2R(0) - margin, azi01 = D2R(45) + margin;
-		float azi10 = D2R(45) - margin, azi11 = D2R(90) + margin;
-		float azi20 = D2R(90) - margin, azi21 = D2R(135) + margin;
-		float azi30 = D2R(135) - margin, azi31 = D2R(180) + margin;
-		float azi40 = D2R(180) - margin, azi41 = D2R(225) + margin;
-		float azi50 = D2R(225) - margin, azi51 = D2R(270) + margin;
-		float azi60 = D2R(270) - margin, azi61 = D2R(315) + margin;
-		float azi70 = D2R(315) - margin, azi71 = D2R(360) + margin;
+			float margin = D2R(3);
 
-		//up (zenith center is 56)
-		float zen00 = D2R(18), zen01 = D2R(94);
-		g_cubemap_FOVs.push_back(Vec4f(azi00, azi01, zen00, zen01));
-		g_cubemap_FOVs.push_back(Vec4f(azi10, azi11, zen00, zen01));
-		g_cubemap_FOVs.push_back(Vec4f(azi20, azi21, zen00, zen01));
-		g_cubemap_FOVs.push_back(Vec4f(azi30, azi31, zen00, zen01));
-		g_cubemap_FOVs.push_back(Vec4f(azi40, azi41, zen00, zen01));
-		g_cubemap_FOVs.push_back(Vec4f(azi50, azi51, zen00, zen01));
-		g_cubemap_FOVs.push_back(Vec4f(azi60, azi61, zen00, zen01));
-		g_cubemap_FOVs.push_back(Vec4f(azi70, azi71, zen00, zen01));
-		//middle (zenith center is 90)
-		float zen10 = D2R(52), zen11 = D2R(128);
-		g_cubemap_FOVs.push_back(Vec4f(azi00, azi01, zen10, zen11));
-		g_cubemap_FOVs.push_back(Vec4f(azi10, azi11, zen10, zen11));
-		g_cubemap_FOVs.push_back(Vec4f(azi20, azi21, zen10, zen11));
-		g_cubemap_FOVs.push_back(Vec4f(azi30, azi31, zen10, zen11));
-		g_cubemap_FOVs.push_back(Vec4f(azi40, azi41, zen10, zen11));
-		g_cubemap_FOVs.push_back(Vec4f(azi50, azi51, zen10, zen11));
-		g_cubemap_FOVs.push_back(Vec4f(azi60, azi61, zen10, zen11));
-		g_cubemap_FOVs.push_back(Vec4f(azi70, azi71, zen10, zen11));
-		//down (zenith center is 124)
-		float zen20 = D2R(86), zen21 = D2R(162);
-		g_cubemap_FOVs.push_back(Vec4f(azi00, azi01, zen20, zen21));
-		g_cubemap_FOVs.push_back(Vec4f(azi10, azi11, zen20, zen21));
-		g_cubemap_FOVs.push_back(Vec4f(azi20, azi21, zen20, zen21));
-		g_cubemap_FOVs.push_back(Vec4f(azi30, azi31, zen20, zen21));
-		g_cubemap_FOVs.push_back(Vec4f(azi40, azi41, zen20, zen21));
-		g_cubemap_FOVs.push_back(Vec4f(azi50, azi51, zen20, zen21));
-		g_cubemap_FOVs.push_back(Vec4f(azi60, azi61, zen20, zen21));
-		g_cubemap_FOVs.push_back(Vec4f(azi70, azi71, zen20, zen21));
+			float azi00 = D2R(0) - margin, azi01 = D2R(72) + margin;
+			float azi10 = D2R(72) - margin, azi11 = D2R(144) + margin;
+			float azi20 = D2R(144) - margin, azi21 = D2R(216) + margin;
+			float azi30 = D2R(216) - margin, azi31 = D2R(288) + margin;
+			float azi40 = D2R(288) - margin, azi41 = D2R(360) + margin;
 
-		////ranges:
+			//up (zenith center is 56)
+			float zen00 = D2R(18), zen01 = D2R(94);
+			g_cubemap_FOVs.push_back(Vec4f(azi00, azi01, zen00, zen01));
+			g_cubemap_FOVs.push_back(Vec4f(azi10, azi11, zen00, zen01));
+			g_cubemap_FOVs.push_back(Vec4f(azi20, azi21, zen00, zen01));
+			g_cubemap_FOVs.push_back(Vec4f(azi30, azi31, zen00, zen01));
+			g_cubemap_FOVs.push_back(Vec4f(azi40, azi41, zen00, zen01));
+			//middle (zenith center is 90)
+			float zen10 = D2R(52), zen11 = D2R(128);
+			g_cubemap_FOVs.push_back(Vec4f(azi00, azi01, zen10, zen11));
+			g_cubemap_FOVs.push_back(Vec4f(azi10, azi11, zen10, zen11));
+			g_cubemap_FOVs.push_back(Vec4f(azi20, azi21, zen10, zen11));
+			g_cubemap_FOVs.push_back(Vec4f(azi30, azi31, zen10, zen11));
+			g_cubemap_FOVs.push_back(Vec4f(azi40, azi41, zen10, zen11));
+			//down (zenith center is 124)
+			float zen20 = D2R(86), zen21 = D2R(162);
+			g_cubemap_FOVs.push_back(Vec4f(azi00, azi01, zen20, zen21));
+			g_cubemap_FOVs.push_back(Vec4f(azi10, azi11, zen20, zen21));
+			g_cubemap_FOVs.push_back(Vec4f(azi20, azi21, zen20, zen21));
+			g_cubemap_FOVs.push_back(Vec4f(azi30, azi31, zen20, zen21));
+			g_cubemap_FOVs.push_back(Vec4f(azi40, azi41, zen20, zen21));
 
-		//"up"
-		float Zen00 = D2R(25), Zen01 = D2R(60);
-		g_cubemap_ranges.push_back(Vec4f(azi01 - margin, azi00 + margin, Zen00, Zen01));
-		g_cubemap_ranges.push_back(Vec4f(azi11 - margin, azi10 + margin, Zen00, Zen01));
-		g_cubemap_ranges.push_back(Vec4f(azi21 - margin, azi20 + margin, Zen00, Zen01));
-		g_cubemap_ranges.push_back(Vec4f(azi31 - margin, azi30 + margin, Zen00, Zen01));
-		g_cubemap_ranges.push_back(Vec4f(azi41 - margin, azi40 + margin, Zen00, Zen01));
-		g_cubemap_ranges.push_back(Vec4f(azi51 - margin, azi50 + margin, Zen00, Zen01));
-		g_cubemap_ranges.push_back(Vec4f(azi61 - margin, azi60 + margin, Zen00, Zen01));
-		g_cubemap_ranges.push_back(Vec4f(azi71 - margin, azi70 + margin, Zen00, Zen01));
-		//"middle"
-		float Zen10 = D2R(60), Zen11 = D2R(120);
-		g_cubemap_ranges.push_back(Vec4f(azi01 - margin, azi00 + margin, Zen10, Zen11));
-		g_cubemap_ranges.push_back(Vec4f(azi11 - margin, azi10 + margin, Zen10, Zen11));
-		g_cubemap_ranges.push_back(Vec4f(azi21 - margin, azi20 + margin, Zen10, Zen11));
-		g_cubemap_ranges.push_back(Vec4f(azi31 - margin, azi30 + margin, Zen10, Zen11));
-		g_cubemap_ranges.push_back(Vec4f(azi41 - margin, azi40 + margin, Zen10, Zen11));
-		g_cubemap_ranges.push_back(Vec4f(azi51 - margin, azi50 + margin, Zen10, Zen11));
-		g_cubemap_ranges.push_back(Vec4f(azi61 - margin, azi60 + margin, Zen10, Zen11));
-		g_cubemap_ranges.push_back(Vec4f(azi71 - margin, azi70 + margin, Zen10, Zen11));
-		//"down"
-		float Zen20 = D2R(120), Zen21 = D2R(155);
-		g_cubemap_ranges.push_back(Vec4f(azi01 - margin, azi00 + margin, Zen20, Zen21));
-		g_cubemap_ranges.push_back(Vec4f(azi11 - margin, azi10 + margin, Zen20, Zen21));
-		g_cubemap_ranges.push_back(Vec4f(azi21 - margin, azi20 + margin, Zen20, Zen21));
-		g_cubemap_ranges.push_back(Vec4f(azi31 - margin, azi30 + margin, Zen20, Zen21));
-		g_cubemap_ranges.push_back(Vec4f(azi41 - margin, azi40 + margin, Zen20, Zen21));
-		g_cubemap_ranges.push_back(Vec4f(azi51 - margin, azi50 + margin, Zen20, Zen21));
-		g_cubemap_ranges.push_back(Vec4f(azi61 - margin, azi60 + margin, Zen20, Zen21));
-		g_cubemap_ranges.push_back(Vec4f(azi71 - margin, azi70 + margin, Zen20, Zen21));
-	}
-	if (fold161) {
-		//up and down 1 fold, middle 6 fold
-		float margin = D2R(3);
-		if (margin10) margin = D2R(10);
-		float pad = 0;
-		//if (padding) pad = 30; // if pad is 6, it means from 60 to 72, if pad is 15, it means from 60 to 90, if pad is 30, it means from 60 to 120
-
-		float azi00, azi01;
-		float azi10, azi11;
-		float azi20, azi21;
-		float azi30, azi31;
-		float azi40, azi41;
-		float azi50, azi51;
-		float azi0, azi1;
-
-		{
-
-			azi00 = D2R(0 - pad) - margin, azi01 = D2R(60 + pad) + margin;
-			azi10 = D2R(60 - pad) - margin, azi11 = D2R(120 + pad) + margin;
-			azi20 = D2R(120 - pad) - margin, azi21 = D2R(180 + pad) + margin;
-			azi30 = D2R(180 - pad) - margin, azi31 = D2R(240 + pad) + margin;
-			azi40 = D2R(240 - pad) - margin, azi41 = D2R(300 + pad) + margin;
-			azi50 = D2R(300 - pad) - margin, azi51 = D2R(360 + pad) + margin;
-
-			azi0 = D2R(0), azi1 = D2R(360);
-		}
-
-		//up (zenith center is 56)
-		float zen00 = D2R(18), zen01 = D2R(94);
-		/*g_cubemap_FOVs.push_back(Vec4f(azi00, azi01, zen00, zen01));
-		g_cubemap_FOVs.push_back(Vec4f(azi10, azi11, zen00, zen01));
-		g_cubemap_FOVs.push_back(Vec4f(azi20, azi21, zen00, zen01));
-		g_cubemap_FOVs.push_back(Vec4f(azi30, azi31, zen00, zen01));
-		g_cubemap_FOVs.push_back(Vec4f(azi40, azi41, zen00, zen01));
-		g_cubemap_FOVs.push_back(Vec4f(azi50, azi51, zen00, zen01));*/
-		g_cubemap_FOVs.push_back(Vec4f(azi0, azi1, zen00, zen01));
-		//middle (zenith center is 90)
-		float zen10 = D2R(52), zen11 = D2R(128);
-		g_cubemap_FOVs.push_back(Vec4f(azi00, azi01, zen10, zen11));
-		g_cubemap_FOVs.push_back(Vec4f(azi10, azi11, zen10, zen11));
-		g_cubemap_FOVs.push_back(Vec4f(azi20, azi21, zen10, zen11));
-		g_cubemap_FOVs.push_back(Vec4f(azi30, azi31, zen10, zen11));
-		g_cubemap_FOVs.push_back(Vec4f(azi40, azi41, zen10, zen11));
-		g_cubemap_FOVs.push_back(Vec4f(azi50, azi51, zen10, zen11));
-		//down (zenith center is 124)
-		float zen20 = D2R(86), zen21 = D2R(162);
-		/*g_cubemap_FOVs.push_back(Vec4f(azi00, azi01, zen20, zen21));
-		g_cubemap_FOVs.push_back(Vec4f(azi10, azi11, zen20, zen21));
-		g_cubemap_FOVs.push_back(Vec4f(azi20, azi21, zen20, zen21));
-		g_cubemap_FOVs.push_back(Vec4f(azi30, azi31, zen20, zen21));
-		g_cubemap_FOVs.push_back(Vec4f(azi40, azi41, zen20, zen21));
-		g_cubemap_FOVs.push_back(Vec4f(azi50, azi51, zen20, zen21));*/
-		g_cubemap_FOVs.push_back(Vec4f(azi0, azi1, zen20, zen21));
-
-		////ranges;
-		{
-
-			//"up"
-			float Zen00 = D2R(25), Zen01 = D2R(60);
-			/*g_cubemap_ranges.push_back(Vec4f(azi01 - margin, azi00 + margin, Zen00, Zen01));
-			g_cubemap_ranges.push_back(Vec4f(azi11 - margin, azi10 + margin, Zen00, Zen01));
-			g_cubemap_ranges.push_back(Vec4f(azi21 - margin, azi20 + margin, Zen00, Zen01));
-			g_cubemap_ranges.push_back(Vec4f(azi31 - margin, azi30 + margin, Zen00, Zen01));
-			g_cubemap_ranges.push_back(Vec4f(azi41 - margin, azi40 + margin, Zen00, Zen01));
-			g_cubemap_ranges.push_back(Vec4f(azi51 - margin, azi50 + margin, Zen00, Zen01));*/
-			g_cubemap_ranges.push_back(Vec4f(azi1, azi0, Zen00, Zen01));
-			//"middle"
-			float Zen10 = D2R(60), Zen11 = D2R(120);
-			g_cubemap_ranges.push_back(Vec4f(azi01 - margin, azi00 + margin, Zen10, Zen11));
-			g_cubemap_ranges.push_back(Vec4f(azi11 - margin, azi10 + margin, Zen10, Zen11));
-			g_cubemap_ranges.push_back(Vec4f(azi21 - margin, azi20 + margin, Zen10, Zen11));
-			g_cubemap_ranges.push_back(Vec4f(azi31 - margin, azi30 + margin, Zen10, Zen11));
-			g_cubemap_ranges.push_back(Vec4f(azi41 - margin, azi40 + margin, Zen10, Zen11));
-			g_cubemap_ranges.push_back(Vec4f(azi51 - margin, azi50 + margin, Zen10, Zen11));
-			//"down"
-			float Zen20 = D2R(120), Zen21 = D2R(155);
-			/*g_cubemap_ranges.push_back(Vec4f(azi01 - margin, azi00 + margin, Zen20, Zen21));
-			g_cubemap_ranges.push_back(Vec4f(azi11 - margin, azi10 + margin, Zen20, Zen21));
-			g_cubemap_ranges.push_back(Vec4f(azi21 - margin, azi20 + margin, Zen20, Zen21));
-			g_cubemap_ranges.push_back(Vec4f(azi31 - margin, azi30 + margin, Zen20, Zen21));
-			g_cubemap_ranges.push_back(Vec4f(azi41 - margin, azi40 + margin, Zen20, Zen21));
-			g_cubemap_ranges.push_back(Vec4f(azi51 - margin, azi50 + margin, Zen20, Zen21));*/
-			g_cubemap_ranges.push_back(Vec4f(azi1, azi0, Zen20, Zen21));
-		}
-	}
-	if (fold363) {
-		//6-fold
-		float margin = D2R(3);
-		if (margin10) margin = D2R(10);
-		float pad = 0;
-		//if (padding) pad = 30; // if pad is 6, it means from 60 to 72, if pad is 15, it means from 60 to 90, if pad is 30, it means from 60 to 120
-
-		float azi00, azi01;
-		float azi10, azi11;
-		float azi20, azi21;
-		float azi30, azi31;
-		float azi40, azi41;
-		float azi50, azi51;
-
-		{
-
-			azi00 = D2R(0 - pad) - margin, azi01 = D2R(60 + pad) + margin;
-			azi10 = D2R(60 - pad) - margin, azi11 = D2R(120 + pad) + margin;
-			azi20 = D2R(120 - pad) - margin, azi21 = D2R(180 + pad) + margin;
-			azi30 = D2R(180 - pad) - margin, azi31 = D2R(240 + pad) + margin;
-			azi40 = D2R(240 - pad) - margin, azi41 = D2R(300 + pad) + margin;
-			azi50 = D2R(300 - pad) - margin, azi51 = D2R(360 + pad) + margin;
-		}
-
-		//up (zenith center is 56)
-		float zen00 = D2R(7), zen01 = D2R(84);
-		/*g_cubemap_FOVs.push_back(Vec4f(azi00, azi01, zen00, zen01));
-		g_cubemap_FOVs.push_back(Vec4f(azi10, azi11, zen00, zen01));
-		g_cubemap_FOVs.push_back(Vec4f(azi20, azi21, zen00, zen01));
-		g_cubemap_FOVs.push_back(Vec4f(azi30, azi31, zen00, zen01));
-		g_cubemap_FOVs.push_back(Vec4f(azi40, azi41, zen00, zen01));
-		g_cubemap_FOVs.push_back(Vec4f(azi50, azi51, zen00, zen01));*/
-		g_cubemap_FOVs.push_back(Vec4f(azi00, azi11, zen00, zen01));
-		g_cubemap_FOVs.push_back(Vec4f(azi20, azi31, zen00, zen01));
-		g_cubemap_FOVs.push_back(Vec4f(azi40, azi51, zen00, zen01));
-		//middle (zenith center is 90)
-		float zen10 = D2R(44), zen11 = D2R(136);
-		g_cubemap_FOVs.push_back(Vec4f(azi00, azi01, zen10, zen11));
-		g_cubemap_FOVs.push_back(Vec4f(azi10, azi11, zen10, zen11));
-		g_cubemap_FOVs.push_back(Vec4f(azi20, azi21, zen10, zen11));
-		g_cubemap_FOVs.push_back(Vec4f(azi30, azi31, zen10, zen11));
-		g_cubemap_FOVs.push_back(Vec4f(azi40, azi41, zen10, zen11));
-		g_cubemap_FOVs.push_back(Vec4f(azi50, azi51, zen10, zen11));
-		//down (zenith center is 124)
-		float zen20 = D2R(96), zen21 = D2R(172);
-		/*g_cubemap_FOVs.push_back(Vec4f(azi00, azi01, zen20, zen21));
-		g_cubemap_FOVs.push_back(Vec4f(azi10, azi11, zen20, zen21));
-		g_cubemap_FOVs.push_back(Vec4f(azi20, azi21, zen20, zen21));
-		g_cubemap_FOVs.push_back(Vec4f(azi30, azi31, zen20, zen21));
-		g_cubemap_FOVs.push_back(Vec4f(azi40, azi41, zen20, zen21));
-		g_cubemap_FOVs.push_back(Vec4f(azi50, azi51, zen20, zen21));*/
-		g_cubemap_FOVs.push_back(Vec4f(azi00, azi11, zen20, zen21));
-		g_cubemap_FOVs.push_back(Vec4f(azi20, azi31, zen20, zen21));
-		g_cubemap_FOVs.push_back(Vec4f(azi40, azi51, zen20, zen21));
-
-		////ranges;
-		{
-
-			//"up"
-			float Zen00 = D2R(25), Zen01 = D2R(60);
-			/*g_cubemap_ranges.push_back(Vec4f(azi01 - margin, azi00 + margin, Zen00, Zen01));
-			g_cubemap_ranges.push_back(Vec4f(azi11 - margin, azi10 + margin, Zen00, Zen01));
-			g_cubemap_ranges.push_back(Vec4f(azi21 - margin, azi20 + margin, Zen00, Zen01));
-			g_cubemap_ranges.push_back(Vec4f(azi31 - margin, azi30 + margin, Zen00, Zen01));
-			g_cubemap_ranges.push_back(Vec4f(azi41 - margin, azi40 + margin, Zen00, Zen01));
-			g_cubemap_ranges.push_back(Vec4f(azi51 - margin, azi50 + margin, Zen00, Zen01));*/
-			g_cubemap_ranges.push_back(Vec4f(azi11 - margin, azi00 + margin, Zen00, Zen01));
-			g_cubemap_ranges.push_back(Vec4f(azi31 - margin, azi20 + margin, Zen00, Zen01));
-			g_cubemap_ranges.push_back(Vec4f(azi51 - margin, azi40 + margin, Zen00, Zen01));
-			//"middle"
-			float Zen10 = D2R(60), Zen11 = D2R(120);
-			g_cubemap_ranges.push_back(Vec4f(azi01 - margin, azi00 + margin, Zen10, Zen11));
-			g_cubemap_ranges.push_back(Vec4f(azi11 - margin, azi10 + margin, Zen10, Zen11));
-			g_cubemap_ranges.push_back(Vec4f(azi21 - margin, azi20 + margin, Zen10, Zen11));
-			g_cubemap_ranges.push_back(Vec4f(azi31 - margin, azi30 + margin, Zen10, Zen11));
-			g_cubemap_ranges.push_back(Vec4f(azi41 - margin, azi40 + margin, Zen10, Zen11));
-			g_cubemap_ranges.push_back(Vec4f(azi51 - margin, azi50 + margin, Zen10, Zen11));
-			//"down"
-			float Zen20 = D2R(120), Zen21 = D2R(155);
-			/*g_cubemap_ranges.push_back(Vec4f(azi01 - margin, azi00 + margin, Zen20, Zen21));
-			g_cubemap_ranges.push_back(Vec4f(azi11 - margin, azi10 + margin, Zen20, Zen21));
-			g_cubemap_ranges.push_back(Vec4f(azi21 - margin, azi20 + margin, Zen20, Zen21));
-			g_cubemap_ranges.push_back(Vec4f(azi31 - margin, azi30 + margin, Zen20, Zen21));
-			g_cubemap_ranges.push_back(Vec4f(azi41 - margin, azi40 + margin, Zen20, Zen21));
-			g_cubemap_ranges.push_back(Vec4f(azi51 - margin, azi50 + margin, Zen20, Zen21));*/
-			g_cubemap_ranges.push_back(Vec4f(azi11 - margin, azi00 + margin, Zen20, Zen21));
-			g_cubemap_ranges.push_back(Vec4f(azi31 - margin, azi20 + margin, Zen20, Zen21));
-			g_cubemap_ranges.push_back(Vec4f(azi51 - margin, azi40 + margin, Zen20, Zen21));
-		}
-	}
-	if (shift_h) {
-		//6-fold
-		float margin = D2R(3);
-		float azi00, azi01;
-		float azi10, azi11;
-		float azi20, azi21;
-		float azi30, azi31;
-		float azi40, azi41;
-		float azi50, azi51;
-
-		{
-			// shift horizental
-			float shift_a = D2R(36);
-
-			azi00 = D2R(0) - margin, azi01 = D2R(72) + margin - shift_a;
-			azi10 = D2R(72) - margin - shift_a, azi11 = D2R(144) + margin - shift_a;
-			azi20 = D2R(144) - margin - shift_a, azi21 = D2R(216) + margin - shift_a;
-			azi30 = D2R(216) - margin - shift_a, azi31 = D2R(288) + margin - shift_a;
-			azi40 = D2R(288) - margin - shift_a, azi41 = D2R(360) + margin - shift_a;
-			azi50 = D2R(360) - margin - shift_a, azi51 = D2R(360) + margin;
-		}
-
-		//up (zenith center is 56)
-		float zen00 = D2R(18), zen01 = D2R(94);
-		g_cubemap_FOVs.push_back(Vec4f(azi00, azi01, zen00, zen01));
-		g_cubemap_FOVs.push_back(Vec4f(azi10, azi11, zen00, zen01));
-		g_cubemap_FOVs.push_back(Vec4f(azi20, azi21, zen00, zen01));
-		g_cubemap_FOVs.push_back(Vec4f(azi30, azi31, zen00, zen01));
-		g_cubemap_FOVs.push_back(Vec4f(azi40, azi41, zen00, zen01));
-		g_cubemap_FOVs.push_back(Vec4f(azi50, azi51, zen00, zen01));
-		//middle (zenith center is 90)
-		float zen10 = D2R(52), zen11 = D2R(128);
-		g_cubemap_FOVs.push_back(Vec4f(azi00, azi01, zen10, zen11));
-		g_cubemap_FOVs.push_back(Vec4f(azi10, azi11, zen10, zen11));
-		g_cubemap_FOVs.push_back(Vec4f(azi20, azi21, zen10, zen11));
-		g_cubemap_FOVs.push_back(Vec4f(azi30, azi31, zen10, zen11));
-		g_cubemap_FOVs.push_back(Vec4f(azi40, azi41, zen10, zen11));
-		g_cubemap_FOVs.push_back(Vec4f(azi50, azi51, zen10, zen11));
-		//down (zenith center is 124)
-		float zen20 = D2R(86), zen21 = D2R(162);
-		g_cubemap_FOVs.push_back(Vec4f(azi00, azi01, zen20, zen21));
-		g_cubemap_FOVs.push_back(Vec4f(azi10, azi11, zen20, zen21));
-		g_cubemap_FOVs.push_back(Vec4f(azi20, azi21, zen20, zen21));
-		g_cubemap_FOVs.push_back(Vec4f(azi30, azi31, zen20, zen21));
-		g_cubemap_FOVs.push_back(Vec4f(azi40, azi41, zen20, zen21));
-		g_cubemap_FOVs.push_back(Vec4f(azi50, azi51, zen20, zen21));
-
-		////ranges;
-		{
-
-			//"up"
-			float Zen00 = D2R(25), Zen01 = D2R(60);
-			g_cubemap_ranges.push_back(Vec4f(azi01 - margin, azi00 + margin, Zen00, Zen01));
-			g_cubemap_ranges.push_back(Vec4f(azi11 - margin, azi10 + margin, Zen00, Zen01));
-			g_cubemap_ranges.push_back(Vec4f(azi21 - margin, azi20 + margin, Zen00, Zen01));
-			g_cubemap_ranges.push_back(Vec4f(azi31 - margin, azi30 + margin, Zen00, Zen01));
-			g_cubemap_ranges.push_back(Vec4f(azi41 - margin, azi40 + margin, Zen00, Zen01));
-			g_cubemap_ranges.push_back(Vec4f(azi51 - margin, azi50 + margin, Zen00, Zen01));
-			//"middle"
-			float Zen10 = D2R(60), Zen11 = D2R(120);
-			g_cubemap_ranges.push_back(Vec4f(azi01 - margin, azi00 + margin, Zen10, Zen11));
-			g_cubemap_ranges.push_back(Vec4f(azi11 - margin, azi10 + margin, Zen10, Zen11));
-			g_cubemap_ranges.push_back(Vec4f(azi21 - margin, azi20 + margin, Zen10, Zen11));
-			g_cubemap_ranges.push_back(Vec4f(azi31 - margin, azi30 + margin, Zen10, Zen11));
-			g_cubemap_ranges.push_back(Vec4f(azi41 - margin, azi40 + margin, Zen10, Zen11));
-			g_cubemap_ranges.push_back(Vec4f(azi51 - margin, azi50 + margin, Zen10, Zen11));
-			//"down"
-			float Zen20 = D2R(120), Zen21 = D2R(155);
-			g_cubemap_ranges.push_back(Vec4f(azi01 - margin, azi00 + margin, Zen20, Zen21));
-			g_cubemap_ranges.push_back(Vec4f(azi11 - margin, azi10 + margin, Zen20, Zen21));
-			g_cubemap_ranges.push_back(Vec4f(azi21 - margin, azi20 + margin, Zen20, Zen21));
-			g_cubemap_ranges.push_back(Vec4f(azi31 - margin, azi30 + margin, Zen20, Zen21));
-			g_cubemap_ranges.push_back(Vec4f(azi41 - margin, azi40 + margin, Zen20, Zen21));
-			g_cubemap_ranges.push_back(Vec4f(azi51 - margin, azi50 + margin, Zen20, Zen21));
-		}
-	}
-	if (shift_v)
-	{
-		//5-fold for LeRes
-
-		float margin = D2R(3);
-
-		float azi00 = D2R(0) - margin, azi01 = D2R(72) + margin;
-		float azi10 = D2R(72) - margin, azi11 = D2R(144) + margin;
-		float azi20 = D2R(144) - margin, azi21 = D2R(216) + margin;
-		float azi30 = D2R(216) - margin, azi31 = D2R(288) + margin;
-		float azi40 = D2R(288) - margin, azi41 = D2R(360) + margin;
-
-		//up (zenith center is 56)
-		float zen00 = D2R(18), zen01 = D2R(94);
-		g_cubemap_FOVs.push_back(Vec4f(azi00, azi01, zen00, zen01));
-		g_cubemap_FOVs.push_back(Vec4f(azi10, azi11, zen00, zen01));
-		g_cubemap_FOVs.push_back(Vec4f(azi20, azi21, zen00, zen01));
-		g_cubemap_FOVs.push_back(Vec4f(azi30, azi31, zen00, zen01));
-		g_cubemap_FOVs.push_back(Vec4f(azi40, azi41, zen00, zen01));
-		//middle (zenith center is 90)
-		float zen10 = D2R(52), zen11 = D2R(128);
-		g_cubemap_FOVs.push_back(Vec4f(azi00, azi01, zen10, zen11));
-		g_cubemap_FOVs.push_back(Vec4f(azi10, azi11, zen10, zen11));
-		g_cubemap_FOVs.push_back(Vec4f(azi20, azi21, zen10, zen11));
-		g_cubemap_FOVs.push_back(Vec4f(azi30, azi31, zen10, zen11));
-		g_cubemap_FOVs.push_back(Vec4f(azi40, azi41, zen10, zen11));
-		//down (zenith center is 124)
-		float zen20 = D2R(86), zen21 = D2R(162);
-		g_cubemap_FOVs.push_back(Vec4f(azi00, azi01, zen20, zen21));
-		g_cubemap_FOVs.push_back(Vec4f(azi10, azi11, zen20, zen21));
-		g_cubemap_FOVs.push_back(Vec4f(azi20, azi21, zen20, zen21));
-		g_cubemap_FOVs.push_back(Vec4f(azi30, azi31, zen20, zen21));
-		g_cubemap_FOVs.push_back(Vec4f(azi40, azi41, zen20, zen21));
-
-		////ranges:
-		// 
-		// shift vertical
-		float shift_z = D2R(10);
-		//"up"
-		float Zen00 = D2R(25), Zen01 = D2R(60) + shift_z;
-		g_cubemap_ranges.push_back(Vec4f(azi01 - margin, azi00 + margin, Zen00, Zen01));
-		g_cubemap_ranges.push_back(Vec4f(azi11 - margin, azi10 + margin, Zen00, Zen01));
-		g_cubemap_ranges.push_back(Vec4f(azi21 - margin, azi20 + margin, Zen00, Zen01));
-		g_cubemap_ranges.push_back(Vec4f(azi31 - margin, azi30 + margin, Zen00, Zen01));
-		g_cubemap_ranges.push_back(Vec4f(azi41 - margin, azi40 + margin, Zen00, Zen01));
-		//"middle"
-		float Zen10 = D2R(60) + shift_z, Zen11 = D2R(120) - shift_z;
-		g_cubemap_ranges.push_back(Vec4f(azi01 - margin, azi00 + margin, Zen10, Zen11));
-		g_cubemap_ranges.push_back(Vec4f(azi11 - margin, azi10 + margin, Zen10, Zen11));
-		g_cubemap_ranges.push_back(Vec4f(azi21 - margin, azi20 + margin, Zen10, Zen11));
-		g_cubemap_ranges.push_back(Vec4f(azi31 - margin, azi30 + margin, Zen10, Zen11));
-		g_cubemap_ranges.push_back(Vec4f(azi41 - margin, azi40 + margin, Zen10, Zen11));
-		//"down"
-		float Zen20 = D2R(120) - shift_z, Zen21 = D2R(155);
-		g_cubemap_ranges.push_back(Vec4f(azi01 - margin, azi00 + margin, Zen20, Zen21));
-		g_cubemap_ranges.push_back(Vec4f(azi11 - margin, azi10 + margin, Zen20, Zen21));
-		g_cubemap_ranges.push_back(Vec4f(azi21 - margin, azi20 + margin, Zen20, Zen21));
-		g_cubemap_ranges.push_back(Vec4f(azi31 - margin, azi30 + margin, Zen20, Zen21));
-		g_cubemap_ranges.push_back(Vec4f(azi41 - margin, azi40 + margin, Zen20, Zen21));
-	}
-	if (shift_all) {
-		//6-fold
-		float margin = D2R(3);
-		float azi00, azi01;
-		float azi10, azi11;
-		float azi20, azi21;
-		float azi30, azi31;
-		float azi40, azi41;
-		float azi50, azi51;
-
-		{
-			// shift horizental
-			float shift_a = D2R(36);
-
-			azi00 = D2R(0) - margin, azi01 = D2R(72) + margin - shift_a;
-			azi10 = D2R(72) - margin - shift_a, azi11 = D2R(144) + margin - shift_a;
-			azi20 = D2R(144) - margin - shift_a, azi21 = D2R(216) + margin - shift_a;
-			azi30 = D2R(216) - margin - shift_a, azi31 = D2R(288) + margin - shift_a;
-			azi40 = D2R(288) - margin - shift_a, azi41 = D2R(360) + margin - shift_a;
-			azi50 = D2R(360) - margin - shift_a, azi51 = D2R(360) + margin;
-		}
-
-		//up (zenith center is 56)
-		float zen00 = D2R(18), zen01 = D2R(94);
-		g_cubemap_FOVs.push_back(Vec4f(azi00, azi01, zen00, zen01));
-		g_cubemap_FOVs.push_back(Vec4f(azi10, azi11, zen00, zen01));
-		g_cubemap_FOVs.push_back(Vec4f(azi20, azi21, zen00, zen01));
-		g_cubemap_FOVs.push_back(Vec4f(azi30, azi31, zen00, zen01));
-		g_cubemap_FOVs.push_back(Vec4f(azi40, azi41, zen00, zen01));
-		g_cubemap_FOVs.push_back(Vec4f(azi50, azi51, zen00, zen01));
-		//middle (zenith center is 90)
-		float zen10 = D2R(52), zen11 = D2R(128);
-		g_cubemap_FOVs.push_back(Vec4f(azi00, azi01, zen10, zen11));
-		g_cubemap_FOVs.push_back(Vec4f(azi10, azi11, zen10, zen11));
-		g_cubemap_FOVs.push_back(Vec4f(azi20, azi21, zen10, zen11));
-		g_cubemap_FOVs.push_back(Vec4f(azi30, azi31, zen10, zen11));
-		g_cubemap_FOVs.push_back(Vec4f(azi40, azi41, zen10, zen11));
-		g_cubemap_FOVs.push_back(Vec4f(azi50, azi51, zen10, zen11));
-		//down (zenith center is 124)
-		float zen20 = D2R(86), zen21 = D2R(162);
-		g_cubemap_FOVs.push_back(Vec4f(azi00, azi01, zen20, zen21));
-		g_cubemap_FOVs.push_back(Vec4f(azi10, azi11, zen20, zen21));
-		g_cubemap_FOVs.push_back(Vec4f(azi20, azi21, zen20, zen21));
-		g_cubemap_FOVs.push_back(Vec4f(azi30, azi31, zen20, zen21));
-		g_cubemap_FOVs.push_back(Vec4f(azi40, azi41, zen20, zen21));
-		g_cubemap_FOVs.push_back(Vec4f(azi50, azi51, zen20, zen21));
-
-
-		////ranges;
-		{
+			////ranges:
+			// 
 			// shift vertical
 			float shift_z = D2R(10);
-
 			//"up"
 			float Zen00 = D2R(25), Zen01 = D2R(60) + shift_z;
 			g_cubemap_ranges.push_back(Vec4f(azi01 - margin, azi00 + margin, Zen00, Zen01));
@@ -2444,7 +2907,6 @@ int main(int argc, char* argv[])
 			g_cubemap_ranges.push_back(Vec4f(azi21 - margin, azi20 + margin, Zen00, Zen01));
 			g_cubemap_ranges.push_back(Vec4f(azi31 - margin, azi30 + margin, Zen00, Zen01));
 			g_cubemap_ranges.push_back(Vec4f(azi41 - margin, azi40 + margin, Zen00, Zen01));
-			g_cubemap_ranges.push_back(Vec4f(azi51 - margin, azi50 + margin, Zen00, Zen01));
 			//"middle"
 			float Zen10 = D2R(60) + shift_z, Zen11 = D2R(120) - shift_z;
 			g_cubemap_ranges.push_back(Vec4f(azi01 - margin, azi00 + margin, Zen10, Zen11));
@@ -2452,7 +2914,6 @@ int main(int argc, char* argv[])
 			g_cubemap_ranges.push_back(Vec4f(azi21 - margin, azi20 + margin, Zen10, Zen11));
 			g_cubemap_ranges.push_back(Vec4f(azi31 - margin, azi30 + margin, Zen10, Zen11));
 			g_cubemap_ranges.push_back(Vec4f(azi41 - margin, azi40 + margin, Zen10, Zen11));
-			g_cubemap_ranges.push_back(Vec4f(azi51 - margin, azi50 + margin, Zen10, Zen11));
 			//"down"
 			float Zen20 = D2R(120) - shift_z, Zen21 = D2R(155);
 			g_cubemap_ranges.push_back(Vec4f(azi01 - margin, azi00 + margin, Zen20, Zen21));
@@ -2460,122 +2921,200 @@ int main(int argc, char* argv[])
 			g_cubemap_ranges.push_back(Vec4f(azi21 - margin, azi20 + margin, Zen20, Zen21));
 			g_cubemap_ranges.push_back(Vec4f(azi31 - margin, azi30 + margin, Zen20, Zen21));
 			g_cubemap_ranges.push_back(Vec4f(azi41 - margin, azi40 + margin, Zen20, Zen21));
-			g_cubemap_ranges.push_back(Vec4f(azi51 - margin, azi50 + margin, Zen20, Zen21));
 		}
-	}
-	if (no_shift)
-	{
-		//5-fold for LeRes
-		float margin = D2R(3);
-		if (margin10) margin = D2R(10);
+		if (shift_all) {
+			//6-fold
+			float margin = D2R(3);
+			float azi00, azi01;
+			float azi10, azi11;
+			float azi20, azi21;
+			float azi30, azi31;
+			float azi40, azi41;
+			float azi50, azi51;
 
-		float azi00 = D2R(0) - margin, azi01 = D2R(72) + margin;
-		float azi10 = D2R(72) - margin, azi11 = D2R(144) + margin;
-		float azi20 = D2R(144) - margin, azi21 = D2R(216) + margin;
-		float azi30 = D2R(216) - margin, azi31 = D2R(288) + margin;
-		float azi40 = D2R(288) - margin, azi41 = D2R(360) + margin;
+			{
+				// shift horizental
+				float shift_a = D2R(36);
 
-		//up (zenith center is 56)
-		float zen00 = D2R(18), zen01 = D2R(94);
-		g_cubemap_FOVs.push_back(Vec4f(azi00, azi01, zen00, zen01));
-		g_cubemap_FOVs.push_back(Vec4f(azi10, azi11, zen00, zen01));
-		g_cubemap_FOVs.push_back(Vec4f(azi20, azi21, zen00, zen01));
-		g_cubemap_FOVs.push_back(Vec4f(azi30, azi31, zen00, zen01));
-		g_cubemap_FOVs.push_back(Vec4f(azi40, azi41, zen00, zen01));
-		//middle (zenith center is 90)
-		float zen10 = D2R(52), zen11 = D2R(128);
-		g_cubemap_FOVs.push_back(Vec4f(azi00, azi01, zen10, zen11));
-		g_cubemap_FOVs.push_back(Vec4f(azi10, azi11, zen10, zen11));
-		g_cubemap_FOVs.push_back(Vec4f(azi20, azi21, zen10, zen11));
-		g_cubemap_FOVs.push_back(Vec4f(azi30, azi31, zen10, zen11));
-		g_cubemap_FOVs.push_back(Vec4f(azi40, azi41, zen10, zen11));
-		//down (zenith center is 124)
-		float zen20 = D2R(86), zen21 = D2R(162);
-		g_cubemap_FOVs.push_back(Vec4f(azi00, azi01, zen20, zen21));
-		g_cubemap_FOVs.push_back(Vec4f(azi10, azi11, zen20, zen21));
-		g_cubemap_FOVs.push_back(Vec4f(azi20, azi21, zen20, zen21));
-		g_cubemap_FOVs.push_back(Vec4f(azi30, azi31, zen20, zen21));
-		g_cubemap_FOVs.push_back(Vec4f(azi40, azi41, zen20, zen21));
+				azi00 = D2R(0) - margin, azi01 = D2R(72) + margin - shift_a;
+				azi10 = D2R(72) - margin - shift_a, azi11 = D2R(144) + margin - shift_a;
+				azi20 = D2R(144) - margin - shift_a, azi21 = D2R(216) + margin - shift_a;
+				azi30 = D2R(216) - margin - shift_a, azi31 = D2R(288) + margin - shift_a;
+				azi40 = D2R(288) - margin - shift_a, azi41 = D2R(360) + margin - shift_a;
+				azi50 = D2R(360) - margin - shift_a, azi51 = D2R(360) + margin;
+			}
 
-		////ranges:
+			//up (zenith center is 56)
+			float zen00 = D2R(18), zen01 = D2R(94);
+			g_cubemap_FOVs.push_back(Vec4f(azi00, azi01, zen00, zen01));
+			g_cubemap_FOVs.push_back(Vec4f(azi10, azi11, zen00, zen01));
+			g_cubemap_FOVs.push_back(Vec4f(azi20, azi21, zen00, zen01));
+			g_cubemap_FOVs.push_back(Vec4f(azi30, azi31, zen00, zen01));
+			g_cubemap_FOVs.push_back(Vec4f(azi40, azi41, zen00, zen01));
+			g_cubemap_FOVs.push_back(Vec4f(azi50, azi51, zen00, zen01));
+			//middle (zenith center is 90)
+			float zen10 = D2R(52), zen11 = D2R(128);
+			g_cubemap_FOVs.push_back(Vec4f(azi00, azi01, zen10, zen11));
+			g_cubemap_FOVs.push_back(Vec4f(azi10, azi11, zen10, zen11));
+			g_cubemap_FOVs.push_back(Vec4f(azi20, azi21, zen10, zen11));
+			g_cubemap_FOVs.push_back(Vec4f(azi30, azi31, zen10, zen11));
+			g_cubemap_FOVs.push_back(Vec4f(azi40, azi41, zen10, zen11));
+			g_cubemap_FOVs.push_back(Vec4f(azi50, azi51, zen10, zen11));
+			//down (zenith center is 124)
+			float zen20 = D2R(86), zen21 = D2R(162);
+			g_cubemap_FOVs.push_back(Vec4f(azi00, azi01, zen20, zen21));
+			g_cubemap_FOVs.push_back(Vec4f(azi10, azi11, zen20, zen21));
+			g_cubemap_FOVs.push_back(Vec4f(azi20, azi21, zen20, zen21));
+			g_cubemap_FOVs.push_back(Vec4f(azi30, azi31, zen20, zen21));
+			g_cubemap_FOVs.push_back(Vec4f(azi40, azi41, zen20, zen21));
+			g_cubemap_FOVs.push_back(Vec4f(azi50, azi51, zen20, zen21));
 
-		//"up"
-		float Zen00 = D2R(25), Zen01 = D2R(60);
-		g_cubemap_ranges.push_back(Vec4f(azi01 - margin, azi00 + margin, Zen00, Zen01));
-		g_cubemap_ranges.push_back(Vec4f(azi11 - margin, azi10 + margin, Zen00, Zen01));
-		g_cubemap_ranges.push_back(Vec4f(azi21 - margin, azi20 + margin, Zen00, Zen01));
-		g_cubemap_ranges.push_back(Vec4f(azi31 - margin, azi30 + margin, Zen00, Zen01));
-		g_cubemap_ranges.push_back(Vec4f(azi41 - margin, azi40 + margin, Zen00, Zen01));
-		//"middle"
-		float Zen10 = D2R(60), Zen11 = D2R(120);
-		g_cubemap_ranges.push_back(Vec4f(azi01 - margin, azi00 + margin, Zen10, Zen11));
-		g_cubemap_ranges.push_back(Vec4f(azi11 - margin, azi10 + margin, Zen10, Zen11));
-		g_cubemap_ranges.push_back(Vec4f(azi21 - margin, azi20 + margin, Zen10, Zen11));
-		g_cubemap_ranges.push_back(Vec4f(azi31 - margin, azi30 + margin, Zen10, Zen11));
-		g_cubemap_ranges.push_back(Vec4f(azi41 - margin, azi40 + margin, Zen10, Zen11));
-		//"down"
-		float Zen20 = D2R(120), Zen21 = D2R(155);
-		g_cubemap_ranges.push_back(Vec4f(azi01 - margin, azi00 + margin, Zen20, Zen21));
-		g_cubemap_ranges.push_back(Vec4f(azi11 - margin, azi10 + margin, Zen20, Zen21));
-		g_cubemap_ranges.push_back(Vec4f(azi21 - margin, azi20 + margin, Zen20, Zen21));
-		g_cubemap_ranges.push_back(Vec4f(azi31 - margin, azi30 + margin, Zen20, Zen21));
-		g_cubemap_ranges.push_back(Vec4f(azi41 - margin, azi40 + margin, Zen20, Zen21));
-	}
-	if (false)
-	{
-		//3-fold 
 
-		float margin = D2R(2);
-		float azi00 = D2R(0) - margin, azi01 = D2R(120) + margin;
-		float azi10 = D2R(120) - margin, azi11 = D2R(240) + margin;
-		float azi20 = D2R(240) - margin, azi21 = D2R(360) + margin;
+			////ranges;
+			{
+				// shift vertical
+				float shift_z = D2R(10);
 
-		//up (zen center at 66)
-		float zen00 = D2R(12), zen01 = D2R(120);
-		g_cubemap_FOVs.push_back(Vec4f(azi00, azi01, zen00, zen01));
-		g_cubemap_FOVs.push_back(Vec4f(azi10, azi11, zen00, zen01));
-		g_cubemap_FOVs.push_back(Vec4f(azi20, azi21, zen00, zen01));
-		//middle
-		float zen10 = D2R(36), zen11 = D2R(144);
-		g_cubemap_FOVs.push_back(Vec4f(azi00, azi01, zen10, zen11));
-		g_cubemap_FOVs.push_back(Vec4f(azi10, azi11, zen10, zen11));
-		g_cubemap_FOVs.push_back(Vec4f(azi20, azi21, zen10, zen11));
-		//down (zen center at 114)
-		float zen20 = D2R(60), zen21 = D2R(168);
-		g_cubemap_FOVs.push_back(Vec4f(azi00, azi01, zen20, zen21));
-		g_cubemap_FOVs.push_back(Vec4f(azi10, azi11, zen20, zen21));
-		g_cubemap_FOVs.push_back(Vec4f(azi20, azi21, zen20, zen21));
+				//"up"
+				float Zen00 = D2R(25), Zen01 = D2R(60) + shift_z;
+				g_cubemap_ranges.push_back(Vec4f(azi01 - margin, azi00 + margin, Zen00, Zen01));
+				g_cubemap_ranges.push_back(Vec4f(azi11 - margin, azi10 + margin, Zen00, Zen01));
+				g_cubemap_ranges.push_back(Vec4f(azi21 - margin, azi20 + margin, Zen00, Zen01));
+				g_cubemap_ranges.push_back(Vec4f(azi31 - margin, azi30 + margin, Zen00, Zen01));
+				g_cubemap_ranges.push_back(Vec4f(azi41 - margin, azi40 + margin, Zen00, Zen01));
+				g_cubemap_ranges.push_back(Vec4f(azi51 - margin, azi50 + margin, Zen00, Zen01));
+				//"middle"
+				float Zen10 = D2R(60) + shift_z, Zen11 = D2R(120) - shift_z;
+				g_cubemap_ranges.push_back(Vec4f(azi01 - margin, azi00 + margin, Zen10, Zen11));
+				g_cubemap_ranges.push_back(Vec4f(azi11 - margin, azi10 + margin, Zen10, Zen11));
+				g_cubemap_ranges.push_back(Vec4f(azi21 - margin, azi20 + margin, Zen10, Zen11));
+				g_cubemap_ranges.push_back(Vec4f(azi31 - margin, azi30 + margin, Zen10, Zen11));
+				g_cubemap_ranges.push_back(Vec4f(azi41 - margin, azi40 + margin, Zen10, Zen11));
+				g_cubemap_ranges.push_back(Vec4f(azi51 - margin, azi50 + margin, Zen10, Zen11));
+				//"down"
+				float Zen20 = D2R(120) - shift_z, Zen21 = D2R(155);
+				g_cubemap_ranges.push_back(Vec4f(azi01 - margin, azi00 + margin, Zen20, Zen21));
+				g_cubemap_ranges.push_back(Vec4f(azi11 - margin, azi10 + margin, Zen20, Zen21));
+				g_cubemap_ranges.push_back(Vec4f(azi21 - margin, azi20 + margin, Zen20, Zen21));
+				g_cubemap_ranges.push_back(Vec4f(azi31 - margin, azi30 + margin, Zen20, Zen21));
+				g_cubemap_ranges.push_back(Vec4f(azi41 - margin, azi40 + margin, Zen20, Zen21));
+				g_cubemap_ranges.push_back(Vec4f(azi51 - margin, azi50 + margin, Zen20, Zen21));
+			}
+		}
+		if (no_shift)
+		{
+			//5-fold for LeRes
+			float margin = D2R(3);
+			if (margin10) margin = D2R(10);
 
-		////ranges:
+			float azi00 = D2R(0) - margin, azi01 = D2R(72) + margin;
+			float azi10 = D2R(72) - margin, azi11 = D2R(144) + margin;
+			float azi20 = D2R(144) - margin, azi21 = D2R(216) + margin;
+			float azi30 = D2R(216) - margin, azi31 = D2R(288) + margin;
+			float azi40 = D2R(288) - margin, azi41 = D2R(360) + margin;
 
-		//"up"
-		float Zen00 = D2R(26), Zen01 = D2R(60);
-		g_cubemap_ranges.push_back(Vec4f(azi01 - margin, azi00 + margin, Zen00, Zen01));
-		g_cubemap_ranges.push_back(Vec4f(azi11 - margin, azi10 + margin, Zen00, Zen01));
-		g_cubemap_ranges.push_back(Vec4f(azi21 - margin, azi20 + margin, Zen00, Zen01));
-		//"middle"
-		float Zen10 = D2R(60), Zen11 = D2R(120);
-		g_cubemap_ranges.push_back(Vec4f(azi01 - margin, azi00 + margin, Zen10, Zen11));
-		g_cubemap_ranges.push_back(Vec4f(azi11 - margin, azi10 + margin, Zen10, Zen11));
-		g_cubemap_ranges.push_back(Vec4f(azi21 - margin, azi20 + margin, Zen10, Zen11));
-		//"down"
-		float Zen20 = D2R(120), Zen21 = D2R(154);
-		g_cubemap_ranges.push_back(Vec4f(azi01 - margin, azi00 + margin, Zen20, Zen21));
-		g_cubemap_ranges.push_back(Vec4f(azi11 - margin, azi10 + margin, Zen20, Zen21));
-		g_cubemap_ranges.push_back(Vec4f(azi21 - margin, azi20 + margin, Zen20, Zen21));
-	}
+			//up (zenith center is 56)
+			float zen00 = D2R(18), zen01 = D2R(94);
+			g_cubemap_FOVs.push_back(Vec4f(azi00, azi01, zen00, zen01));
+			g_cubemap_FOVs.push_back(Vec4f(azi10, azi11, zen00, zen01));
+			g_cubemap_FOVs.push_back(Vec4f(azi20, azi21, zen00, zen01));
+			g_cubemap_FOVs.push_back(Vec4f(azi30, azi31, zen00, zen01));
+			g_cubemap_FOVs.push_back(Vec4f(azi40, azi41, zen00, zen01));
+			//middle (zenith center is 90)
+			float zen10 = D2R(52), zen11 = D2R(128);
+			g_cubemap_FOVs.push_back(Vec4f(azi00, azi01, zen10, zen11));
+			g_cubemap_FOVs.push_back(Vec4f(azi10, azi11, zen10, zen11));
+			g_cubemap_FOVs.push_back(Vec4f(azi20, azi21, zen10, zen11));
+			g_cubemap_FOVs.push_back(Vec4f(azi30, azi31, zen10, zen11));
+			g_cubemap_FOVs.push_back(Vec4f(azi40, azi41, zen10, zen11));
+			//down (zenith center is 124)
+			float zen20 = D2R(86), zen21 = D2R(162);
+			g_cubemap_FOVs.push_back(Vec4f(azi00, azi01, zen20, zen21));
+			g_cubemap_FOVs.push_back(Vec4f(azi10, azi11, zen20, zen21));
+			g_cubemap_FOVs.push_back(Vec4f(azi20, azi21, zen20, zen21));
+			g_cubemap_FOVs.push_back(Vec4f(azi30, azi31, zen20, zen21));
+			g_cubemap_FOVs.push_back(Vec4f(azi40, azi41, zen20, zen21));
 
-	//command line mode:
-	if (argc > 1)
-	{
-		string cmd(argv[1]);
+			////ranges:
 
-		if (cmd == "0")
-			CreateDepthPanoramas(argc, argv, metric_cal_only, skip_createPano, skip_depth_pred, skip_merge, auto_Fold);
-		//else if (cmd == "1")
-		//	AnalaysisResult(argc, argv, false/*mono360?*/);		
+			//"up"
+			float Zen00 = D2R(25), Zen01 = D2R(60);
+			g_cubemap_ranges.push_back(Vec4f(azi01 - margin, azi00 + margin, Zen00, Zen01));
+			g_cubemap_ranges.push_back(Vec4f(azi11 - margin, azi10 + margin, Zen00, Zen01));
+			g_cubemap_ranges.push_back(Vec4f(azi21 - margin, azi20 + margin, Zen00, Zen01));
+			g_cubemap_ranges.push_back(Vec4f(azi31 - margin, azi30 + margin, Zen00, Zen01));
+			g_cubemap_ranges.push_back(Vec4f(azi41 - margin, azi40 + margin, Zen00, Zen01));
+			//"middle"
+			float Zen10 = D2R(60), Zen11 = D2R(120);
+			g_cubemap_ranges.push_back(Vec4f(azi01 - margin, azi00 + margin, Zen10, Zen11));
+			g_cubemap_ranges.push_back(Vec4f(azi11 - margin, azi10 + margin, Zen10, Zen11));
+			g_cubemap_ranges.push_back(Vec4f(azi21 - margin, azi20 + margin, Zen10, Zen11));
+			g_cubemap_ranges.push_back(Vec4f(azi31 - margin, azi30 + margin, Zen10, Zen11));
+			g_cubemap_ranges.push_back(Vec4f(azi41 - margin, azi40 + margin, Zen10, Zen11));
+			//"down"
+			float Zen20 = D2R(120), Zen21 = D2R(155);
+			g_cubemap_ranges.push_back(Vec4f(azi01 - margin, azi00 + margin, Zen20, Zen21));
+			g_cubemap_ranges.push_back(Vec4f(azi11 - margin, azi10 + margin, Zen20, Zen21));
+			g_cubemap_ranges.push_back(Vec4f(azi21 - margin, azi20 + margin, Zen20, Zen21));
+			g_cubemap_ranges.push_back(Vec4f(azi31 - margin, azi30 + margin, Zen20, Zen21));
+			g_cubemap_ranges.push_back(Vec4f(azi41 - margin, azi40 + margin, Zen20, Zen21));
+		}
+		if (false)
+		{
+			//3-fold 
 
-		return 0;
+			float margin = D2R(2);
+			float azi00 = D2R(0) - margin, azi01 = D2R(120) + margin;
+			float azi10 = D2R(120) - margin, azi11 = D2R(240) + margin;
+			float azi20 = D2R(240) - margin, azi21 = D2R(360) + margin;
+
+			//up (zen center at 66)
+			float zen00 = D2R(12), zen01 = D2R(120);
+			g_cubemap_FOVs.push_back(Vec4f(azi00, azi01, zen00, zen01));
+			g_cubemap_FOVs.push_back(Vec4f(azi10, azi11, zen00, zen01));
+			g_cubemap_FOVs.push_back(Vec4f(azi20, azi21, zen00, zen01));
+			//middle
+			float zen10 = D2R(36), zen11 = D2R(144);
+			g_cubemap_FOVs.push_back(Vec4f(azi00, azi01, zen10, zen11));
+			g_cubemap_FOVs.push_back(Vec4f(azi10, azi11, zen10, zen11));
+			g_cubemap_FOVs.push_back(Vec4f(azi20, azi21, zen10, zen11));
+			//down (zen center at 114)
+			float zen20 = D2R(60), zen21 = D2R(168);
+			g_cubemap_FOVs.push_back(Vec4f(azi00, azi01, zen20, zen21));
+			g_cubemap_FOVs.push_back(Vec4f(azi10, azi11, zen20, zen21));
+			g_cubemap_FOVs.push_back(Vec4f(azi20, azi21, zen20, zen21));
+
+			////ranges:
+
+			//"up"
+			float Zen00 = D2R(26), Zen01 = D2R(60);
+			g_cubemap_ranges.push_back(Vec4f(azi01 - margin, azi00 + margin, Zen00, Zen01));
+			g_cubemap_ranges.push_back(Vec4f(azi11 - margin, azi10 + margin, Zen00, Zen01));
+			g_cubemap_ranges.push_back(Vec4f(azi21 - margin, azi20 + margin, Zen00, Zen01));
+			//"middle"
+			float Zen10 = D2R(60), Zen11 = D2R(120);
+			g_cubemap_ranges.push_back(Vec4f(azi01 - margin, azi00 + margin, Zen10, Zen11));
+			g_cubemap_ranges.push_back(Vec4f(azi11 - margin, azi10 + margin, Zen10, Zen11));
+			g_cubemap_ranges.push_back(Vec4f(azi21 - margin, azi20 + margin, Zen10, Zen11));
+			//"down"
+			float Zen20 = D2R(120), Zen21 = D2R(154);
+			g_cubemap_ranges.push_back(Vec4f(azi01 - margin, azi00 + margin, Zen20, Zen21));
+			g_cubemap_ranges.push_back(Vec4f(azi11 - margin, azi10 + margin, Zen20, Zen21));
+			g_cubemap_ranges.push_back(Vec4f(azi21 - margin, azi20 + margin, Zen20, Zen21));
+		}
+
+		//command line mode:
+		if (argc > 1)
+		{
+			string cmd(argv[1]);
+
+			if (cmd == "0")
+				CreateDepthPanoramas(argc, argv, metric_cal_only, skip_createPano, skip_depth_pred, skip_merge, auto_Fold, split_type);
+			//else if (cmd == "1")
+			//	AnalaysisResult(argc, argv, false/*mono360?*/);		
+
+			//return 0;
+		}
 	}
 	if (output2file) {
 		cout.rdbuf(coutbuf);

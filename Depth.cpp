@@ -756,7 +756,8 @@ Vec2i CoordToXY(Vec2f& coord, int out_width, int& out_height)
 
 bool DepthNamespace::MergeDepthMaps(std::string& equirectangular_map_filename, std::vector<std::string>& perspective_map_filenames, std::string& out_filename,
 	std::string& result_folder, std::string& rawname, std::vector<Vec4f>& pmap_FOVs, std::vector<Vec4f>& pmap_ranges,
-	int out_width, Vec2f& zenith_range, std::string* equirectangular_map_groundtruth, Metrics* metrics, int* time_Reg, int* time_Laplacian)
+	int out_width, Vec2f& zenith_range, std::string split_type, std::string* equirectangular_map_groundtruth, Metrics* metrics, 
+	int* time_Reg, int* time_Laplacian)
 {
 	DWORD time_begin = timeGetTime();
 
@@ -767,8 +768,13 @@ bool DepthNamespace::MergeDepthMaps(std::string& equirectangular_map_filename, s
 	std::vector<PerspectiveMap> pmaps;
 
 	//load the "baseline" equirectangular map
-	if (!emap_baseline.Load(equirectangular_map_filename))
-		return false;
+	if (true) { // false when stitched only, no need baseline
+		if (!emap_baseline.Load(equirectangular_map_filename)) {
+			std::cout << "failed to load emap" << std::endl;
+			return false;
+		}
+		std::cout << "load emap success" << std::endl;
+	}
 
 	int out_height = out_width / 2;
 
@@ -791,25 +797,35 @@ bool DepthNamespace::MergeDepthMaps(std::string& equirectangular_map_filename, s
 		//pmap.ranges[0] = pmap_ranges[i][0]; // the new range allow to larger than 360, and x2 in save pmap and laplacian mask is to handle this
 		//pmap.ranges[1] = pmap_ranges[i][1];
 
-		//the new range for 6fold padding(from 60 to 72) case, or from 60 to 90
-		//int pad = 30;
-		//if (pmap_ranges[i][0] > pmap_ranges[i][1]) {
-		//	pmap.ranges[0] = MIN2(pmap_ranges[i][0] - D2R(pad), D2R(359.9));
-		//	pmap.ranges[1] = MIN2(pmap_ranges[i][1] + D2R(pad), D2R(359.9));
-		//	//pmap.ranges[0] = pmap_ranges[i][0] - D2R(6);
-		//	//pmap.ranges[1] = pmap_ranges[i][1] + D2R(6);
-		//}
-		//else {
-		//	pmap.ranges[0] = MIN2(pmap_ranges[i][0] + D2R(pad), D2R(359.9));
-		//	pmap.ranges[1] = MIN2(pmap_ranges[i][1] - D2R(pad), D2R(359.9));
-		//	//pmap.ranges[0] = pmap_ranges[i][0] + D2R(6);
-		//	//pmap.ranges[1] = pmap_ranges[i][1] - D2R(6);
-		//}
+		//the new range for 6fold padding(from 60 to 72) case, or from 60 to 90, depands on the value of pad
+		int pad = 0;
+		if (split_type == "_6_fold_padding" || split_type == "_5_6_5_fold_padding_6") {
+			pad = 6;
+		}
+		else if (split_type == "_6_fold_padding_15") {
+			pad = 15;
+		}
+		else if (split_type == "_6_fold_padding_30") {
+			pad = 30;
+		}
+		if (pmap_ranges[i][0] > pmap_ranges[i][1]) {
+			pmap.ranges[0] = MIN2(pmap_ranges[i][0] - D2R(pad), D2R(359.9));
+			pmap.ranges[1] = MIN2(pmap_ranges[i][1] + D2R(pad), D2R(359.9));
+			//pmap.ranges[0] = pmap_ranges[i][0] - D2R(6);
+			//pmap.ranges[1] = pmap_ranges[i][1] + D2R(6);
+		}
+		else {
+			pmap.ranges[0] = MIN2(pmap_ranges[i][0] + D2R(pad), D2R(359.9));
+			pmap.ranges[1] = MIN2(pmap_ranges[i][1] - D2R(pad), D2R(359.9));
+			//pmap.ranges[0] = pmap_ranges[i][0] + D2R(6);
+			//pmap.ranges[1] = pmap_ranges[i][1] - D2R(6);
+		}
+		//std::cout << "split type: " << split_type << std::endl;
 		
 	}
 	//std::cout << "here1" << std::endl;
 	//let's solve depth-to-depth register for every pmap first
-	if (true)
+	if (true) //should be true
 	{
 		DWORD time = timeGetTime();
 
@@ -819,12 +835,10 @@ bool DepthNamespace::MergeDepthMaps(std::string& equirectangular_map_filename, s
 			pmaps_actives[p] = true;  //only activate this pmap
 
 			Vec4f abcd;
-			if (SolveDepthToDepth(emap_baseline, pmaps, pmaps_actives, zenith_range, abcd))
+			if (SolveDepthToDepth(emap_baseline, pmaps, pmaps_actives, zenith_range, abcd, 4))
 			{
 				//now, convert the disparity values to depth values by abcd
-				//std::cout << "here1.4" << std::endl;
 				pmaps[p].Depth2DepthTransform(abcd);
-				//std::cout << "here1.5" << std::endl;
 			}
 		}
 
@@ -832,7 +846,52 @@ bool DepthNamespace::MergeDepthMaps(std::string& equirectangular_map_filename, s
 			*time_Reg = timeGetTime() - time;
 
 	}	
-	//std::cout << "here2" << std::endl;
+
+	// test 4, test 3 steps registration with num_vars from 4 to 2
+
+	// test register half of num of pmap (two times), and then do the all pmaps register (test 3)
+	if (false) {
+		int half = pmaps.size() / 2;
+		std::vector<bool> pmaps_actives(pmaps.size(), false);
+		for (int p = 0; p < half; p++) {
+			pmaps_actives[p] = true;
+		}
+		Vec4f abcd;
+		if (SolveDepthToDepth(emap_baseline, pmaps, pmaps_actives, zenith_range, abcd, 3))
+		{
+			for (int p = 0; p < half; p++) {
+				//now, convert the disparity values to depth values by abcd
+				pmaps[p].Depth2DepthTransform(abcd);
+				pmaps_actives[p] = false;
+			}
+		}
+
+		for (int p = half; p < pmaps.size(); p++) {
+			pmaps_actives[p] = true;
+		}
+		Vec4f abcd2;
+		if (SolveDepthToDepth(emap_baseline, pmaps, pmaps_actives, zenith_range, abcd2, 3))
+		{
+			for (int p = half; p < pmaps.size(); p++) {
+				//now, convert the disparity values to depth values by abcd
+				pmaps[p].Depth2DepthTransform(abcd2);
+			}
+		}
+	}
+
+	// test register hole image (test2)
+	if (false) {
+		std::vector<bool> pmaps_actives(pmaps.size(), true);
+
+		Vec4f abcd;
+		if (SolveDepthToDepth(emap_baseline, pmaps, pmaps_actives, zenith_range, abcd, 2))
+		{
+			for (int p = 0; p < pmaps.size(); p++) {
+				//now, convert the disparity values to depth values by abcd
+				pmaps[p].Depth2DepthTransform(abcd);
+			}
+		}
+	}
 
 	//the output equirectangular map buffer (16bit):
 	unsigned short* data = new unsigned short[out_width * out_height];  //rows is top-to-bottom order
@@ -915,11 +974,12 @@ bool DepthNamespace::MergeDepthMaps(std::string& equirectangular_map_filename, s
 							}
 							if (skip) continue;
 							float val = pmap.Value(xy[0], xy[1]);
+							//val = 1;
 
 							//outline pmap bounding boxes:
 							//float val = 0;
-							if (x == x0 || x == x1 || y == y0 || y == y1)
-								val = 1;
+							/*if (x == x0 || x == x1 || y == y0 || y == y1)
+								val = 1;*/
 
 							if (data2[y * out_width + x] == (unsigned short)(1 * 65535.0f)) continue;
 							data2[y * out_width + x] = (unsigned short)(val * 65535.0f);
@@ -964,7 +1024,8 @@ bool DepthNamespace::MergeDepthMaps(std::string& equirectangular_map_filename, s
 				}
 			}
 		}
-		Save16BitPNG(data2, out_width, out_height, (result_folder + "pmap\\" + rawname + ".pmap.png").c_str());
+		Save16BitPNG(data2, out_width, out_height, (result_folder + "pmap\\" + rawname + ".pmap_registered.png").c_str());
+		//Save16BitPNG(data2, out_width, out_height, (result_folder + rawname + ".pmap_registered.png").c_str()); // for input_stitched
 		//Save16BitPNG(data2, out_width, out_height, (out_filename + ".pmap.png").c_str());
 		//Save16BitPNG(data2, out_width, out_height, (out_filename).c_str());
 
@@ -1011,15 +1072,19 @@ bool DepthNamespace::MergeDepthMaps(std::string& equirectangular_map_filename, s
 	}
 
 	//solve depths globally?
-	if (true)
+	if (true) //should be true
 	{
 		DWORD time = timeGetTime();
 
 		//to save Laplacian image?
-		//SolveDepthAll(emap_baseline, pmaps, data, out_width, out_height, zenith_range,
-		//	(out_filename + ".Lap.png").c_str());
+		SolveDepthAll(emap_baseline, pmaps, data, out_width, out_height, zenith_range,
+			(result_folder + "pmap\\" + rawname + ".lap.png").c_str());
 
-		SolveDepthAll(emap_baseline, pmaps, data, out_width, out_height, zenith_range);		
+		//SolveDepthAll(emap_baseline, pmaps, data, out_width, out_height, zenith_range);		
+		//save results!
+		Save16BitPNG(data, out_width, out_height, out_filename.c_str());
+
+		std::cout << "...All done! @" << timeGetTime() - time_begin << std::endl;
 
 		if (time_Laplacian)
 			*time_Laplacian = timeGetTime() - time;
@@ -1028,18 +1093,23 @@ bool DepthNamespace::MergeDepthMaps(std::string& equirectangular_map_filename, s
 	if (false)
 	{
 		SolveDepthBySmoothing(pmaps, data, out_width, out_height, zenith_range);
+		//save results!
+		Save16BitPNG(data, out_width, out_height, out_filename.c_str());
+
+		std::cout << "...All done! @" << timeGetTime() - time_begin << std::endl;
 	}
 
 	//stbi_flip_vertically_on_write(false);  //note: don't need to flip vertically
 	//stbi_write_png(out_filename.c_str(), out_width, out_height, 1, data, out_width * 1/*stride in bytes*/);
 
 	//save results!
-	Save16BitPNG(data, out_width, out_height, out_filename.c_str());
+	/*Save16BitPNG(data, out_width, out_height, out_filename.c_str());
 
-	std::cout << "...All done! @" << timeGetTime() - time_begin << std::endl;
+	std::cout << "...All done! @" << timeGetTime() - time_begin << std::endl;*/
 
 	//if ground truth (equirectangular map) is given, report the error statistics
 	if (equirectangular_map_groundtruth)
+	//if (false) // should be above
 	{
 		int align_way = 1;
 		//load the ground-truth emap:
@@ -1095,7 +1165,8 @@ bool DepthNamespace::MergeDepthMaps(std::string& equirectangular_map_filename, s
 						}
 					}
 				}
-				Save16BitPNG(data2, out_width, out_height, (out_filename + ".res.png").c_str());
+				Save16BitPNG(data2, out_width, out_height, (out_filename + ".res.png").c_str()); 
+				//Save16BitPNG(data2, out_width, out_height, (result_folder + ".res.png").c_str());
 				delete data2;
 
 				//write a new "given" emap
@@ -1368,7 +1439,7 @@ bool DepthNamespace::SolveDepthToDepth2(EquirectangularMap& emap, unsigned short
 }
 
 bool DepthNamespace::SolveDepthToDepth(EquirectangularMap& emap, std::vector<PerspectiveMap>& pmaps,
-	std::vector<bool>& pmaps_actives, Vec2f& zenith_range, Vec4f& abcd)
+	std::vector<bool>& pmaps_actives, Vec2f& zenith_range, Vec4f& abcd, int num_vars)
 {
 	//solve least square of y = c * (1 / (ax+b)) + d, for every sampled pixel of dispariy x to depth y
 
@@ -1376,20 +1447,32 @@ bool DepthNamespace::SolveDepthToDepth(EquirectangularMap& emap, std::vector<Per
 	const float subd_azi = D2R(1);
 	const float subd_zen = D2R(1);
 
-	double* vars = new double[4];  //a,b,c,d
+	double* vars = new double[4];
 	vars[0] = 1;
 	vars[1] = 1;
 	vars[2] = 1;
 	vars[3] = 1;
 
-	//double* vars = new double[3];  //a,b,c
-	//vars[0] = 1;
-	//vars[1] = 1;
-	//vars[2] = 1;
+	//if (num_vars == 4) {
+	//	vars = new double[4];  //a,b,c,d
+	//	vars[0] = 1;
+	//	vars[1] = 1;
+	//	vars[2] = 1;
+	//	vars[3] = 1;
+	//}
+	//else if (num_vars == 3) {
 
-	//double* vars = new double[2];  //a,b
-	//vars[0] = 1;
-	//vars[1] = 0;
+	//	vars = new double[3];  //a,b,c
+	//	vars[0] = 1;
+	//	vars[1] = 1;
+	//	vars[2] = 1;
+	//}
+	//else if (num_vars == 2) {
+
+	//	vars = new double[2];  //a,b
+	//	vars[0] = 1;
+	//	vars[1] = 1; // original is 0, i dont know why
+	//}
 
 	ceres::Problem problem;
 
@@ -1479,17 +1562,23 @@ bool DepthNamespace::SolveDepthToDepth(EquirectangularMap& emap, std::vector<Per
 
 				//add a functor!
 
-				//abcd:
-				functorD2Ds[index] = new ceres::AutoDiffCostFunction<FunctorDepth2Depth3, 1/*residual size*/,
-					1/*a*/, 1/*b*/, 1/*c*/, 1/*d*/>(new FunctorDepth2Depth3(weight, depth0, depth1));
+				if (num_vars == 4) {
+					//abcd:
+					functorD2Ds[index] = new ceres::AutoDiffCostFunction<FunctorDepth2Depth3, 1/*residual size*/,
+						1/*a*/, 1/*b*/, 1/*c*/, 1/*d*/>(new FunctorDepth2Depth3(weight, depth0, depth1));
+				}
+				else if (num_vars == 3) {
 
-				//abc:
-				//functorD2Ds[index] = new ceres::AutoDiffCostFunction<FunctorDepth2Depth2, 1/*residual size*/,
-				//	1/*a*/, 1/*b*/, 1/*c*/>(new FunctorDepth2Depth2(weight, depth0, depth1));
+					//abc:
+					functorD2Ds[index] = new ceres::AutoDiffCostFunction<FunctorDepth2Depth2, 1/*residual size*/,
+						1/*a*/, 1/*b*/, 1/*c*/>(new FunctorDepth2Depth2(weight, depth0, depth1));
+				}
+				else if (num_vars == 2) {
 
-				//ab:
-				//functorD2Ds[index] = new ceres::AutoDiffCostFunction < FunctorDepth2Depth1, 1/*residual size*/,
-				//		1/*a*/, 1/*b*/>(new FunctorDepth2Depth1(weight, depth0, depth1));
+					//ab:
+					functorD2Ds[index] = new ceres::AutoDiffCostFunction < FunctorDepth2Depth1, 1/*residual size*/,
+							1/*a*/, 1/*b*/>(new FunctorDepth2Depth1(weight, depth0, depth1));
+				}
 
 				index++;
 			}
@@ -1499,9 +1588,15 @@ bool DepthNamespace::SolveDepthToDepth(EquirectangularMap& emap, std::vector<Per
 	//add residual blocks (one per sample point):
 	for (int i = 0; i < num_samples; i++)
 	{
-		problem.AddResidualBlock(functorD2Ds[i], NULL, &vars[0]/*a*/, &vars[1]/*b*/, &vars[2]/*c*/, &vars[3]/*d*/);
-		//problem.AddResidualBlock(functorD2Ds[i], NULL, &vars[0]/*a*/, &vars[1]/*b*/, &vars[2]/*c*/);
-		//problem.AddResidualBlock(functorD2Ds[i], NULL, &vars[0]/*a*/, &vars[1]/*b*/);
+		if (num_vars == 4) {
+			problem.AddResidualBlock(functorD2Ds[i], NULL, &vars[0]/*a*/, &vars[1]/*b*/, &vars[2]/*c*/, &vars[3]/*d*/);
+		}
+		else if (num_vars == 3) {
+			problem.AddResidualBlock(functorD2Ds[i], NULL, &vars[0]/*a*/, &vars[1]/*b*/, &vars[2]/*c*/);
+		}
+		else if (num_vars == 2) {
+			problem.AddResidualBlock(functorD2Ds[i], NULL, &vars[0]/*a*/, &vars[1]/*b*/);
+		}
 	}
 
 	// Run the solver!
@@ -1514,11 +1609,18 @@ bool DepthNamespace::SolveDepthToDepth(EquirectangularMap& emap, std::vector<Per
 	//cout << summary.BriefReport() << endl;
 
 	//get results!
-	abcd = Vec4f(vars[0], vars[1], vars[2], vars[3]);
-	//abcd = Vec4f(0, vars[0], vars[1], vars[2]);
-	//abcd = Vec4f(0, 0, vars[0], vars[1]);
+	if (num_vars == 4) {
+		abcd = Vec4f(vars[0], vars[1], vars[2], vars[3]);
+	}
+	else if (num_vars == 3) {
+		abcd = Vec4f(0, vars[0], vars[1], vars[2]);
+	}
+	else if (num_vars == 2) {
+		abcd = Vec4f(0, 0, vars[0], vars[1]);
+	}
 
 	//cout << "[SolveDepthToDepthPMaps] sol:" << abcd << " cost:" << summary.initial_cost << "->" << summary.final_cost << endl;
+	//std::cout << "[SolveDepthToDepthPMaps] num_vars: " << num_vars << std::endl;
 	return true;
 }
 
@@ -1866,6 +1968,8 @@ bool DepthNamespace::SolveDepthAll(EquirectangularMap& emap, std::vector<Perspec
 		//last level: done! copy result to data buffer
 		if (level == max_level - 1)
 		{
+			unsigned short* data2 = new unsigned short[out_width * out_height];
+			std::memset(data2, 0, sizeof(unsigned short) * out_width * out_height);
 			for (int y = 0; y < height; y++)
 			{
 				for (int x = 0; x < width; x++)
@@ -1878,6 +1982,9 @@ bool DepthNamespace::SolveDepthAll(EquirectangularMap& emap, std::vector<Perspec
 						val = 1;
 
 					data[y * width + x] = (unsigned short)(val * 65535.0f);
+
+					LaplacianWindow& window = Laplacians[y * width + x];
+					data2[y * width + x] = (unsigned short)(window.Laplacian * 65535.0f);
 				}
 			}
 
@@ -1901,7 +2008,9 @@ bool DepthNamespace::SolveDepthAll(EquirectangularMap& emap, std::vector<Perspec
 					}
 				}
 				std::cout << std::endl << "[SolveDepthAll] check Laplacian err:" << err << std::endl;
-			}			
+			}		
+			//Save16BitPNG(data2, out_width, out_height, Laplacian_filename);
+			delete data2;
 
 			delete buffer;
 			buffer = NULL;

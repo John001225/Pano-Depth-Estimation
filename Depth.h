@@ -285,7 +285,7 @@ namespace DepthNamespace
 	//time_total: total time (ms) spent (not including the statistics times)
 	bool MergeDepthMaps(std::string& equirectangular_map_filename, std::vector<std::string>& perspective_map_filenames, std::string& out_filename,
 		std::string& result_folder, std::string& rawname, std::vector<Vec4f>& perspective_map_FOVs, std::vector<Vec4f>& perspective_map_ranges,
-		int out_width, Vec2f& zenith_range, std::string* equirectangular_map_groundtruth = NULL,
+		int out_width, Vec2f& zenith_range, std::string split_type, std::string* equirectangular_map_groundtruth = NULL,
 		Metrics* metrics = NULL, int* time_Reg = NULL, int* time_Laplacian = NULL);
 
 	bool CalculateAlignedMetrics(std::string& equirectangular_map_filename, std::string& out_filename, std::string& result_folder, 
@@ -298,7 +298,7 @@ namespace DepthNamespace
 
 	//final global depth emap to depth emap registration
 	bool SolveDepthToDepth(EquirectangularMap& emap, std::vector<PerspectiveMap>& pmaps,
-		std::vector<bool>& pmaps_actives, Vec2f& zenith_range, Vec4f& abcd);
+		std::vector<bool>& pmaps_actives, Vec2f& zenith_range, Vec4f& abcd, int num_vars = 4);
 	//solve emap (data) to emap D2D transform
 	bool SolveDepthToDepth2(EquirectangularMap& emap, unsigned short* data, int width, int height,
 		Vec2f& zenith_range, Vec4f& abcd);
