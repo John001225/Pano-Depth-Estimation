@@ -408,6 +408,7 @@ bool SaveCubeMap(Spherical& S, vector<Vec4f>& settings, string filename_head)
 		DrawLiteMesh(S, 1, projMat, viewMat, modelMat);
 
 		//save current frame buffer to image file
+		if(false)//partition rgb
 		{
 			unsigned char* data = new unsigned char[viewport[2] * viewport[3] * 3];
 			glPixelStorei(GL_PACK_ALIGNMENT, 1);
@@ -415,15 +416,46 @@ bool SaveCubeMap(Spherical& S, vector<Vec4f>& settings, string filename_head)
 
 			//prepare filename:
 			char filename[260] = { NULL };
-			sprintf(filename, "%s.%d_%d_%d_%d.jpg", filename_head.c_str(),
+			//sprintf(filename, "%s.%d_%d_%d_%d.jpg", filename_head.c_str(),
+			//	(int)round(R2D(settings[face][0])), (int)round(R2D(settings[face][1])),
+			//	(int)round(R2D(settings[face][2])), (int)round(R2D(settings[face][3]))); //for rgb
+
+			sprintf(filename, "%s.%d_%d_%d_%d.png", filename_head.c_str(),
 				(int)round(R2D(settings[face][0])), (int)round(R2D(settings[face][1])),
-				(int)round(R2D(settings[face][2])), (int)round(R2D(settings[face][3])));
+				(int)round(R2D(settings[face][2])), (int)round(R2D(settings[face][3]))); //for gt
 
 			cout << filename << endl;
 
 			stbi_flip_vertically_on_write(true);
 			stbi_write_jpg(filename, viewport[2], viewport[3], 3, data, viewport[2] * 3/*stride*/);
 			delete data;
+		}
+		if (true) {//partition depth
+			int width = viewport[2];
+			int height = viewport[3];
+
+			// 用 float 存深度
+			float* depth_data = new float[width * height];
+			glReadPixels(viewport[0], viewport[1], width, height,
+				GL_DEPTH_COMPONENT, GL_FLOAT, depth_data);
+			uint16_t* depth_u16 = new uint16_t[width * height];
+			for (int i = 0; i < width * height; i++) {
+				depth_u16[i] = static_cast<uint16_t>(depth_data[i] * 65535.0f);
+			}
+			char filename[260] = { NULL };
+
+			sprintf(filename, "%s.%d_%d_%d_%d.png", filename_head.c_str(),
+				(int)round(R2D(settings[face][0])), (int)round(R2D(settings[face][1])),
+				(int)round(R2D(settings[face][2])), (int)round(R2D(settings[face][3]))); //for gt
+
+			cout << filename << endl;
+
+			stbi_write_png(filename, width, height, 1, depth_u16, width * sizeof(uint16_t));
+
+			delete[] depth_u16;
+			delete[] depth_data;
+
+
 		}
 	}
 
@@ -460,11 +492,12 @@ bool CreateDepthPanoramas(int argc, char* argv[], bool metric_cal_only, bool ski
 	//set to another folder
 	// matterport3d
 	baseline_folder = ".\\\\datas\\\\matterport3d\\\\egformer\\\\result\\\\";
-	RGB_folder = ".\\\\datas\\\\masked_rgb\\\\"; // for masked rgb
-	//RGB_folder = ".\\\\datas\\\\matterport3d\\\\test\\\\test_color\\\\"; //original test sets (2014 images)
+	//RGB_folder = ".\\\\datas\\\\masked_rgb\\\\"; // for masked rgb
+	RGB_folder = ".\\\\datas\\\\matterport3d\\\\test\\\\test_color\\\\"; //original test sets (2014 images)
 	//RGB_folder = ".\\\\rgbs\\\\rgb3\\\\";
 	//RGB_folder = ".\\\\datas\\\\matterport3d\\\\train\\\\train_color\\\\"; // for training set
 	//RGB_folder = ".\\\\datas\\\\matterport3d\\\\val\\\\val_color\\\\"; // for val set
+	//RGB_folder = ".\\\\datas\\\\matterport3d\\\\test\\\\test_depth\\\\"; //original test sets (2014 images) for partition gt
 	gt_folder = ".\\\\datas\\\\matterport3d\\\\test\\\\test_depth\\\\"; //original test sets (2014 images)
 	//gt_folder = ".\\\\datas\\\\matterport3d\\\\train\\\\train_depth\\\\"; // for training set
 	//gt_folder = ".\\\\datas\\\\matterport3d\\\\val\\\\val_depth\\\\"; // for val set
@@ -696,8 +729,8 @@ bool CreateDepthPanoramas(int argc, char* argv[], bool metric_cal_only, bool ski
 
 		// for multiple baselines
 		/*string baselines[] = { "CRF360D", "slicenet", "unifuse", "hohonet"};*/
-		//string baselines[] = { "nobaseline" };
-		string baselines[] = { "depthanything" };
+		string baselines[] = { "nobaseline" };
+		//string baselines[] = { "depthanything" };
 		//for baseline
 		//string types[] = {""};
 		//for record
@@ -709,7 +742,9 @@ bool CreateDepthPanoramas(int argc, char* argv[], bool metric_cal_only, bool ski
 		 "depthAnything_metric_raw_4_fold", "depthAnything_metric_raw_3_6_3_fold", "depthAnything_metric_raw_4_6_4_fold",
 		 "depthAnything_metric_raw_6_fold_padding_15", "depthAnything_metric_raw_6_fold_padding_30" };*/
 		//string types[] = { "depthAnything_metric_raw_5_6_5_fold_padding_6"};
-		string types[] = { "depthanythingV1" };
+		//string types[] = { "depthanythingV1" };
+		//string types[] = { "L1only", "noGrad", "noL1", "noLap"}; // for ablation
+		string types[] = { "_fold5", "_fold6", "_6_fold_padding", "_5_6_5_fold", "_5_6_5_fold_padding_6" };//for stitched depth
 
 		for (auto baseline : baselines) {
 			for (auto type : types) {
@@ -730,12 +765,20 @@ bool CreateDepthPanoramas(int argc, char* argv[], bool metric_cal_only, bool ski
 				pred_folder = ".\\record\\matterport3d\\baseline_" + baseline + "\\" + type + "\\result_test\\pmap_stitched\\";*/
 
 				//for depthanything v1
-				output_txt = ".\\record\\matterport3d\\baseline_" + baseline + "\\" + type + "\\metrics_DAv1.txt";
-				pred_folder = ".\\record\\matterport3d\\baseline_" + baseline + "\\" + type + "\\";
+				/*output_txt = ".\\record\\matterport3d\\baseline_" + baseline + "\\" + type + "\\metrics_DAv1.txt";
+				pred_folder = ".\\record\\matterport3d\\baseline_" + baseline + "\\" + type + "\\";*/
 
 				//for nobaseline output
 				//output_txt = ".\\record\\matterport3d\\baseline_" + baseline + "\\output_new\\" + type + "\\registration_poisson\\metrics_2kref_1k.txt";
 				//pred_folder = ".\\record\\matterport3d\\baseline_" + baseline + "\\output_new\\" + type + "\\registration_poisson\\result_2kref_1k\\";
+	
+				//for nobaseline output ablation
+				/*output_txt = ".\\record\\matterport3d\\baseline_" + baseline + "\\ablation\\ablation_" + type + "\\metrics_" + type + ".txt";
+				pred_folder = ".\\record\\matterport3d\\baseline_" + baseline + "\\ablation\\ablation_" + type + "\\result_stitched_seamless\\";*/
+
+				//for stitched depth
+				output_txt = ".\\record\\matterport3d\\baseline_" + baseline + "\\for_stitch_cal_time\\txt_files\\stitched_metrics_" + type + ".txt";
+				pred_folder = ".\\record\\matterport3d\\baseline_" + baseline + "\\for_stitch_cal_time\\" + type + "\\";
 
 				std::cout << "type: " << type << std::endl;
 				std::cout << "baseline: " << baseline << std::endl;
@@ -778,8 +821,8 @@ bool CreateDepthPanoramas(int argc, char* argv[], bool metric_cal_only, bool ski
 					//pred = pred_folder + rawname + "_depth_pred.jpg"; //for pred of baseline of unifuse / depthAnything /CRF360D
 					//pred = pred_folder + rawname + "_depth_pred.png"; //for pred of baseline of zoe / depthAnything metric
 					//pred = pred_folder + rawname + "_seamless.png"; // for seamless
-					//pred = pred_folder + rawname + ".pmap_stitched.png"; //for stitched 
-					pred = pred_folder + rawname + "_rgb.png"; //for depthanythingV1
+					pred = pred_folder + rawname + ".pmap_stitched.png"; //for stitched 
+					//pred = pred_folder + rawname + "_rgb.png"; //for depthanythingV1
 
 					// replica360 2k
 					//std::string suffix = "_depth_pano.pfm";
@@ -1040,20 +1083,22 @@ bool CreateDepthPanoramas(int argc, char* argv[], bool metric_cal_only, bool ski
 						auto_fold(rawname);
 					}
 
-					SaveCubeMap(g_L, g_cubemap_FOVs, "test_images_matterport3d/perspective_masked/" + rawname);  //LeReS
+					SaveCubeMap(g_L, g_cubemap_FOVs, "test_images_matterport3d/perspective_gts/"+split_type+"/" + rawname);  //LeReS
 					//SaveCubeMap(g_L, g_cubemap_FOVs, "test_images/" + rawname); //test
 					//return true;
 				}
 			}
 		}
-		ofstream outfile;
-		streambuf* coutbuf = nullptr;
-		outfile.open(".\\record\\test_img_log_txt\\_5_fold_log_4.txt");
-		coutbuf = cout.rdbuf();
-		cout.rdbuf(outfile.rdbuf());
-		cout << "SaveCubemps done! time:" << timeGetTime() - time << endl;
-		cout.rdbuf(coutbuf);
-		outfile.close();
+		if (false) {
+			ofstream outfile;
+			streambuf* coutbuf = nullptr;
+			outfile.open(".\\record\\cal_time\\" + split_type + ".txt");
+			coutbuf = cout.rdbuf();
+			cout.rdbuf(outfile.rdbuf());
+			cout << "SaveCubemps done! time:" << timeGetTime() - time << endl;
+			cout.rdbuf(coutbuf);
+			outfile.close();
+		}
 	}
 	else {
 		cout << "skip_createPano" << endl;
@@ -1121,25 +1166,33 @@ bool CreateDepthPanoramas(int argc, char* argv[], bool metric_cal_only, bool ski
 		//string baselines[] = { "CRF360D" };
 		//string baselines[] = { "CRF360D", "unifuse", "hohonet", "slicenet"};
 		string baselines[] = { "nobaseline" };
+		//string baselines[] = { "hohonet" };
 		string type = split_type;
 		//string results[] = { "depthAnything_metric_raw" + type, "leres" + type, "zoe_raw" + type, "depthAnythingV2_metric_raw" + type };
-		string results[] = { "depthAnything_metric_raw" + type};
+		string results[] = { "depthAnything_metric_raw" + type}; 
+		//string results[] = { "L1only", "noGrad", "noL1", "noLap" }; //for ablation
+		//string results[] = { "leres" + type };
 		for (auto baseline : baselines) {
 			for (auto result : results) {
 				/*if (save_metric) output_txt = ".\\record\\matterport3d\\baseline_" + baseline + "\\" + result + "\\metrics.txt";*/ //original registration based
-				if (save_metric) output_txt = ".\\record\\matterport3d\\baseline_" + baseline + "\\output_new\\" + result + "\\metrics_1kref.txt"; // using sr model as reference
-
-
+				//if (save_metric) output_txt = ".\\record\\matterport3d\\baseline_" + baseline + "\\output_new\\" + result + "\\metrics_1kref.txt"; // using sr model as reference
+				//if (save_metric) output_txt = ".\\record\\matterport3d\\baseline_" + baseline + "\\ablation\\ablation_" + result + "\\registration_poisson\\metrics_registration_poisson_" + result + ".txt"; //for ablation
+				if (save_metric) output_txt = ".\\record\\matterport3d\\";
 
 				//set to another folder
 				// matterport3d
-				/*baseline_folder = ".\\\\datas\\\\matterport3d\\\\" + baseline + "\\\\result\\\\";*/ // for other panoramic method as reference
+				//baseline_folder = ".\\\\datas\\\\matterport3d\\\\" + baseline + "\\\\result\\\\"; // for other panoramic method as reference
 				//baseline_folder = ".\\\\datas\\\\matterport3d\\\\" + baseline + "_val\\\\result\\\\"; // for train and val set of matterport3d
 				baseline_folder = ".\\record\\matterport3d\\baseline_" + baseline + "\\output_new\\" + result + "\\result_stitched_seamless_1k\\";
+				//baseline_folder = ".\\record\\matterport3d\\baseline_" + baseline + "\\ablation\\ablation_" + result + "\\result_stitched_seamless\\"; //for ablation
 				//result_folder = ".\\\\record\\\\matterport3d\\\\baseline_" + baseline + "\\\\" + result + "\\\\result_test\\\\"; // for original
 				/*result_folder = ".\\\\record\\\\matterport3d\\\\baseline_" + baseline + "\\\\" + result + "\\\\input_stitched\\\\";*/ // for input_stitched
-				result_folder = ".\\\\record\\\\matterport3d\\\\baseline_" + baseline + "\\\\output_new\\\\" + result + "\\\\result_1kref\\\\"; // use sr model as reference
-				test_img_folder = "test_images_matterport3d/test_images_" + result + "/";
+				//result_folder = ".\\\\record\\\\matterport3d\\\\baseline_" + baseline + "\\\\output_new\\\\" + result + "\\\\result_1kref\\\\"; // use sr model as reference
+				/*test_img_folder = "test_images_matterport3d/test_images_" + result + "/";*/
+				test_img_folder = "test_images_matterport3d/perspective_gts_wrong/" + type + "/"; // for depth perspective
+				result_folder = ".\\\\record\\\\matterport3d\\\\baseline_nobaseline\\\\for_depth_stitch\\\\"+type+"\\\\";
+				//result_folder = ".\\\\record\\\\matterport3d\\\\baseline_" + baseline + "\\\\ablation\\\\ablation_" + result + "\\\\registration_poisson\\\\result\\\\"; // use sr model as reference for ablation
+				//test_img_folder = "test_images_matterport3d/test_images_depthAnything_metric_raw" + type + "/"; //for ablation
 				//test_img_folder = "test_images_matterport3d/test_images_val_" + result + "/"; // for train and val set of matterport3d
 				/*cout << output_txt << endl;
 				cout << baseline_folder << endl;
@@ -1154,6 +1207,7 @@ bool CreateDepthPanoramas(int argc, char* argv[], bool metric_cal_only, bool ski
 				vector<DepthNamespace::Metrics> metrics_aligned_all;
 				vector<int> time_Regs;
 				vector<int> time_Laplacians;
+				vector<int> time_stitchs;
 
 				bool replica = false;
 
@@ -1287,8 +1341,12 @@ bool CreateDepthPanoramas(int argc, char* argv[], bool metric_cal_only, bool ski
 								(int)round(R2D(g_cubemap_FOVs[i][0])), (int)round(R2D(g_cubemap_FOVs[i][1])),
 								(int)round(R2D(g_cubemap_FOVs[i][2])), (int)round(R2D(g_cubemap_FOVs[i][3])));*/
 
-								// matterport3d
-							sprintf(filename, "%s.%d_%d_%d_%d.png", (test_img_folder + rawname).c_str(),
+								// matterport3d rgb
+							/*sprintf(filename, "%s.%d_%d_%d_%d.png", (test_img_folder + rawname).c_str(),
+								(int)round(R2D(g_cubemap_FOVs[i][0])), (int)round(R2D(g_cubemap_FOVs[i][1])),
+								(int)round(R2D(g_cubemap_FOVs[i][2])), (int)round(R2D(g_cubemap_FOVs[i][3])));*/
+								// matterport3d depth
+							sprintf(filename, "%s_depth.%d_%d_%d_%d.png", (test_img_folder + rawname).c_str(),
 								(int)round(R2D(g_cubemap_FOVs[i][0])), (int)round(R2D(g_cubemap_FOVs[i][1])),
 								(int)round(R2D(g_cubemap_FOVs[i][2])), (int)round(R2D(g_cubemap_FOVs[i][3])));
 
@@ -1323,15 +1381,18 @@ bool CreateDepthPanoramas(int argc, char* argv[], bool metric_cal_only, bool ski
 
 					//generate the merged depth panorama!
 					DepthNamespace::Metrics metrics_aligned;
-					int time_Reg = 0, time_Laplacian = 0;
+					int time_Reg = 0, time_Laplacian = 0, time_stitch = 0;
 					if (!DepthNamespace::MergeDepthMaps(fn_equirectangular_baseline, pmap_fns, output_filename, result_folder, rawname, g_cubemap_FOVs, g_cubemap_ranges,
-						2048, g_zenith_range, split_type, &fn_equirectangular_gt, &metrics_aligned, &time_Reg, &time_Laplacian ))
+						2048, g_zenith_range, split_type, &fn_equirectangular_gt, &metrics_aligned, &time_Reg, &time_Laplacian, &time_stitch ))
 					{
 						cout << "[CreateDepthPanorma] MergeDepthMaps #" << i << " failed!" << endl;
 						return false;
 					}
+					time_Regs.push_back(time_Reg);
+					time_Laplacians.push_back(time_Laplacian);
+					time_stitchs.push_back(time_stitch);
 
-					if (true) { 
+					if (false) { 
 						time_Regs.push_back(time_Reg);
 						time_Laplacians.push_back(time_Laplacian);
 
@@ -1442,7 +1503,41 @@ bool CreateDepthPanoramas(int argc, char* argv[], bool metric_cal_only, bool ski
 						}
 					}
 				}
-				if (true) { //save metrics.txt
+				if (true) {
+					ofstream outfile;
+					streambuf* coutbuf = nullptr;
+					outfile.open(".\\\\record\\\\matterport3d\\\\baseline_nobaseline\\\\for_stitch_cal_time\\\\" + type + "\\\\stitch_cal_time" + type + ".txt");
+					coutbuf = cout.rdbuf();
+					cout.rdbuf(outfile.rdbuf());
+					float time_Reg_avg = 0;
+					for (int ii = 0; ii < time_Regs.size(); ii++)
+					{
+						time_Reg_avg += time_Regs[ii];
+					}
+					cout << "time_Reg_total:" << time_Reg_avg <<  endl;
+					time_Reg_avg /= (float)time_Regs.size();
+
+					float time_Laplacian_avg = 0;
+					for (int ii = 0; ii < time_Laplacians.size(); ii++)
+					{
+						time_Laplacian_avg += time_Laplacians[ii];
+					}
+					cout << " time_Laplacian_total:" << time_Laplacian_avg << endl;
+					time_Laplacian_avg /= (float)time_Laplacians.size();
+					float time_stitch_avg = 0;
+					for (int ii = 0; ii < time_stitchs.size(); ii++)
+					{
+						time_stitch_avg += time_stitchs[ii];
+					}
+					cout << " time_stitch_total:" << time_stitch_avg << endl;
+					time_stitch_avg /= (float)time_stitchs.size();
+
+					cout << "time_Reg_avg:" << time_Reg_avg << " time_Laplacian_avg:" << time_Laplacian_avg <<
+						" time_stitch_avg:" << time_stitch_avg << endl;
+					cout.rdbuf(coutbuf);
+					outfile.close();
+				}
+				if (false) { //save metrics.txt
 					FILE* fp = fopen(output_txt.c_str(), "r");
 					vector<string> RGB_filenames;
 					AllFilesInFolder(RGB_folder.c_str(), RGB_filenames);
@@ -1826,23 +1921,30 @@ int main(int argc, char* argv[])
 	bool shift_all = false, shift_v = false, shift_h = false, no_shift = false, margin10 = false, fold8 = false, fold6 = false, fold4 = false;
 	bool margin_quarter = false, fold3 = false;
 	bool test = false, padding = false, fold161 = false, fold363 = false, fold565 = false, fold464 = false;
-	bool metric_cal_only = false, skip_createPano = false , skip_depth_pred = true, skip_merge = true, auto_Fold = false;
+	bool metric_cal_only = true, skip_createPano = true , skip_depth_pred = true, skip_merge = true, auto_Fold = false;
 	bool output2file = false;
 
-	//string split_types[] = { "_fold5", "_fold6", "_6_fold_padding", "_5_6_5_fold_padding_6" };
-	string split_types[] = { "_5_6_5_fold" };
-	//string split_types[] = { "_3_fold", "_4_fold", "_3_6_3_fold", "_4_6_4_fold", "_6_fold_padding_15", "_6_fold_padding_30"};
+	//string split_types[] = { "_fold5", "_fold6", "_6_fold_padding", "_5_6_5_fold", "_5_6_5_fold_padding_6" };
+	string split_types[] = { "_fold5" };
+	//string split_types[] = { "_5_6_5_fold_padding_6" };
+	/*string split_types[] = { "_fold5", "_fold6", "_6_fold_padding", "_5_6_5_fold_padding_6", "_3_fold", "_4_fold", 
+	"_3_6_3_fold", "_4_6_4_fold", "_5_6_5_fold", "_6_fold_padding_15", "_6_fold_padding_30"};*/
 	ofstream outfile;
 	streambuf* coutbuf = nullptr;
-	if (output2file) {
-		outfile.open(".\\record\\leres_6fold\\output.txt");
+	/*if (output2file) {
+		outfile.open(".\\record\\cal_time\\" +  + ".txt");
 		coutbuf = cout.rdbuf();
 		cout.rdbuf(outfile.rdbuf());
-	}
+	}*/
 	//setup cubemap setting
 	/*string rawname = "0001";
 	auto_fold(rawname);*/
 	for(auto split_type : split_types){
+		if (output2file) {
+			outfile.open(".\\record\\cal_time\\" + split_type +".txt");
+			coutbuf = cout.rdbuf();
+			cout.rdbuf(outfile.rdbuf());
+		}
 		no_shift = false;
 		fold6 = false;
 		padding = false;

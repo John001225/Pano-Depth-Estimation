@@ -286,7 +286,7 @@ namespace DepthNamespace
 	bool MergeDepthMaps(std::string& equirectangular_map_filename, std::vector<std::string>& perspective_map_filenames, std::string& out_filename,
 		std::string& result_folder, std::string& rawname, std::vector<Vec4f>& perspective_map_FOVs, std::vector<Vec4f>& perspective_map_ranges,
 		int out_width, Vec2f& zenith_range, std::string split_type, std::string* equirectangular_map_groundtruth = NULL,
-		Metrics* metrics = NULL, int* time_Reg = NULL, int* time_Laplacian = NULL);
+		Metrics* metrics = NULL, int* time_Reg = NULL, int* time_Laplacian = NULL, int* time_stitch = NULL);
 
 	bool CalculateAlignedMetrics(std::string& equirectangular_map_filename, std::string& out_filename, std::string& result_folder, 
 		std::string& rawname, std::string* equirectangular_map_groundtruth = NULL,	Metrics* metrics = NULL);

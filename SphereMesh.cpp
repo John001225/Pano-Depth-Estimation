@@ -133,7 +133,7 @@ bool LiteMesh::LoadTexture(const char* filename)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	//cout << "channels " << channels << endl;
+	cout << "channels " << channels << endl;
 	if (channels == 3)
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, m_texture.width, m_texture.height, 0, GL_RGB, GL_UNSIGNED_BYTE, m_texture.data);
 	else if (channels == 4)

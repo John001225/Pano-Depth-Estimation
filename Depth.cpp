@@ -757,7 +757,7 @@ Vec2i CoordToXY(Vec2f& coord, int out_width, int& out_height)
 bool DepthNamespace::MergeDepthMaps(std::string& equirectangular_map_filename, std::vector<std::string>& perspective_map_filenames, std::string& out_filename,
 	std::string& result_folder, std::string& rawname, std::vector<Vec4f>& pmap_FOVs, std::vector<Vec4f>& pmap_ranges,
 	int out_width, Vec2f& zenith_range, std::string split_type, std::string* equirectangular_map_groundtruth, Metrics* metrics, 
-	int* time_Reg, int* time_Laplacian)
+	int* time_Reg, int* time_Laplacian, int* time_stitch)
 {
 	DWORD time_begin = timeGetTime();
 
@@ -825,7 +825,7 @@ bool DepthNamespace::MergeDepthMaps(std::string& equirectangular_map_filename, s
 	}
 	//std::cout << "here1" << std::endl;
 	//let's solve depth-to-depth register for every pmap first
-	if (true) //should be true
+	if (false) //should be true
 	{
 		DWORD time = timeGetTime();
 
@@ -900,6 +900,7 @@ bool DepthNamespace::MergeDepthMaps(std::string& equirectangular_map_filename, s
 	//debug: save directly copy values from pmaps?
 	if (true)
 	{
+		DWORD time = timeGetTime();
 		unsigned short* data2 = new unsigned short[out_width * out_height];
 		std::memset(data2, 0, sizeof(unsigned short) * out_width * out_height);
 
@@ -973,12 +974,13 @@ bool DepthNamespace::MergeDepthMaps(std::string& equirectangular_map_filename, s
 									R2D(pmap.ranges[2]) << "," << R2D(pmap.ranges[3]) << " @azi:" << R2D(coord.x) << " zen:" << R2D(coord.y) << " xy:" << xy << " X:" << X << " Y:" << Y << std::endl;
 							}
 							if (skip) continue;
-							float val = pmap.Value(xy[0], xy[1]);
+							
 							//val = 1;
 
 							//outline pmap bounding boxes:
-							//float val = 0;
-							/*if (x == x0 || x == x1 || y == y0 || y == y1)
+							float val = pmap.Value(xy[0], xy[1]);
+							/*float val = 0;
+							if (x == x0 || x == x1 || y == y0 || y == y1)
 								val = 1;*/
 
 							if (data2[y * out_width + x] == (unsigned short)(1 * 65535.0f)) continue;
@@ -1024,10 +1026,13 @@ bool DepthNamespace::MergeDepthMaps(std::string& equirectangular_map_filename, s
 				}
 			}
 		}
-		Save16BitPNG(data2, out_width, out_height, (result_folder + "pmap\\" + rawname + ".pmap_registered.png").c_str());
-		//Save16BitPNG(data2, out_width, out_height, (result_folder + rawname + ".pmap_registered.png").c_str()); // for input_stitched
+		//Save16BitPNG(data2, out_width, out_height, (result_folder + "pmap\\" + rawname + ".pmap_registered.png").c_str());
+		Save16BitPNG(data2, out_width, out_height, (result_folder + rawname + ".pmap_stitched.png").c_str()); // for input_stitched
+		//Save16BitPNG(data2, out_width, out_height, (result_folder + "mask.png").c_str()); //mask
 		//Save16BitPNG(data2, out_width, out_height, (out_filename + ".pmap.png").c_str());
 		//Save16BitPNG(data2, out_width, out_height, (out_filename).c_str());
+		if (time_stitch)
+			*time_stitch = timeGetTime() - time;
 
 		delete data2;
 
@@ -1072,7 +1077,7 @@ bool DepthNamespace::MergeDepthMaps(std::string& equirectangular_map_filename, s
 	}
 
 	//solve depths globally?
-	if (true) //should be true
+	if (false) //should be true
 	{
 		DWORD time = timeGetTime();
 
@@ -1108,8 +1113,8 @@ bool DepthNamespace::MergeDepthMaps(std::string& equirectangular_map_filename, s
 	std::cout << "...All done! @" << timeGetTime() - time_begin << std::endl;*/
 
 	//if ground truth (equirectangular map) is given, report the error statistics
-	if (equirectangular_map_groundtruth)
-	//if (false) // should be above
+	//if (equirectangular_map_groundtruth)
+	if (false) // should be above
 	{
 		int align_way = 1;
 		//load the ground-truth emap:
@@ -1165,7 +1170,7 @@ bool DepthNamespace::MergeDepthMaps(std::string& equirectangular_map_filename, s
 						}
 					}
 				}
-				Save16BitPNG(data2, out_width, out_height, (out_filename + ".res.png").c_str()); 
+				//Save16BitPNG(data2, out_width, out_height, (out_filename + ".res.png").c_str()); 
 				//Save16BitPNG(data2, out_width, out_height, (result_folder + ".res.png").c_str());
 				delete data2;
 
@@ -1210,7 +1215,7 @@ bool DepthNamespace::MergeDepthMaps(std::string& equirectangular_map_filename, s
 						}
 					}
 				}
-				Save16BitPNG(data3, emap_baseline.width, emap_baseline.height, (out_filename + ".giv.png").c_str());
+				//Save16BitPNG(data3, emap_baseline.width, emap_baseline.height, (out_filename + ".giv.png").c_str());
 				delete data3;
 			}
 		}
